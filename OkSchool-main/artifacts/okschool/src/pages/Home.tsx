@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/lib/supabase";
 import { Link } from "wouter";
+import { API_BASE } from "@/lib/api";
 
 const CATEGORIES = [
   { id: "notes", label: "Notes" },
@@ -30,7 +31,7 @@ export function Home() {
   useEffect(() => {
     docs.forEach((doc) => {
       if (!doc.thumbnailUrl || thumbnailBlobs[doc.id]) return;
-      fetch(`/api/documents/${doc.id}/download?type=thumbnail`)
+      fetch(`${API_BASE}/api/documents/${doc.id}/download?type=thumbnail`)
         .then((res) => res.blob())
         .then((blob) => {
           const url = URL.createObjectURL(blob);

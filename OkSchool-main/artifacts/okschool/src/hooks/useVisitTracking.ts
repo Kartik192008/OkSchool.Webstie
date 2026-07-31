@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useLocation } from "wouter";
 import { supabase } from "@/lib/supabase";
+import { API_BASE } from "@/lib/api";
 
 export function useVisitTracking() {
   const [location] = useLocation();
@@ -19,7 +20,7 @@ export function useVisitTracking() {
 
         if (error || !profile?.id) return;
 
-        await fetch('/api/visits', {
+        await fetch(`${API_BASE}/api/visits`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

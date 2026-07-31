@@ -11,6 +11,7 @@ import { supabase, trackUserProfile } from "./lib/supabase";
 import { useEffect } from "react";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useVisitTracking } from "./hooks/useVisitTracking";
+import { setBaseUrl } from "@workspace/api-client-react";
 
 // We'll define these pages next
 import { Home } from "./pages/Home";
@@ -94,6 +95,11 @@ function Router() {
 }
 
 function App() {
+  const apiUrl = import.meta.env.VITE_API_URL;
+  if (apiUrl) {
+    setBaseUrl(apiUrl);
+  }
+
   useVisitTracking();
 
   const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");

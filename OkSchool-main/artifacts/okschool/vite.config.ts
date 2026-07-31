@@ -15,7 +15,7 @@ const basePath = process.env.BASE_PATH ?? "/";
 const apiTarget = process.env.VITE_API_TARGET ?? "http://localhost:8080";
 
 export default defineConfig({
-  base: "/OkSchool/",
+  base: "/",
   plugins: [
     react(),
     tailwindcss(),

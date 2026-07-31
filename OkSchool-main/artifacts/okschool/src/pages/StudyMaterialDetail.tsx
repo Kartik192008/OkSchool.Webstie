@@ -18,6 +18,7 @@ import {
   useRecordDocumentDownload,
 } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
+import { API_BASE } from "@/lib/api";
 
 export function StudyMaterialDetail() {
   const { id } = useParams<{ id: string }>();
@@ -25,7 +26,7 @@ export function StudyMaterialDetail() {
   const { toast } = useToast();
 
   const proxyFileUrl = (type: "pdf" | "word" | "thumbnail") =>
-    `/api/documents/${docId}/download?type=${type}`;
+    `${API_BASE}/api/documents/${docId}/download?type=${type}`;
 
   const [iframeFailed, setIframeFailed] = useState(false);
   const [showWordModal, setShowWordModal] = useState(false);
