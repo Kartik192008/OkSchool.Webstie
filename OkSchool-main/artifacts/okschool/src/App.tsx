@@ -8,7 +8,7 @@ import { Navbar } from "./components/layout/Navbar";
 import { Footer } from "./components/layout/Footer";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { supabase, trackUserProfile } from "./lib/supabase";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useVisitTracking } from "./hooks/useVisitTracking";
 import { setBaseUrl } from "@workspace/api-client-react";
@@ -96,9 +96,12 @@ function Router() {
 
 function App() {
   const apiUrl = import.meta.env.VITE_API_URL;
-  if (apiUrl) {
-    setBaseUrl(apiUrl);
-  }
+
+  useEffect(() => {
+    if (apiUrl) {
+      setBaseUrl(apiUrl);
+    }
+  }, [apiUrl]);
 
   useVisitTracking();
 
@@ -106,12 +109,18 @@ function App() {
   const adminPath = `${basePath}/admin`;
   const homePath = basePath || "/";
 
+  const [sessionReady, setSessionReady] = useState(false);
+  const [currentSession, setCurrentSession] = useState<any>(null);
+
   useEffect(() => {
     let mounted = true;
 
     const handleAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data } = await supabase.auth.getSession();
+      const session = data?.session;
       if (!mounted) return;
+      setCurrentSession(session ?? null);
+      setSessionReady(true);
       
       const currentPath = window.location.pathname;
       const isAdmin = session?.user?.email === 'kartik1911k@gmail.com';
@@ -125,9 +134,10 @@ function App() {
 
     handleAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data } = supabase.auth.onAuthStateChange((event, session) => {
       if (!mounted) return;
-      
+      setCurrentSession(session ?? null);
+
       const currentPath = window.location.pathname;
       const isAdmin = session?.user?.email === 'kartik1911k@gmail.com';
       
@@ -153,9 +163,9 @@ function App() {
 
     return () => {
       mounted = false;
-      subscription.unsubscribe();
+      data?.subscription?.unsubscribe?.();
     };
-  }, []);
+  }, [adminPath, homePath]);
 
   return (
     <ErrorBoundary>

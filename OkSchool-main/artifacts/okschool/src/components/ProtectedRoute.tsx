@@ -13,7 +13,8 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data } = await supabase.auth.getSession();
+      const session = data?.session;
       if (session) {
         setIsAuthenticated(true);
       } else {
@@ -24,7 +25,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 
     checkAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
         setIsAuthenticated(true);
       } else {
@@ -33,7 +34,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => data?.subscription?.unsubscribe?.();
   }, [setLocation]);
 
   if (isLoading) {

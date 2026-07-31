@@ -9,7 +9,8 @@ export function useVisitTracking() {
   useEffect(() => {
     const track = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data } = await supabase.auth.getSession();
+        const session = data?.session;
         if (!session?.user) return;
 
         const { data: profile, error } = await supabase

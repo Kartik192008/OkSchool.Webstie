@@ -20,7 +20,8 @@ export function Navbar() {
 
   useEffect(() => {
     const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data } = await supabase.auth.getSession();
+      const session = data?.session;
       if (session) {
         setIsAuthenticated(true);
         setUserEmail(session.user.email || "");
@@ -30,7 +31,7 @@ export function Navbar() {
 
     checkUser();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
         setIsAuthenticated(true);
         setUserEmail(session.user.email || "");
@@ -42,7 +43,7 @@ export function Navbar() {
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => data?.subscription?.unsubscribe?.();
   }, []);
 
   const handleLogout = async () => {

@@ -48,7 +48,8 @@ export function AdminDashboard() {
   // Guard: check admin using Supabase
   useEffect(() => {
     const checkAdmin = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data } = await supabase.auth.getSession();
+      const session = data?.session;
       if (!session || session.user.email !== ADMIN_EMAIL) {
         setLocation("/login");
       }
@@ -56,13 +57,13 @@ export function AdminDashboard() {
 
     checkAdmin();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data } = supabase.auth.onAuthStateChange((event, session) => {
       if (!session || session.user.email !== ADMIN_EMAIL) {
         setLocation("/login");
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => data?.subscription?.unsubscribe?.();
   }, [setLocation]);
 
   const { data: stats } = useGetAdminStats({ query: { queryKey: getGetAdminStatsQueryKey() } });
