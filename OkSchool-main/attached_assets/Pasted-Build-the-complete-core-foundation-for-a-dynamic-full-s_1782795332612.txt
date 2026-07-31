@@ -1,0 +1,37 @@
+Build the complete core foundation for a dynamic full-stack educational web application called "OkSchool" using Next.js (App Router), React, Tailwind CSS, and Lucide React icons. 
+
+The application must be completely self-contained and ready to connect to external free services (like Supabase and Razorpay) via standard environment variables ('process.env'). It must adhere strictly to local VS Code compatibility rules (no Replit-specific DBs or tools).
+
+### 1. FILE STRUCTURE & ARCHITECTURE
+- Set up a clean, scalable folder structure with dynamic routing for products and pages.
+- Create a '.env.example' file in the root containing placeholder keys for NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, RAZORPAY_KEY_ID, and RAZORPAY_KEY_SECRET.
+
+### 2. CORE FEATURES & PAGES TO BUILD
+
+#### A. GLOBAL NAVIGATION & HOUSING
+- **Navbar**: Features a clean logo (OkSchool), navigation links (Home, Study Material, Mock Tests, Amazon Store, Admin Dashboard), User Authentication status, and a prominent Global Search Bar.
+- **Global Search Functionality**: Implements search logic that filters content across the entire web application based on item title and description.
+
+#### B. HOMEPAGE & USER AUTHENTICATION
+- **Landing Page**: Modern hero section with structured grids promoting Free/Paid Notes, Practicals, and Mock Tests. Optimized for SEO metadata to rank easily on Google search.
+- **Authentication**: A clean Login/Sign-up interface designed to plug directly into Supabase Auth. Include an admin gate check: if user email is 'kartik1911k@gmail.com', grant access to the Admin Dashboard link.
+
+#### C. STUDY MATERIAL SECTION (NOTES & PRACTICALS)
+- **Product Listing Grid**: Displays dynamic cards for available materials showing Title, Description, and Badge status ("FREE" or "PAID").
+- **Product Preview Page**: Clicking a card opens a dedicated layout. It features a full scrollable viewer pane simulating a Document/PDF preview. 
+- **E-Commerce & Dynamic Razorpay QR**: If a document is marked as PAID (e.g., Word files), lock download capabilities and display a checkout section that securely initializes a Razorpay client-side payment container using window.Razorpay. Generate a simulated checkout screen mirroring a dynamic UPI payment QR code for that specific product ID/price. If FREE (e.g., standard PDFs), show an active download button.
+
+#### D. AMAZON AFFILIATE MATERIAL SECTION
+- A dedicated page showing curated Amazon Affiliate products. Cards must display a product image placeholder, title, description, and an active "Buy on Amazon" external checkout link button.
+
+#### E. MOCK TEST SYSTEM
+- **Online Quiz Engine**: A test-taking interface displaying questions, multiple-choice radio options, a clear countdown timer, and a final score summary dashboard.
+- **CSV Processing**: Backend logic blueprint that reads and parses uploaded CSV/Excel data sheets (containing Columns: Question, OptionA, OptionB, OptionC, OptionD, CorrectAnswer, Solution) to dynamically generate live interactive mock exams.
+
+#### F. DYNAMIC ADMIN DASHBOARD (For kartik1911k@gmail.com)
+- **Content Manager**: Forms to dynamically add new sections, update categories, and upload study material (Title, Description, File Upload placeholder, Price/Free state, Amazon Link).
+
+### 3. SAMPLE DATA HOOKS
+- Seed the application with local mock array data inside a 'mockData.ts' file mapping out 3 sample notes (1 free PDF, 2 paid Word docs), 2 Amazon affiliate products, and 1 complete mock test dataset so the site functions instantly for visual testing.
+
+Confirm you understand these precise requirements and build the entire codebase structural skeleton now.

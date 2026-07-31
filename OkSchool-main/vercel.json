@@ -1,0 +1,5 @@
+{
+  "buildCommand": "cd artifacts/okschool && pnpm install && pnpm build",
+  "outputDirectory": "artifacts/okschool/dist",
+  "framework": "vite"
+}

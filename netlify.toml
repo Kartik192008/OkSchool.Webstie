@@ -1,6 +1,6 @@
 [build]
-  command = "cd artifacts/okschool && pnpm install && pnpm build"
-  publish = "artifacts/okschool/dist"
+  command = "cd OkSchool-main/artifacts/okschool && pnpm install && pnpm build"
+  publish = "OkSchool-main/artifacts/okschool/dist"
 
 [[redirects]]
   from = "/*"

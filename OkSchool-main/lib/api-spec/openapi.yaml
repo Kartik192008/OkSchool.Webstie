@@ -1,0 +1,753 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: OkSchool API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: documents
+    description: Study material documents
+  - name: amazon-products
+    description: Amazon affiliate products
+  - name: mock-tests
+    description: Mock test operations
+  - name: admin
+    description: Admin operations
+  - name: search
+    description: Global search
+  - name: visits
+    description: User visit tracking
+
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /documents:
+    get:
+      operationId: listDocuments
+      tags: [documents]
+      summary: List study material documents
+      parameters:
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: q
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of documents
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Document"
+    post:
+      operationId: createDocument
+      tags: [documents]
+      summary: Create a new document (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DocumentInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
+
+  /documents/{id}:
+    get:
+      operationId: getDocument
+      tags: [documents]
+      summary: Get a document by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Document
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateDocument
+      tags: [documents]
+      summary: Update a document (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DocumentPatch"
+      responses:
+        "200":
+          description: Updated document
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteDocument
+      tags: [documents]
+      summary: Delete a document (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+
+  /documents/{id}/view:
+    post:
+      operationId: recordDocumentView
+      tags: [documents]
+      summary: Record a view event for a document
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: View recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
+
+  /documents/{id}/download:
+    post:
+      operationId: recordDocumentDownload
+      tags: [documents]
+      summary: Record a download event for a document
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DownloadEventInput"
+      responses:
+        "200":
+          description: Download recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
+
+  /amazon-products:
+    get:
+      operationId: listAmazonProducts
+      tags: [amazon-products]
+      summary: List Amazon affiliate products
+      responses:
+        "200":
+          description: List of Amazon products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AmazonProduct"
+    post:
+      operationId: createAmazonProduct
+      tags: [amazon-products]
+      summary: Create an Amazon affiliate product (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AmazonProductInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AmazonProduct"
+
+  /amazon-products/{id}:
+    patch:
+      operationId: updateAmazonProduct
+      tags: [amazon-products]
+      summary: Update an Amazon product (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AmazonProductPatch"
+      responses:
+        "200":
+          description: Updated product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AmazonProduct"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteAmazonProduct
+      tags: [amazon-products]
+      summary: Delete an Amazon product (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+
+  /mock-tests:
+    get:
+      operationId: listMockTests
+      tags: [mock-tests]
+      summary: List available mock tests
+      responses:
+        "200":
+          description: List of mock tests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MockTest"
+    post:
+      operationId: createMockTest
+      tags: [mock-tests]
+      summary: Create a mock test (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MockTestInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MockTest"
+
+  /mock-tests/{id}:
+    get:
+      operationId: getMockTest
+      tags: [mock-tests]
+      summary: Get a mock test with questions
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Mock test with questions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MockTestDetail"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteMockTest
+      tags: [mock-tests]
+      summary: Delete a mock test (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+
+  /admin/stats:
+    get:
+      operationId: getAdminStats
+      tags: [admin]
+      summary: Get admin dashboard statistics
+      responses:
+        "200":
+          description: Admin stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminStats"
+
+  /search:
+    get:
+      operationId: globalSearch
+      tags: [search]
+      summary: Search across all content
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchResults"
+
+  /visits:
+    post:
+      operationId: trackVisit
+      tags: [visits]
+      summary: Track a user visit
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VisitInput"
+      responses:
+        "201":
+          description: Visit tracked
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+
+  /visits/{userId}:
+    get:
+      operationId: getUserVisits
+      tags: [visits]
+      summary: Get user visit history
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User visits
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VisitRecord"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    Document:
+      type: object
+      required: [id, title, description, category, fileType, isFree, viewCount, pdfDownloads, wordDownloads, createdAt]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+          description: "One of: notes, investigatory-projects, question-papers, free-book-pdfs, practical-files-class-12"
+        fileType:
+          type: string
+          description: "pdf or word"
+        isFree:
+          type: boolean
+        price:
+          type: ["integer", "null"]
+        fileUrl:
+          type: ["string", "null"]
+        wordFileUrl:
+          type: ["string", "null"]
+        thumbnailUrl:
+          type: ["string", "null"]
+        viewCount:
+          type: integer
+        pdfDownloads:
+          type: integer
+        wordDownloads:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+
+    DocumentInput:
+      type: object
+      required: [title, description, category, fileType, isFree]
+      properties:
+        title:
+          type: string
+          minLength: 1
+        description:
+          type: string
+        category:
+          type: string
+        fileType:
+          type: string
+        isFree:
+          type: boolean
+        price:
+          type: ["integer", "null"]
+        fileUrl:
+          type: ["string", "null"]
+        wordFileUrl:
+          type: ["string", "null"]
+        thumbnailUrl:
+          type: ["string", "null"]
+
+    DocumentPatch:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+        description:
+          type: string
+        category:
+          type: string
+        fileType:
+          type: string
+        isFree:
+          type: boolean
+        price:
+          type: ["integer", "null"]
+        fileUrl:
+          type: ["string", "null"]
+        thumbnailUrl:
+          type: ["string", "null"]
+
+    DownloadEventInput:
+      type: object
+      required: [fileType]
+      properties:
+        fileType:
+          type: string
+          description: "pdf or word"
+
+    AmazonProduct:
+      type: object
+      required: [id, title, description, affiliateUrl, createdAt]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        affiliateUrl:
+          type: string
+        imageUrl:
+          type: ["string", "null"]
+        price:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    AmazonProductInput:
+      type: object
+      required: [title, description, affiliateUrl]
+      properties:
+        title:
+          type: string
+          minLength: 1
+        description:
+          type: string
+        affiliateUrl:
+          type: string
+        imageUrl:
+          type: ["string", "null"]
+        price:
+          type: ["string", "null"]
+
+    AmazonProductPatch:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        affiliateUrl:
+          type: string
+        imageUrl:
+          type: ["string", "null"]
+        price:
+          type: ["string", "null"]
+
+    MockTest:
+      type: object
+      required: [id, title, description, subject, section, duration, questionCount, correctMarks, incorrectMarks, unattemptedMarks, createdAt]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        subject:
+          type: string
+        section:
+          type: string
+        duration:
+          type: integer
+          description: Duration in minutes
+        questionCount:
+          type: integer
+        correctMarks:
+          type: integer
+          description: Marks awarded for a correct answer
+        incorrectMarks:
+          type: integer
+          description: Marks deducted for an incorrect answer (negative marking)
+        unattemptedMarks:
+          type: integer
+          description: Marks for an unattempted question
+        createdAt:
+          type: string
+          format: date-time
+
+    MockTestInput:
+      type: object
+      required: [title, description, subject, section, duration]
+      properties:
+        title:
+          type: string
+          minLength: 1
+        description:
+          type: string
+        subject:
+          type: string
+        section:
+          type: string
+        duration:
+          type: integer
+        correctMarks:
+          type: integer
+          description: Marks for correct answer
+        incorrectMarks:
+          type: integer
+          description: Marks for incorrect answer
+        unattemptedMarks:
+          type: integer
+          description: Marks for unattempted question
+        questions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Question"
+
+    MockTestDetail:
+      type: object
+      required: [id, title, description, subject, section, duration, questionCount, correctMarks, incorrectMarks, unattemptedMarks, questions, createdAt]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        subject:
+          type: string
+        section:
+          type: string
+        duration:
+          type: integer
+          description: Duration in minutes
+        questionCount:
+          type: integer
+        correctMarks:
+          type: integer
+          description: Marks awarded for a correct answer
+        incorrectMarks:
+          type: integer
+          description: Marks deducted for an incorrect answer
+        unattemptedMarks:
+          type: integer
+          description: Marks for an unattempted question
+        createdAt:
+          type: string
+          format: date-time
+        questions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Question"
+
+    Question:
+      type: object
+      required: [question, optionA, optionB, optionC, optionD, correctAnswer]
+      properties:
+        id:
+          type: integer
+        question:
+          type: string
+        questionImage:
+          type: ["string", "null"]
+        optionA:
+          type: string
+        optionB:
+          type: string
+        optionC:
+          type: string
+        optionD:
+          type: string
+        correctAnswer:
+          type: string
+          description: "A, B, C, or D"
+        solution:
+          type: ["string", "null"]
+
+    AdminStats:
+      type: object
+      required: [totalViews, pdfDownloads, wordDownloads, totalDocuments, recentDocuments, sectionCounts]
+      properties:
+        totalViews:
+          type: integer
+        pdfDownloads:
+          type: integer
+        wordDownloads:
+          type: integer
+        totalDocuments:
+          type: integer
+        recentDocuments:
+          type: array
+          items:
+            $ref: "#/components/schemas/Document"
+        sectionCounts:
+          type: array
+          items:
+            $ref: "#/components/schemas/SectionCount"
+
+    SectionCount:
+      type: object
+      required: [category, count]
+      properties:
+        category:
+          type: string
+        count:
+          type: integer
+
+    SearchResults:
+      type: object
+      required: [documents, amazonProducts, mockTests]
+      properties:
+        documents:
+          type: array
+          items:
+            $ref: "#/components/schemas/Document"
+        amazonProducts:
+          type: array
+          items:
+             $ref: "#/components/schemas/AmazonProduct"
+        mockTests:
+          type: array
+          items:
+            $ref: "#/components/schemas/MockTest"
+
+    VisitInput:
+      type: object
+      required: [userId, page]
+      properties:
+        userId:
+          type: integer
+        page:
+          type: string
+        action:
+          type: string
+        metadata:
+          type: object
+
+    VisitRecord:
+      type: object
+      required: [id, userId, page, createdAt]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        page:
+          type: string
+        action:
+          type: string
+        metadata:
+          type: object
+        createdAt:
+          type: string
+          format: date-time
+

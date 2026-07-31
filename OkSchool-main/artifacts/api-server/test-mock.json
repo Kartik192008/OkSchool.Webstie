@@ -1,0 +1,11 @@
+{
+  "title": "Test",
+  "description": "",
+  "subject": "physics",
+  "section": "JEE",
+  "duration": 30,
+  "correctMarks": 4,
+  "incorrectMarks": -1,
+  "unattemptedMarks": 0,
+  "questions": []
+}
