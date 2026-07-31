@@ -26,15 +26,7 @@ app.use(
   }),
 );
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'http://10.232.11.246:5173',
-    'http://192.168.174.1:5173',
-    'http://192.168.120.1:5173',
-    'http://10.220.112.44:5173',
-    'http://10.232.11.92:5173',
-    'https://okschool-s.onrender.com'
-  ],
+  origin: true,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
