@@ -12,6 +12,9 @@ services:
       - key: VITE_API_URL
         value: https://okschool-backend.onrender.com
     routes:
+      - type: serve
+        source: /sitemap.xml
+        destination: /sitemap.xml
       - type: rewrite
         source: /*
         destination: /index.html
