@@ -6,6 +6,7 @@ import mockTestsRouter from "./mock-tests";
 import adminRouter from "./admin";
 import searchRouter from "./search";
 import visitsRouter from "./visits";
+import paymentsRouter from "./payments";
 
 const router: IRouter = Router();
 
@@ -16,5 +17,6 @@ router.use(mockTestsRouter);
 router.use(adminRouter);
 router.use(searchRouter);
 router.use(visitsRouter);
+router.use(paymentsRouter);
 
 export default router;

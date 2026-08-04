@@ -156,7 +156,7 @@ router.get("/documents/:id/download", async (req, res): Promise<void> => {
       return;
     }
 
-    let fileUrl: string | undefined;
+    let fileUrl: string | null = null;
     let contentType = "application/octet-stream";
 
     switch (fileType) {

@@ -15,6 +15,13 @@
       "when": 1785257814086,
       "tag": "0001_tearful_saracen",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1785857540052,
+      "tag": "0002_demonic_guardian",
+      "breakpoints": true
     }
   ]
 }
