@@ -193,7 +193,7 @@ export function AdminDashboard() {
         description: docForm.description,
         category: docForm.category,
         fileType: "pdf",
-        isFree: true,
+        isFree: !wordFileUrl,
         price: wordFileUrl ? (parseInt(docForm.price, 10) || null) : null,
         fileUrl: fileUrl || null,
         wordFileUrl: wordFileUrl || null,
