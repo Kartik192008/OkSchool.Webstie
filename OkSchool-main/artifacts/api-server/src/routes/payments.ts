@@ -6,13 +6,25 @@ import { db, paymentsTable, documentsTable } from "@workspace/db";
 
 const router: IRouter = Router();
 
+const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID;
+const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
+
+if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
+  console.error("Missing Razorpay credentials. Set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET environment variables.");
+}
+
 const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID || "",
-  key_secret: process.env.RAZORPAY_KEY_SECRET || "",
+  key_id: RAZORPAY_KEY_ID || "",
+  key_secret: RAZORPAY_KEY_SECRET || "",
 });
 
 router.post("/razorpay/create-order", async (req, res): Promise<void> => {
   try {
+    if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
+      res.status(500).json({ error: "Payment gateway not configured" });
+      return;
+    }
+
     const { documentId, amount, userId } = req.body;
 
     if (!documentId || !amount || !userId) {
@@ -49,7 +61,7 @@ router.post("/razorpay/create-order", async (req, res): Promise<void> => {
       order_id: order.id,
       amount: order.amount,
       currency: order.currency,
-      key: process.env.RAZORPAY_KEY_ID,
+      key: RAZORPAY_KEY_ID,
     });
   } catch (err) {
     console.error("Failed to create Razorpay order:", err);
@@ -59,6 +71,11 @@ router.post("/razorpay/create-order", async (req, res): Promise<void> => {
 
 router.post("/razorpay/verify-payment", async (req, res): Promise<void> => {
   try {
+    if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
+      res.status(500).json({ error: "Payment gateway not configured" });
+      return;
+    }
+
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature, documentId, userId, amount } = req.body;
 
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !documentId || !userId) {
@@ -68,7 +85,7 @@ router.post("/razorpay/verify-payment", async (req, res): Promise<void> => {
 
     const body = `${razorpay_order_id}|${razorpay_payment_id}`;
     const expectedSignature = crypto
-      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET || "")
+      .createHmac("sha256", RAZORPAY_KEY_SECRET)
       .update(body)
       .digest("hex");
 
