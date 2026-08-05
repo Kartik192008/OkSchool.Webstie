@@ -87,8 +87,33 @@ export function StudyMaterialDetail() {
     }
     setIframeFailed(false);
     setPdfLoading(true);
-    setPdfBlobUrl(doc.fileUrl);
-    setPdfLoading(false);
+    let revoked = false;
+
+    const loadPdf = async () => {
+      try {
+        const res = await fetch(proxyFileUrl("pdf"));
+        if (!res.ok) throw new Error("proxy failed");
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        if (!revoked) {
+          setPdfBlobUrl(url);
+        } else {
+          URL.revokeObjectURL(url);
+        }
+      } catch {
+        if (!revoked) {
+          setPdfBlobUrl(doc.fileUrl);
+        }
+      } finally {
+        if (!revoked) setPdfLoading(false);
+      }
+    };
+
+    loadPdf();
+
+    return () => {
+      revoked = true;
+    };
   }, [doc?.fileUrl, docId]);
 
   useEffect(() => {
@@ -290,6 +315,7 @@ export function StudyMaterialDetail() {
                   title={doc.title}
                   className="w-full h-full"
                   sandbox="allow-scripts allow-same-origin"
+                  onError={() => setIframeFailed(true)}
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-muted-foreground">
