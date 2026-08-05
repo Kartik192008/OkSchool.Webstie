@@ -30,9 +30,9 @@ export function Home() {
 
   useEffect(() => {
     docs.forEach((doc) => {
-      if (!doc.thumbnailUrl || thumbnailBlobs[doc.id]) return;
-      const directUrl = doc.thumbnailUrl;
-      fetch(directUrl)
+      const thumbnailUrl = (doc as any).thumbnail_url;
+      if (!thumbnailUrl || thumbnailBlobs[doc.id]) return;
+      fetch(thumbnailUrl)
         .then((res) => {
           if (!res.ok) throw new Error("failed");
           return res.blob();
@@ -142,15 +142,15 @@ export function Home() {
                         alt={doc.title}
                         className="w-full h-full object-cover"
                       />
-                    ) : doc.thumbnailUrl ? (
+                    ) : (doc as any).thumbnail_url ? (
                       <img
-                        src={doc.thumbnailUrl}
+                        src={(doc as any).thumbnail_url}
                         alt={doc.title}
                         className="w-full h-full object-cover"
                         onLoad={() => {
                           setThumbnailBlobs((prev) => {
                             if (prev[doc.id]) return prev;
-                            return { ...prev, [doc.id]: doc.thumbnailUrl };
+                            return { ...prev, [doc.id]: (doc as any).thumbnail_url };
                           });
                         }}
                         onError={(e) => {
