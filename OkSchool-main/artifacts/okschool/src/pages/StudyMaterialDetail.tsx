@@ -29,7 +29,6 @@ export function StudyMaterialDetail() {
     `${API_BASE}/api/documents/${docId}/download?type=${type}`;
 
   const [showWordModal, setShowWordModal] = useState(false);
-  const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
   const [pdfLoading, setPdfLoading] = useState(false);
   const [paying, setPaying] = useState(false);
   const [hasPaid, setHasPaid] = useState(false);
@@ -81,7 +80,7 @@ export function StudyMaterialDetail() {
 
   useEffect(() => {
     if (!doc?.fileUrl) {
-      setPdfBlobUrl(null);
+      setPdfLoading(false);
       return;
     }
     setPdfLoading(true);
@@ -89,19 +88,9 @@ export function StudyMaterialDetail() {
 
     const loadPdf = async () => {
       try {
-        const res = await fetch(proxyFileUrl("pdf"));
-        if (!res.ok) throw new Error("proxy failed");
-        const blob = await res.blob();
-        const url = URL.createObjectURL(blob);
-        if (!revoked) {
-          setPdfBlobUrl(url);
-        } else {
-          URL.revokeObjectURL(url);
-        }
+        await fetch(proxyFileUrl("pdf"));
       } catch {
-        if (!revoked) {
-          setPdfBlobUrl(doc.fileUrl);
-        }
+        // ignore
       } finally {
         if (!revoked) setPdfLoading(false);
       }
@@ -305,20 +294,14 @@ export function StudyMaterialDetail() {
                   <BookOpen className="h-16 w-16 mx-auto mb-3 text-muted-foreground/30 animate-pulse" />
                   <p className="text-sm">Loading preview...</p>
                 </div>
-              ) : pdfBlobUrl ? (
-                <iframe
-                  src={pdfBlobUrl}
-                  title={doc.title}
-                  className="w-full h-full"
-                />
               ) : (
                 <div className="text-center text-muted-foreground">
-                  <BookOpen className="h-16 w-16 mx-auto mb-3 text-muted-foreground/30" />
-                  <p className="text-sm mb-3">Preview unavailable</p>
+                  <FileText className="h-16 w-16 mx-auto mb-3 text-muted-foreground/30" />
+                  <p className="text-sm mb-3">Click below to view the PDF</p>
                   {doc.fileUrl && (
                     <Button
-                      variant="outline"
                       onClick={() => window.open(proxyFileUrl("pdf"), "_blank")}
+                      data-testid="button-open-pdf"
                     >
                       <Download className="h-4 w-4 mr-2" />
                       Open PDF
