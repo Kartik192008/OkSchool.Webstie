@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Menu, Search, User, LogOut, Sun, Moon } from "lucide-react";
+import { Menu, Search, User, LogOut, Sun, Moon, History, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -63,25 +63,31 @@ export function Navbar() {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-[300px] sm:w-[400px]">
-              <nav className="flex flex-col gap-4 mt-8">
-                <Link href="/" className="text-lg font-medium hover:text-primary transition-colors">Home</Link>
-                <Link href="/mock-tests" className="text-lg font-medium hover:text-primary transition-colors">Mock Tests</Link>
-                <Link href="/amazon-store" className="text-lg font-medium hover:text-primary transition-colors">Amazon Store</Link>
-                {isAdmin && <Link href="/admin" className="text-lg font-medium hover:text-primary transition-colors">Admin Panel</Link>}
-                {isAuthenticated && (
-                  <>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <User className="h-4 w-4" />
-                      <span>{userEmail}</span>
-                    </div>
-                    <Button variant="outline" size="sm" onClick={handleLogout} className="w-full">
-                      <LogOut className="h-4 w-4 mr-2" />
-                      Logout
-                    </Button>
-                  </>
-                )}
-                {!isAuthenticated && <Link href="/login" className="text-lg font-medium hover:text-primary transition-colors">Login</Link>}
-              </nav>
+            <nav className="flex flex-col gap-4 mt-8">
+              <Link href="/" className="text-lg font-medium hover:text-primary transition-colors">Home</Link>
+              <Link href="/mock-tests" className="text-lg font-medium hover:text-primary transition-colors">Mock Tests</Link>
+              <Link href="/amazon-store" className="text-lg font-medium hover:text-primary transition-colors">Amazon Store</Link>
+              {isAuthenticated && (
+                <>
+                  <Link href="/mock-test-history" className="text-lg font-medium hover:text-primary transition-colors">Mock Test History</Link>
+                  <Link href="/purchase-history" className="text-lg font-medium hover:text-primary transition-colors">Purchase History</Link>
+                </>
+              )}
+              {isAdmin && <Link href="/admin" className="text-lg font-medium hover:text-primary transition-colors">Admin Panel</Link>}
+              {isAuthenticated && (
+                <>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <User className="h-4 w-4" />
+                    <span>{userEmail}</span>
+                  </div>
+                  <Button variant="outline" size="sm" onClick={handleLogout} className="w-full">
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Logout
+                  </Button>
+                </>
+              )}
+              {!isAuthenticated && <Link href="/login" className="text-lg font-medium hover:text-primary transition-colors">Login</Link>}
+            </nav>
             </SheetContent>
           </Sheet>
 
@@ -94,6 +100,12 @@ export function Navbar() {
             <Link href="/" className="hover:text-primary transition-colors">Home</Link>
             <Link href="/mock-tests" className="hover:text-primary transition-colors">Mock Tests</Link>
             <Link href="/amazon-store" className="hover:text-primary transition-colors">Amazon Store</Link>
+            {isAuthenticated && (
+              <>
+                <Link href="/mock-test-history" className="hover:text-primary transition-colors">Mock Test History</Link>
+                <Link href="/purchase-history" className="hover:text-primary transition-colors">Purchase History</Link>
+              </>
+            )}
             {isAdmin && <Link href="/admin" className="hover:text-primary transition-colors">Admin Panel</Link>}
           </div>
         </div>

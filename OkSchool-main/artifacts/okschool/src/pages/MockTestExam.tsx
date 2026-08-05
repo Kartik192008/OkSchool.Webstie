@@ -7,6 +7,8 @@ import { useGetMockTest } from "@workspace/api-client-react";
 import { useExamTimer } from "@/hooks/useExamTimer";
 import { MockTestInstructions } from "./MockTestInstructions";
 import { MockTestResults } from "./MockTestResults";
+import { supabase } from "@/lib/supabase";
+import { API_BASE } from "@/lib/api";
 
 type QuestionStatus = "not-visited" | "not-answered" | "answered" | "marked" | "marked-answered";
 
@@ -27,8 +29,9 @@ export function MockTestExam() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [questionStates, setQuestionStates] = useState<QuestionState[]>([]);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  const { timeLeft, formattedTime, isWarning, start, reset } = useExamTimer({
+  const { timeLeft, formattedTime, isWarning, start, pause, reset } = useExamTimer({
     initialSeconds: (test?.duration ?? 30) * 60,
     onTimeUp: () => handleSubmitTest(),
     autoSubmit: true,
@@ -160,9 +163,56 @@ export function MockTestExam() {
     });
   };
 
-  const handleSubmitTest = () => {
+  const handleSubmitTest = async () => {
+    pause();
+    if (!submitting && test) {
+      setSubmitting(true);
+      try {
+        const userId = await getUserId();
+        if (userId) {
+          const correctMarks = test.correctMarks ?? 4;
+          const incorrectMarks = test.incorrectMarks ?? -1;
+          const unattemptedMarks = test.unattemptedMarks ?? 0;
+          let correct = 0;
+          let incorrect = 0;
+          let unattempted = 0;
+          questionStates.forEach((state, index) => {
+            if (!state.selectedOption) {
+              unattempted++;
+            } else if (state.selectedOption === test.questions[index].correctAnswer) {
+              correct++;
+            } else {
+              incorrect++;
+            }
+          });
+          const score = (correct * correctMarks) + (incorrect * incorrectMarks) + (unattempted * unattemptedMarks);
+          const maxScore = test.questions.length * correctMarks;
+          const answers: Record<number, string | null> = {};
+          questionStates.forEach((state, index) => {
+            answers[index] = state.selectedOption;
+          });
+          const timeTaken = (test.duration ?? 30) * 60 - timeLeft;
+          await fetch(`${API_BASE}/api/mock-test/results`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId, mockTestId: test.id, score, maxScore, correct, incorrect, unattempted, timeTaken, answers }),
+          });
+        }
+      } catch {
+        // ignore
+      }
+    }
     setExamSubmitted(true);
     setShowSubmitModal(false);
+  };
+
+  const getUserId = async (): Promise<string | null> => {
+    try {
+      const { data } = await supabase.auth.getUser();
+      return data.user?.id || null;
+    } catch {
+      return null;
+    }
   };
 
   const getStatusCounts = () => {

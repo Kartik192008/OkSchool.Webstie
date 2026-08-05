@@ -20,6 +20,8 @@ import { AdminDashboard } from "./pages/AdminDashboard";
 import { StudyMaterialDetail } from "./pages/StudyMaterialDetail";
 import { MockTestList } from "./pages/MockTestList";
 import { MockTestExam } from "./pages/MockTestExam";
+import { MockTestHistory } from "./pages/MockTestHistory";
+import { PurchaseHistory } from "./pages/PurchaseHistory";
 import { AmazonStore } from "./pages/AmazonStore";
 import { SearchResults } from "./pages/SearchResults";
 import { PrivacyPolicy } from "./pages/PrivacyPolicy";
@@ -65,6 +67,12 @@ function Router() {
       </Route>
       <Route path="/mock-tests">
         <ProtectedRoute><MockTestList /></ProtectedRoute>
+      </Route>
+      <Route path="/mock-test-history">
+        <ProtectedRoute><MockTestHistory /></ProtectedRoute>
+      </Route>
+      <Route path="/purchase-history">
+        <ProtectedRoute><PurchaseHistory /></ProtectedRoute>
       </Route>
       <Route path="/amazon-store">
         <ProtectedRoute><AmazonStore /></ProtectedRoute>
