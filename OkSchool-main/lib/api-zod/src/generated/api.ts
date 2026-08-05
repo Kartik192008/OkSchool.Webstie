@@ -26,19 +26,19 @@ export const ListDocumentsQueryParams = zod.object({
 })
 
 export const ListDocumentsResponseItem = zod.object({
-  "id": zod.int(),
+  "id": zod.number(),
   "title": zod.string(),
   "description": zod.string(),
   "category": zod.string().describe('One of: notes, investigatory-projects, question-papers, free-book-pdfs, practical-files-class-12'),
   "fileType": zod.string().describe('pdf or word'),
   "isFree": zod.boolean(),
-  "price": zod.int().nullish(),
+  "price": zod.number().nullish(),
   "fileUrl": zod.string().nullish(),
   "wordFileUrl": zod.string().nullish(),
   "thumbnailUrl": zod.string().nullish(),
-  "viewCount": zod.int(),
-  "pdfDownloads": zod.int(),
-  "wordDownloads": zod.int(),
+  "viewCount": zod.number(),
+  "pdfDownloads": zod.number(),
+  "wordDownloads": zod.number(),
   "createdAt": zod.coerce.date()
 })
 export const ListDocumentsResponse = zod.array(ListDocumentsResponseItem)
@@ -56,26 +56,26 @@ export const CreateDocumentBody = zod.object({
   "category": zod.string(),
   "fileType": zod.string(),
   "isFree": zod.boolean(),
-  "price": zod.int().nullish(),
+  "price": zod.number().nullish(),
   "fileUrl": zod.string().nullish(),
   "wordFileUrl": zod.string().nullish(),
   "thumbnailUrl": zod.string().nullish()
 })
 
 export const CreateDocumentResponse = zod.object({
-  "id": zod.int(),
+  "id": zod.number(),
   "title": zod.string(),
   "description": zod.string(),
   "category": zod.string().describe('One of: notes, investigatory-projects, question-papers, free-book-pdfs, practical-files-class-12'),
   "fileType": zod.string().describe('pdf or word'),
   "isFree": zod.boolean(),
-  "price": zod.int().nullish(),
+  "price": zod.number().nullish(),
   "fileUrl": zod.string().nullish(),
   "wordFileUrl": zod.string().nullish(),
   "thumbnailUrl": zod.string().nullish(),
-  "viewCount": zod.int(),
-  "pdfDownloads": zod.int(),
-  "wordDownloads": zod.int(),
+  "viewCount": zod.number(),
+  "pdfDownloads": zod.number(),
+  "wordDownloads": zod.number(),
   "createdAt": zod.coerce.date()
 })
 
@@ -88,19 +88,19 @@ export const GetDocumentParams = zod.object({
 })
 
 export const GetDocumentResponse = zod.object({
-  "id": zod.int(),
+  "id": zod.number(),
   "title": zod.string(),
   "description": zod.string(),
   "category": zod.string().describe('One of: notes, investigatory-projects, question-papers, free-book-pdfs, practical-files-class-12'),
   "fileType": zod.string().describe('pdf or word'),
   "isFree": zod.boolean(),
-  "price": zod.int().nullish(),
+  "price": zod.number().nullish(),
   "fileUrl": zod.string().nullish(),
   "wordFileUrl": zod.string().nullish(),
   "thumbnailUrl": zod.string().nullish(),
-  "viewCount": zod.int(),
-  "pdfDownloads": zod.int(),
-  "wordDownloads": zod.int(),
+  "viewCount": zod.number(),
+  "pdfDownloads": zod.number(),
+  "wordDownloads": zod.number(),
   "createdAt": zod.coerce.date()
 })
 
@@ -121,25 +121,25 @@ export const UpdateDocumentBody = zod.object({
   "category": zod.string().optional(),
   "fileType": zod.string().optional(),
   "isFree": zod.boolean().optional(),
-  "price": zod.int().nullish(),
+  "price": zod.number().nullish(),
   "fileUrl": zod.string().nullish(),
   "thumbnailUrl": zod.string().nullish()
 })
 
 export const UpdateDocumentResponse = zod.object({
-  "id": zod.int(),
+  "id": zod.number(),
   "title": zod.string(),
   "description": zod.string(),
   "category": zod.string().describe('One of: notes, investigatory-projects, question-papers, free-book-pdfs, practical-files-class-12'),
   "fileType": zod.string().describe('pdf or word'),
   "isFree": zod.boolean(),
-  "price": zod.int().nullish(),
+  "price": zod.number().nullish(),
   "fileUrl": zod.string().nullish(),
   "wordFileUrl": zod.string().nullish(),
   "thumbnailUrl": zod.string().nullish(),
-  "viewCount": zod.int(),
-  "pdfDownloads": zod.int(),
-  "wordDownloads": zod.int(),
+  "viewCount": zod.number(),
+  "pdfDownloads": zod.number(),
+  "wordDownloads": zod.number(),
   "createdAt": zod.coerce.date()
 })
 
@@ -162,19 +162,19 @@ export const RecordDocumentViewParams = zod.object({
 })
 
 export const RecordDocumentViewResponse = zod.object({
-  "id": zod.int(),
+  "id": zod.number(),
   "title": zod.string(),
   "description": zod.string(),
   "category": zod.string().describe('One of: notes, investigatory-projects, question-papers, free-book-pdfs, practical-files-class-12'),
   "fileType": zod.string().describe('pdf or word'),
   "isFree": zod.boolean(),
-  "price": zod.int().nullish(),
+  "price": zod.number().nullish(),
   "fileUrl": zod.string().nullish(),
   "wordFileUrl": zod.string().nullish(),
   "thumbnailUrl": zod.string().nullish(),
-  "viewCount": zod.int(),
-  "pdfDownloads": zod.int(),
-  "wordDownloads": zod.int(),
+  "viewCount": zod.number(),
+  "pdfDownloads": zod.number(),
+  "wordDownloads": zod.number(),
   "createdAt": zod.coerce.date()
 })
 
@@ -191,19 +191,19 @@ export const RecordDocumentDownloadBody = zod.object({
 })
 
 export const RecordDocumentDownloadResponse = zod.object({
-  "id": zod.int(),
+  "id": zod.number(),
   "title": zod.string(),
   "description": zod.string(),
   "category": zod.string().describe('One of: notes, investigatory-projects, question-papers, free-book-pdfs, practical-files-class-12'),
   "fileType": zod.string().describe('pdf or word'),
   "isFree": zod.boolean(),
-  "price": zod.int().nullish(),
+  "price": zod.number().nullish(),
   "fileUrl": zod.string().nullish(),
   "wordFileUrl": zod.string().nullish(),
   "thumbnailUrl": zod.string().nullish(),
-  "viewCount": zod.int(),
-  "pdfDownloads": zod.int(),
-  "wordDownloads": zod.int(),
+  "viewCount": zod.number(),
+  "pdfDownloads": zod.number(),
+  "wordDownloads": zod.number(),
   "createdAt": zod.coerce.date()
 })
 
@@ -212,7 +212,7 @@ export const RecordDocumentDownloadResponse = zod.object({
  * @summary List Amazon affiliate products
  */
 export const ListAmazonProductsResponseItem = zod.object({
-  "id": zod.int(),
+  "id": zod.number(),
   "title": zod.string(),
   "description": zod.string(),
   "affiliateUrl": zod.string(),
@@ -238,7 +238,7 @@ export const CreateAmazonProductBody = zod.object({
 })
 
 export const CreateAmazonProductResponse = zod.object({
-  "id": zod.int(),
+  "id": zod.number(),
   "title": zod.string(),
   "description": zod.string(),
   "affiliateUrl": zod.string(),
@@ -264,7 +264,7 @@ export const UpdateAmazonProductBody = zod.object({
 })
 
 export const UpdateAmazonProductResponse = zod.object({
-  "id": zod.int(),
+  "id": zod.number(),
   "title": zod.string(),
   "description": zod.string(),
   "affiliateUrl": zod.string(),
@@ -288,16 +288,16 @@ export const DeleteAmazonProductResponse = zod.void()
  * @summary List available mock tests
  */
 export const ListMockTestsResponseItem = zod.object({
-  "id": zod.int(),
+  "id": zod.number(),
   "title": zod.string(),
   "description": zod.string(),
   "subject": zod.string(),
   "section": zod.string(),
-  "duration": zod.int().describe('Duration in minutes'),
-  "questionCount": zod.int(),
-  "correctMarks": zod.int().describe('Marks awarded for a correct answer'),
-  "incorrectMarks": zod.int().describe('Marks deducted for an incorrect answer (negative marking)'),
-  "unattemptedMarks": zod.int().describe('Marks for an unattempted question'),
+  "duration": zod.number().describe('Duration in minutes'),
+  "questionCount": zod.number(),
+  "correctMarks": zod.number().describe('Marks awarded for a correct answer'),
+  "incorrectMarks": zod.number().describe('Marks deducted for an incorrect answer (negative marking)'),
+  "unattemptedMarks": zod.number().describe('Marks for an unattempted question'),
   "createdAt": zod.coerce.date()
 })
 export const ListMockTestsResponse = zod.array(ListMockTestsResponseItem)
@@ -314,12 +314,12 @@ export const CreateMockTestBody = zod.object({
   "description": zod.string(),
   "subject": zod.string(),
   "section": zod.string(),
-  "duration": zod.int(),
-  "correctMarks": zod.int().optional().describe('Marks for correct answer'),
-  "incorrectMarks": zod.int().optional().describe('Marks for incorrect answer'),
-  "unattemptedMarks": zod.int().optional().describe('Marks for unattempted question'),
+  "duration": zod.number(),
+  "correctMarks": zod.number().optional().describe('Marks for correct answer'),
+  "incorrectMarks": zod.number().optional().describe('Marks for incorrect answer'),
+  "unattemptedMarks": zod.number().optional().describe('Marks for unattempted question'),
   "questions": zod.array(zod.object({
-  "id": zod.int().optional(),
+  "id": zod.number().optional(),
   "question": zod.string(),
   "questionImage": zod.string().nullish(),
   "optionA": zod.string(),
@@ -332,16 +332,16 @@ export const CreateMockTestBody = zod.object({
 })
 
 export const CreateMockTestResponse = zod.object({
-  "id": zod.int(),
+  "id": zod.number(),
   "title": zod.string(),
   "description": zod.string(),
   "subject": zod.string(),
   "section": zod.string(),
-  "duration": zod.int().describe('Duration in minutes'),
-  "questionCount": zod.int(),
-  "correctMarks": zod.int().describe('Marks awarded for a correct answer'),
-  "incorrectMarks": zod.int().describe('Marks deducted for an incorrect answer (negative marking)'),
-  "unattemptedMarks": zod.int().describe('Marks for an unattempted question'),
+  "duration": zod.number().describe('Duration in minutes'),
+  "questionCount": zod.number(),
+  "correctMarks": zod.number().describe('Marks awarded for a correct answer'),
+  "incorrectMarks": zod.number().describe('Marks deducted for an incorrect answer (negative marking)'),
+  "unattemptedMarks": zod.number().describe('Marks for an unattempted question'),
   "createdAt": zod.coerce.date()
 })
 
@@ -354,19 +354,19 @@ export const GetMockTestParams = zod.object({
 })
 
 export const GetMockTestResponse = zod.object({
-  "id": zod.int(),
+  "id": zod.number(),
   "title": zod.string(),
   "description": zod.string(),
   "subject": zod.string(),
   "section": zod.string(),
-  "duration": zod.int().describe('Duration in minutes'),
-  "questionCount": zod.int(),
-  "correctMarks": zod.int().describe('Marks awarded for a correct answer'),
-  "incorrectMarks": zod.int().describe('Marks deducted for an incorrect answer'),
-  "unattemptedMarks": zod.int().describe('Marks for an unattempted question'),
+  "duration": zod.number().describe('Duration in minutes'),
+  "questionCount": zod.number(),
+  "correctMarks": zod.number().describe('Marks awarded for a correct answer'),
+  "incorrectMarks": zod.number().describe('Marks deducted for an incorrect answer'),
+  "unattemptedMarks": zod.number().describe('Marks for an unattempted question'),
   "createdAt": zod.coerce.date(),
   "questions": zod.array(zod.object({
-  "id": zod.int().optional(),
+  "id": zod.number().optional(),
   "question": zod.string(),
   "questionImage": zod.string().nullish(),
   "optionA": zod.string(),
@@ -393,29 +393,29 @@ export const DeleteMockTestResponse = zod.void()
  * @summary Get admin dashboard statistics
  */
 export const GetAdminStatsResponse = zod.object({
-  "totalViews": zod.int(),
-  "pdfDownloads": zod.int(),
-  "wordDownloads": zod.int(),
-  "totalDocuments": zod.int(),
+  "totalViews": zod.number(),
+  "pdfDownloads": zod.number(),
+  "wordDownloads": zod.number(),
+  "totalDocuments": zod.number(),
   "recentDocuments": zod.array(zod.object({
-  "id": zod.int(),
+  "id": zod.number(),
   "title": zod.string(),
   "description": zod.string(),
   "category": zod.string().describe('One of: notes, investigatory-projects, question-papers, free-book-pdfs, practical-files-class-12'),
   "fileType": zod.string().describe('pdf or word'),
   "isFree": zod.boolean(),
-  "price": zod.int().nullish(),
+  "price": zod.number().nullish(),
   "fileUrl": zod.string().nullish(),
   "wordFileUrl": zod.string().nullish(),
   "thumbnailUrl": zod.string().nullish(),
-  "viewCount": zod.int(),
-  "pdfDownloads": zod.int(),
-  "wordDownloads": zod.int(),
+  "viewCount": zod.number(),
+  "pdfDownloads": zod.number(),
+  "wordDownloads": zod.number(),
   "createdAt": zod.coerce.date()
 })),
   "sectionCounts": zod.array(zod.object({
   "category": zod.string(),
-  "count": zod.int()
+  "count": zod.number()
 }))
 })
 
@@ -429,23 +429,23 @@ export const GlobalSearchQueryParams = zod.object({
 
 export const GlobalSearchResponse = zod.object({
   "documents": zod.array(zod.object({
-  "id": zod.int(),
+  "id": zod.number(),
   "title": zod.string(),
   "description": zod.string(),
   "category": zod.string().describe('One of: notes, investigatory-projects, question-papers, free-book-pdfs, practical-files-class-12'),
   "fileType": zod.string().describe('pdf or word'),
   "isFree": zod.boolean(),
-  "price": zod.int().nullish(),
+  "price": zod.number().nullish(),
   "fileUrl": zod.string().nullish(),
   "wordFileUrl": zod.string().nullish(),
   "thumbnailUrl": zod.string().nullish(),
-  "viewCount": zod.int(),
-  "pdfDownloads": zod.int(),
-  "wordDownloads": zod.int(),
+  "viewCount": zod.number(),
+  "pdfDownloads": zod.number(),
+  "wordDownloads": zod.number(),
   "createdAt": zod.coerce.date()
 })),
   "amazonProducts": zod.array(zod.object({
-  "id": zod.int(),
+  "id": zod.number(),
   "title": zod.string(),
   "description": zod.string(),
   "affiliateUrl": zod.string(),
@@ -454,16 +454,16 @@ export const GlobalSearchResponse = zod.object({
   "createdAt": zod.coerce.date()
 })),
   "mockTests": zod.array(zod.object({
-  "id": zod.int(),
+  "id": zod.number(),
   "title": zod.string(),
   "description": zod.string(),
   "subject": zod.string(),
   "section": zod.string(),
-  "duration": zod.int().describe('Duration in minutes'),
-  "questionCount": zod.int(),
-  "correctMarks": zod.int().describe('Marks awarded for a correct answer'),
-  "incorrectMarks": zod.int().describe('Marks deducted for an incorrect answer (negative marking)'),
-  "unattemptedMarks": zod.int().describe('Marks for an unattempted question'),
+  "duration": zod.number().describe('Duration in minutes'),
+  "questionCount": zod.number(),
+  "correctMarks": zod.number().describe('Marks awarded for a correct answer'),
+  "incorrectMarks": zod.number().describe('Marks deducted for an incorrect answer (negative marking)'),
+  "unattemptedMarks": zod.number().describe('Marks for an unattempted question'),
   "createdAt": zod.coerce.date()
 }))
 })
@@ -473,10 +473,10 @@ export const GlobalSearchResponse = zod.object({
  * @summary Track a user visit
  */
 export const TrackVisitBody = zod.object({
-  "userId": zod.int(),
+  "userId": zod.number(),
   "page": zod.string(),
   "action": zod.string().optional(),
-  "metadata": zod.looseObject({
+  "metadata": zod.object({
 
 }).optional()
 })
@@ -494,11 +494,11 @@ export const GetUserVisitsParams = zod.object({
 })
 
 export const GetUserVisitsResponseItem = zod.object({
-  "id": zod.int(),
-  "userId": zod.int(),
+  "id": zod.number(),
+  "userId": zod.number(),
   "page": zod.string(),
   "action": zod.string().optional(),
-  "metadata": zod.looseObject({
+  "metadata": zod.object({
 
 }).optional(),
   "createdAt": zod.coerce.date()
