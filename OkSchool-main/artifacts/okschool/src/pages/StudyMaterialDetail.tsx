@@ -28,7 +28,6 @@ export function StudyMaterialDetail() {
   const proxyFileUrl = (type: "pdf" | "word" | "thumbnail") =>
     `${API_BASE}/api/documents/${docId}/download?type=${type}`;
 
-  const [iframeFailed, setIframeFailed] = useState(false);
   const [showWordModal, setShowWordModal] = useState(false);
   const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
   const [pdfLoading, setPdfLoading] = useState(false);
@@ -85,7 +84,6 @@ export function StudyMaterialDetail() {
       setPdfBlobUrl(null);
       return;
     }
-    setIframeFailed(false);
     setPdfLoading(true);
     let revoked = false;
 
@@ -301,37 +299,31 @@ export function StudyMaterialDetail() {
               <FileText className="h-4 w-4" />
               <span className="truncate">{doc.title}</span>
             </div>
-            <div className="h-[560px] bg-black/5" data-testid="document-preview">
-              {pdfLoading && !pdfBlobUrl && !iframeFailed ? (
-                <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                  <div className="text-center">
-                    <BookOpen className="h-16 w-16 mx-auto mb-3 text-muted-foreground/30 animate-pulse" />
-                    <p className="text-sm">Loading preview...</p>
-                  </div>
+            <div className="h-[560px] bg-black/5 flex items-center justify-center" data-testid="document-preview">
+              {pdfLoading ? (
+                <div className="text-center text-muted-foreground">
+                  <BookOpen className="h-16 w-16 mx-auto mb-3 text-muted-foreground/30 animate-pulse" />
+                  <p className="text-sm">Loading preview...</p>
                 </div>
-              ) : pdfBlobUrl && !iframeFailed ? (
+              ) : pdfBlobUrl ? (
                 <iframe
                   src={pdfBlobUrl}
                   title={doc.title}
                   className="w-full h-full"
-                  sandbox="allow-scripts allow-same-origin"
-                  onError={() => setIframeFailed(true)}
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                  <div className="text-center">
-                    <BookOpen className="h-16 w-16 mx-auto mb-3 text-muted-foreground/30" />
-                    <p className="text-sm mb-3">Preview unavailable</p>
-                    {doc.fileUrl && (
-                      <Button
-                        variant="outline"
-                        onClick={() => window.open(proxyFileUrl("pdf"), "_blank")}
-                      >
-                        <Download className="h-4 w-4 mr-2" />
-                        Open PDF
-                      </Button>
-                    )}
-                  </div>
+                <div className="text-center text-muted-foreground">
+                  <BookOpen className="h-16 w-16 mx-auto mb-3 text-muted-foreground/30" />
+                  <p className="text-sm mb-3">Preview unavailable</p>
+                  {doc.fileUrl && (
+                    <Button
+                      variant="outline"
+                      onClick={() => window.open(proxyFileUrl("pdf"), "_blank")}
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Open PDF
+                    </Button>
+                  )}
                 </div>
               )}
             </div>
