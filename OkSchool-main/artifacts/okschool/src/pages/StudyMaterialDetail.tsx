@@ -87,46 +87,8 @@ export function StudyMaterialDetail() {
     }
     setIframeFailed(false);
     setPdfLoading(true);
-    let revoked = false;
-
-    const loadPdf = async () => {
-      try {
-        const res = await fetch(proxyFileUrl("pdf"));
-        if (!res.ok) throw new Error("proxy failed");
-        const blob = await res.blob();
-        const url = URL.createObjectURL(blob);
-        if (!revoked) {
-          setPdfBlobUrl(url);
-        } else {
-          URL.revokeObjectURL(url);
-        }
-      } catch {
-        try {
-          const directRes = await fetch(doc.fileUrl);
-          if (!directRes.ok) throw new Error("direct failed");
-          const blob = await directRes.blob();
-          const url = URL.createObjectURL(blob);
-          if (!revoked) {
-            setPdfBlobUrl(url);
-          } else {
-            URL.revokeObjectURL(url);
-          }
-        } catch {
-          if (!revoked) {
-            setIframeFailed(true);
-            setPdfBlobUrl(null);
-          }
-        }
-      } finally {
-        if (!revoked) setPdfLoading(false);
-      }
-    };
-
-    loadPdf();
-
-    return () => {
-      revoked = true;
-    };
+    setPdfBlobUrl(doc.fileUrl);
+    setPdfLoading(false);
   }, [doc?.fileUrl, docId]);
 
   useEffect(() => {
