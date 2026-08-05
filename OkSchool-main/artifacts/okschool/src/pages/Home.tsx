@@ -31,8 +31,12 @@ export function Home() {
   useEffect(() => {
     docs.forEach((doc) => {
       if (!doc.thumbnailUrl || thumbnailBlobs[doc.id]) return;
-      fetch(`${API_BASE}/api/documents/${doc.id}/download?type=thumbnail`)
-        .then((res) => res.blob())
+      const directUrl = doc.thumbnailUrl;
+      fetch(directUrl)
+        .then((res) => {
+          if (!res.ok) throw new Error("failed");
+          return res.blob();
+        })
         .then((blob) => {
           const url = URL.createObjectURL(blob);
           setThumbnailBlobs((prev) => ({ ...prev, [doc.id]: url }));
@@ -137,6 +141,21 @@ export function Home() {
                         src={thumbnailBlobs[doc.id]}
                         alt={doc.title}
                         className="w-full h-full object-cover"
+                      />
+                    ) : doc.thumbnailUrl ? (
+                      <img
+                        src={doc.thumbnailUrl}
+                        alt={doc.title}
+                        className="w-full h-full object-cover"
+                        onLoad={() => {
+                          setThumbnailBlobs((prev) => {
+                            if (prev[doc.id]) return prev;
+                            return { ...prev, [doc.id]: doc.thumbnailUrl };
+                          });
+                        }}
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none';
+                        }}
                       />
                     ) : (
                       <FileText className="h-12 w-12 text-muted-foreground/40" />
