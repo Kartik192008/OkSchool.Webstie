@@ -83,7 +83,7 @@ export function Home() {
             <Input
               type="search"
               placeholder="Search notes, projects, papers..."
-              className="pl-10 h-11 bg-card border-border rounded-full text-base"
+              className="pl-10 h-11 bg-card border-border rounded-full text-base shadow-sm transition-all focus:shadow-md focus:ring-2 focus:ring-primary/20"
               value={searchVal}
               onChange={(e) => setSearchVal(e.target.value)}
               data-testid="input-hero-search"
@@ -93,21 +93,24 @@ export function Home() {
       </section>
 
       {/* Tab navigation */}
-      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-16 z-40 shadow-sm">
-        <div className="container mx-auto px-4 overflow-x-auto">
+      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-16 z-40">
+        <div className="container mx-auto overflow-x-auto">
           <div className="flex gap-0 whitespace-nowrap">
             {CATEGORIES.map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => setActiveTab(cat.id)}
-                className={`px-5 py-3 text-sm font-medium border-b-2 transition-colors shrink-0 ${
+                className={`px-5 py-3.5 text-sm font-medium transition-all duration-200 shrink-0 relative ${
                   activeTab === cat.id
-                    ? "border-primary text-primary"
-                    : "border-transparent text-muted-foreground hover:text-foreground"
+                    ? "text-primary"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
                 data-testid={`tab-${cat.id}`}
               >
-                {cat.label}
+                <span className="relative z-10">{cat.label}</span>
+                {activeTab === cat.id && (
+                  <span className="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-primary to-accent rounded-full" />
+                )}
               </button>
             ))}
           </div>
@@ -134,7 +137,7 @@ export function Home() {
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {docs.map((doc) => (
               <Link href={`/study-material/${doc.id}`} key={doc.id} data-testid={`card-document-${doc.id}`}>
-                <div className="group bg-card border border-card-border rounded-lg overflow-hidden hover:shadow-md transition-shadow cursor-pointer h-full">
+                <div className="group bg-card border border-card-border rounded-xl overflow-hidden hover:shadow-lg transition-all duration-200 cursor-pointer h-full">
                   <div className="relative bg-muted aspect-[3/4] flex items-center justify-center">
                     {thumbnailBlobs[doc.id] ? (
                       <img
@@ -168,7 +171,7 @@ export function Home() {
                     <Badge variant="outline" className="text-[10px] mb-1 capitalize">
                       {doc.category.replace(/-/g, " ")}
                     </Badge>
-                    <p className="text-sm font-medium text-foreground line-clamp-2 group-hover:text-primary transition-colors">
+                    <p className="text-sm font-medium text-foreground line-clamp-2 transition-colors">
                       {doc.title}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{doc.description}</p>

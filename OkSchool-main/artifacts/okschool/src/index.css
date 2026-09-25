@@ -135,3 +135,31 @@
     @apply font-serif tracking-tight;
   }
 }
+
+@layer components {
+  .btn-gradient {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-primary to-accent px-5 py-2.5 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:shadow-lg hover:opacity-90 active:scale-[0.98];
+  }
+  .btn-pill {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-border bg-background/80 px-5 py-2.5 text-sm font-medium text-foreground shadow-sm backdrop-blur transition-all duration-200 hover:bg-accent hover:text-accent-foreground active:scale-[0.98];
+  }
+  .card-hover {
+    @apply transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5;
+  }
+}
+
+@layer utilities {
+  .animate-in {
+    animation: animateIn 400ms ease-out;
+  }
+  @keyframes animateIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
