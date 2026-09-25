@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Menu, Search, LogOut, Sun, Moon, User } from "lucide-react";
+import { Menu, Search, LogOut, Sun, Moon, User, Settings, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -16,6 +16,7 @@ export function Navbar() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -68,6 +69,16 @@ export function Navbar() {
     window.location.href = '/';
   };
 
+  const SettingsItem = ({ href, children, show = true }: { href: string; children: React.ReactNode; show?: boolean }) => {
+    if (!show) return null;
+    return (
+      <Link href={href} className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent/10 hover:text-foreground transition-colors">
+        <ChevronRight className="h-4 w-4" />
+        {children}
+      </Link>
+    );
+  };
+
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 lg:px-6 h-16 flex items-center justify-between">
@@ -80,31 +91,31 @@ export function Navbar() {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-[300px] sm:w-[400px]">
-            <nav className="flex flex-col gap-4 mt-8">
-              <Link href="/" className="text-lg font-medium hover:text-primary transition-colors">Home</Link>
-              <Link href="/mock-tests" className="text-lg font-medium hover:text-primary transition-colors">Mock Tests</Link>
-              <Link href="/amazon-store" className="text-lg font-medium hover:text-primary transition-colors">Amazon Store</Link>
-              {isAuthenticated && (
-                <>
-                  <Link href="/mock-test-history" className="text-lg font-medium hover:text-primary transition-colors">Mock Test History</Link>
-                  <Link href="/purchase-history" className="text-lg font-medium hover:text-primary transition-colors">Purchase History</Link>
-                </>
-              )}
-              {isAdmin && <Link href="/admin" className="text-lg font-medium hover:text-primary transition-colors">Admin Panel</Link>}
-              {isAuthenticated && (
-                <>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <User className="h-4 w-4" />
-                    <span>{userEmail}</span>
-                  </div>
-                  <Button variant="outline" size="sm" onClick={handleLogout} className="w-full">
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Logout
-                  </Button>
-                </>
-              )}
-              {!isAuthenticated && <Link href="/login" className="text-lg font-medium hover:text-primary transition-colors">Login</Link>}
-            </nav>
+              <nav className="flex flex-col gap-4 mt-8">
+                <Link href="/" className="text-lg font-medium hover:text-primary transition-colors">Home</Link>
+                <Link href="/mock-tests" className="text-lg font-medium hover:text-primary transition-colors">Mock Tests</Link>
+                <Link href="/amazon-store" className="text-lg font-medium hover:text-primary transition-colors">Amazon Store</Link>
+                {isAuthenticated && (
+                  <>
+                    <Link href="/mock-test-history" className="text-lg font-medium hover:text-primary transition-colors">Mock Test History</Link>
+                    <Link href="/purchase-history" className="text-lg font-medium hover:text-primary transition-colors">Purchase History</Link>
+                  </>
+                )}
+                {isAdmin && <Link href="/admin" className="text-lg font-medium hover:text-primary transition-colors">Admin Panel</Link>}
+                {isAuthenticated && (
+                  <>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <User className="h-4 w-4" />
+                      <span>{userEmail}</span>
+                    </div>
+                    <Button variant="outline" size="sm" onClick={handleLogout} className="w-full">
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Logout
+                    </Button>
+                  </>
+                )}
+                {!isAuthenticated && <Link href="/login" className="text-lg font-medium hover:text-primary transition-colors">Login</Link>}
+              </nav>
             </SheetContent>
           </Sheet>
 
@@ -117,13 +128,48 @@ export function Navbar() {
             <Link href="/" className="relative hover:text-primary transition-colors after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all hover:after:w-full">Home</Link>
             <Link href="/mock-tests" className="relative hover:text-primary transition-colors after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all hover:after:w-full">Mock Tests</Link>
             <Link href="/amazon-store" className="relative hover:text-primary transition-colors after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all hover:after:w-full">Amazon Store</Link>
-            {isAuthenticated && (
-              <>
-                <Link href="/mock-test-history" className="relative hover:text-primary transition-colors after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all hover:after:w-full">Mock Test History</Link>
-                <Link href="/purchase-history" className="relative hover:text-primary transition-colors after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all hover:after:w-full">Purchase History</Link>
-              </>
-            )}
-            {isAdmin && <Link href="/admin" className="relative hover:text-primary transition-colors after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all hover:after:w-full">Admin Panel</Link>}
+            <div className="relative">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="flex items-center gap-2 hover:bg-accent/10"
+                onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+              >
+                <Settings className="h-4 w-4" />
+                <span>Settings</span>
+              </Button>
+              {isSettingsOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setIsSettingsOpen(false)}
+                  />
+                  <div className="absolute left-0 top-full mt-2 w-56 rounded-xl border bg-background shadow-lg z-50">
+                    <div className="px-3 py-2 border-b">
+                      <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Account</p>
+                    </div>
+                    <div className="py-1.5">
+                      {isAuthenticated && (
+                        <>
+                          <SettingsItem href="/mock-test-history">Mock Test History</SettingsItem>
+                          <SettingsItem href="/purchase-history">Purchase History</SettingsItem>
+                        </>
+                      )}
+                      {isAdmin && <SettingsItem href="/admin">Admin Panel</SettingsItem>}
+                    </div>
+                    <div className="px-3 py-2 border-t">
+                      <p className="text-xs font-semibold text-foreground uppercase tracking-wider">About</p>
+                    </div>
+                    <div className="py-1.5">
+                      <SettingsItem href="/about">About Us</SettingsItem>
+                      <SettingsItem href="/terms">Terms of Service</SettingsItem>
+                      <SettingsItem href="/privacy">Privacy Policy</SettingsItem>
+                      <SettingsItem href="/refund">Refund & Cancellation Policy</SettingsItem>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
 
