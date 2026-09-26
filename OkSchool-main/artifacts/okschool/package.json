@@ -75,6 +75,8 @@
     "zod": "catalog:"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.108.2"
+    "@supabase/supabase-js": "^2.108.2",
+    "mini-svg-data-uri": "^1.4.4",
+    "motion": "^13.4.4"
   }
 }

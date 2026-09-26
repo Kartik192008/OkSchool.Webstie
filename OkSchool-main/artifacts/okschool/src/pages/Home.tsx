@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/lib/supabase";
 import { Link } from "wouter";
 import { API_BASE } from "@/lib/api";
+import { Boxes } from "@/components/ui/background-boxes";
 
 const CATEGORIES = [
   { id: "notes", label: "Notes" },
@@ -70,26 +71,31 @@ export function Home() {
   return (
     <div>
       {/* Hero */}
-      <section className="bg-background px-4 py-16 text-center">
-        <h1 className="text-5xl md:text-6xl font-serif font-bold text-foreground leading-tight mb-4">
-          Free notes &amp; projects<br />for every student.
-        </h1>
-        <p className="text-muted-foreground text-lg mb-8">
-          Download PDF free. Get editable Word file for just ₹20–₹30.
-        </p>
-        <form onSubmit={handleSearch} className="flex justify-center">
-          <div className="relative w-full max-w-lg">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search notes, projects, papers..."
-              className="pl-10 h-11 bg-card border-border rounded-full text-base shadow-sm transition-all focus:shadow-md focus:ring-2 focus:ring-primary/20"
-              value={searchVal}
-              onChange={(e) => setSearchVal(e.target.value)}
-              data-testid="input-hero-search"
-            />
-          </div>
-        </form>
+      <section className="relative overflow-hidden bg-background px-4 py-16 text-center">
+        <div className="absolute inset-0">
+          <Boxes />
+        </div>
+        <div className="relative z-10">
+          <h1 className="text-5xl md:text-6xl font-serif font-bold text-foreground leading-tight mb-4">
+            Free notes &amp; projects<br />for every student.
+          </h1>
+          <p className="text-muted-foreground text-lg mb-8">
+            Download PDF free. Get editable Word file for just ₹20–₹30.
+          </p>
+          <form onSubmit={handleSearch} className="flex justify-center">
+            <div className="relative w-full max-w-lg">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Search notes, projects, papers..."
+                className="pl-10 h-11 bg-card border-border rounded-full text-base shadow-sm transition-all focus:shadow-md focus:ring-2 focus:ring-primary/20"
+                value={searchVal}
+                onChange={(e) => setSearchVal(e.target.value)}
+                data-testid="input-hero-search"
+              />
+            </div>
+          </form>
+        </div>
       </section>
 
       {/* Tab navigation */}
