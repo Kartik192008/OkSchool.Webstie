@@ -1,12 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
-import { Search, FileText, Lock } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { FileText } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/lib/supabase";
 import { Link } from "wouter";
 import { API_BASE } from "@/lib/api";
 import { Boxes } from "@/components/ui/background-boxes";
+import { GooeyInput } from "@/components/ui/gooey-input";
 
 const CATEGORIES = [
   { id: "notes", label: "Notes" },
@@ -22,6 +22,7 @@ export function Home() {
   const [docs, setDocs] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [, setLocation] = useLocation();
+  const homeTimerRef = useRef<number | null>(null);
 
   const [thumbnailBlobs, setThumbnailBlobs] = useState<Record<number, string>>({});
 
@@ -63,11 +64,6 @@ export function Home() {
     }
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchVal.trim()) setLocation(`/search?q=${encodeURIComponent(searchVal.trim())}`);
-  };
-
   return (
     <div>
       {/* Hero */}
@@ -82,19 +78,28 @@ export function Home() {
           <p className="text-muted-foreground text-lg mb-8">
             Download PDF free. Get editable Word file for just ₹20–₹30.
           </p>
-          <form onSubmit={handleSearch} className="flex justify-center">
+          <div className="flex justify-center">
             <div className="relative w-full max-w-lg">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search notes, projects, papers..."
-                className="pl-10 h-11 bg-card border-border rounded-full text-base shadow-sm transition-all focus:shadow-md focus:ring-2 focus:ring-primary/20"
+              <GooeyInput
                 value={searchVal}
-                onChange={(e) => setSearchVal(e.target.value)}
-                data-testid="input-hero-search"
+                onValueChange={(value) => {
+                  setSearchVal(value);
+                  if (homeTimerRef.current) window.clearTimeout(homeTimerRef.current);
+                  homeTimerRef.current = window.setTimeout(() => {
+                    const trimmed = value.trim();
+                    if (trimmed) {
+                      setLocation(`/search?q=${encodeURIComponent(trimmed)}`);
+                    }
+                  }, 400);
+                }}
+                placeholder="Search notes, projects, papers..."
+                className="bg-card"
+                collapsedWidth={44}
+                expandedWidth={280}
+                expandedOffset={12}
               />
             </div>
-          </form>
+          </div>
         </div>
       </section>
 

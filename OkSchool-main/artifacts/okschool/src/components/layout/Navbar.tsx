@@ -1,22 +1,24 @@
 import { Link } from "wouter";
-import { Menu, Search, LogOut, Sun, Moon, User, Settings, ChevronRight } from "lucide-react";
+import { Menu, LogOut, Sun, Moon, User, Settings, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { supabase } from "@/lib/supabase";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTheme } from "next-themes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { GooeyInput } from "@/components/ui/gooey-input";
 
 export function Navbar() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userEmail, setUserEmail] = useState("");
   const [userName, setUserName] = useState("");
+  const [navQuery, setNavQuery] = useState("");
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const navTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -174,15 +176,26 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center gap-3">
-          <form action="/search" method="GET" className="relative hidden lg:block w-72" data-testid="form-search">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              name="q"
+          <div className="relative hidden lg:block w-72" data-testid="form-search">
+            <GooeyInput
+              value={navQuery}
+              onValueChange={(value) => {
+                setNavQuery(value);
+                if (navTimerRef.current) window.clearTimeout(navTimerRef.current);
+                navTimerRef.current = window.setTimeout(() => {
+                  const trimmed = value.trim();
+                  if (trimmed) {
+                    window.location.href = `/search?q=${encodeURIComponent(trimmed)}`;
+                  }
+                }, 400);
+              }}
               placeholder="Search notes, tests..."
-              className="pl-10 bg-card transition-all focus:ring-2 focus:ring-primary/20"
+              className="bg-card"
+              collapsedWidth={44}
+              expandedWidth={280}
+              expandedOffset={12}
             />
-          </form>
+          </div>
           {isAuthenticated && (
             <div className="hidden sm:flex relative">
               <Button
