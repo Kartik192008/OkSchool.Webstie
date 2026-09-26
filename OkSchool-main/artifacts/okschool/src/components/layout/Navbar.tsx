@@ -126,15 +126,15 @@ export function Navbar() {
             <span className="font-serif font-bold text-xl tracking-tight text-foreground">OkSchool</span>
           </Link>
 
-          <div className="hidden md:flex items-center gap-7 text-sm font-medium text-muted-foreground">
-            <Link href="/" className="relative hover:text-primary transition-colors after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all hover:after:w-full">Home</Link>
-            <Link href="/mock-tests" className="relative hover:text-primary transition-colors after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all hover:after:w-full">Mock Tests</Link>
-            <Link href="/amazon-store" className="relative hover:text-primary transition-colors after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all hover:after:w-full">Amazon Store</Link>
+          <div className="hidden md:flex items-center gap-3">
+            <Link href="/" className="px-4 py-2 rounded-md border border-black bg-white text-black text-sm hover:shadow-[4px_4px_0px_0px_rgba(0,0,0)] transition duration-200">Home</Link>
+            <Link href="/mock-tests" className="px-4 py-2 rounded-md border border-black bg-white text-black text-sm hover:shadow-[4px_4px_0px_0px_rgba(0,0,0)] transition duration-200">Mock Tests</Link>
+            <Link href="/amazon-store" className="px-4 py-2 rounded-md border border-black bg-white text-black text-sm hover:shadow-[4px_4px_0px_0px_rgba(0,0,0)] transition duration-200">Amazon Store</Link>
             <div className="relative">
               <Button
                 variant="ghost"
                 size="sm"
-                className="flex items-center gap-2 hover:bg-accent/10"
+                className="flex items-center gap-2 hover:bg-accent/10 px-4 py-2 rounded-md border border-black bg-white text-black text-sm hover:shadow-[4px_4px_0px_0px_rgba(0,0,0)] transition duration-200"
                 onClick={() => setIsSettingsOpen(!isSettingsOpen)}
               >
                 <Settings className="h-4 w-4" />

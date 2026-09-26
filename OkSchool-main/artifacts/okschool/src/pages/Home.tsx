@@ -71,6 +71,7 @@ export function Home() {
         <div className="absolute inset-0">
           <Boxes />
         </div>
+        <div className="absolute inset-0 bg-background/70 dark:bg-background/80" />
         <div className="relative z-10">
           <h1 className="text-5xl md:text-6xl font-serif font-bold text-foreground leading-tight mb-4">
             Free notes &amp; projects<br />for every student.
@@ -106,22 +107,17 @@ export function Home() {
       {/* Tab navigation */}
       <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-16 z-40">
         <div className="container mx-auto overflow-x-auto">
-          <div className="flex gap-0 whitespace-nowrap">
+          <div className="flex gap-2 whitespace-nowrap">
             {CATEGORIES.map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => setActiveTab(cat.id)}
-                className={`px-5 py-3.5 text-sm font-medium transition-all duration-200 shrink-0 relative ${
-                  activeTab === cat.id
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground"
+                className={`px-4 py-2 rounded-md border border-black bg-white text-black text-sm hover:shadow-[4px_4px_0px_0px_rgba(0,0,0)] transition duration-200 ${
+                  activeTab === cat.id ? "shadow-[4px_4px_0px_0px_rgba(0,0,0)]" : ""
                 }`}
                 data-testid={`tab-${cat.id}`}
               >
-                <span className="relative z-10">{cat.label}</span>
-                {activeTab === cat.id && (
-                  <span className="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-primary to-accent rounded-full" />
-                )}
+                {cat.label}
               </button>
             ))}
           </div>
