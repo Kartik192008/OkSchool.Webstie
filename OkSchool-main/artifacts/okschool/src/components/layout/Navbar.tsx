@@ -94,6 +94,7 @@ export function Navbar() {
               <nav className="flex flex-col gap-4 mt-8">
                 <Link href="/" className="text-lg font-medium hover:text-primary transition-colors">Home</Link>
                 <Link href="/mock-tests" className="text-lg font-medium hover:text-primary transition-colors">Mock Tests</Link>
+                <Link href="/generate-mock" className="text-lg font-medium hover:text-primary transition-colors">Generate Mock</Link>
                 <Link href="/amazon-store" className="text-lg font-medium hover:text-primary transition-colors">Amazon Store</Link>
                 {isAuthenticated && (
                   <>
@@ -128,6 +129,9 @@ export function Navbar() {
             <Link href="/" className="px-4 py-2 rounded-md border border-black bg-white text-black text-sm hover:shadow-[4px_4px_0px_0px_rgba(0,0,0)] transition duration-200">Home</Link>
             <Link href="/mock-tests" className="px-4 py-2 rounded-md border border-black bg-white text-black text-sm hover:shadow-[4px_4px_0px_0px_rgba(0,0,0)] transition duration-200">Mock Tests</Link>
             <Link href="/amazon-store" className="px-4 py-2 rounded-md border border-black bg-white text-black text-sm hover:shadow-[4px_4px_0px_0px_rgba(0,0,0)] transition duration-200">Amazon Store</Link>
+            <Link href="/generate-mock" className="px-4 py-2 rounded-md border border-black bg-white text-black text-sm hover:shadow-[4px_4px_0px_0px_rgba(0,0,0)] transition duration-200">
+              Generate Mock
+            </Link>
             <div className="relative">
               <Button
                 variant="ghost"
@@ -149,6 +153,7 @@ export function Navbar() {
                       <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Account</p>
                     </div>
                     <div className="py-1.5">
+                      <SettingsItem href="/my-mocks">My Mocks</SettingsItem>
                       {isAuthenticated && (
                         <>
                           <SettingsItem href="/mock-test-history">Mock Test History</SettingsItem>

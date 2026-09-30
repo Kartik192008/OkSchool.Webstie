@@ -292,11 +292,43 @@ paths:
               schema:
                 $ref: "#/components/schemas/MockTest"
 
-  /mock-tests/{id}:
+  /mock-tests/user:
     get:
-      operationId: getMockTest
+      operationId: listUserMockTests
       tags: [mock-tests]
-      summary: Get a mock test with questions
+      summary: List current user's mock tests
+      responses:
+        "200":
+          description: List of user mock tests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MockTest"
+    post:
+      operationId: createUserMockTest
+      tags: [mock-tests]
+      summary: Create a user mock test
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MockTestInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MockTest"
+
+  /mock-tests/user/{id}:
+    get:
+      operationId: getUserMockTest
+      tags: [mock-tests]
+      summary: Get a user mock test with questions
       parameters:
         - name: id
           in: path
@@ -305,7 +337,7 @@ paths:
             type: integer
       responses:
         "200":
-          description: Mock test with questions
+          description: User mock test with questions
           content:
             application/json:
               schema:
@@ -313,9 +345,9 @@ paths:
         "404":
           description: Not found
     delete:
-      operationId: deleteMockTest
+      operationId: deleteUserMockTest
       tags: [mock-tests]
-      summary: Delete a mock test (admin only)
+      summary: Delete a user mock test
       parameters:
         - name: id
           in: path
@@ -580,6 +612,12 @@ components:
         unattemptedMarks:
           type: integer
           description: Marks for an unattempted question
+        userId:
+          type: ["string", "null"]
+          description: User ID if user-generated
+        isUserGenerated:
+          type: integer
+          description: 1 if user-generated, 0 if admin-created
         createdAt:
           type: string
           format: date-time

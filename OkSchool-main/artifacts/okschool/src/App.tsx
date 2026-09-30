@@ -28,6 +28,8 @@ import { PrivacyPolicy } from "./pages/PrivacyPolicy";
 import { TermsOfService } from "./pages/TermsOfService";
 import { About } from "./pages/About";
 import { RefundCancellation } from "./pages/RefundCancellation";
+import { GenerateMock } from "./pages/GenerateMock";
+import { MyMocks } from "./pages/MyMocks";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -76,6 +78,12 @@ function Router() {
       </Route>
       <Route path="/amazon-store">
         <ProtectedRoute><AmazonStore /></ProtectedRoute>
+      </Route>
+      <Route path="/generate-mock">
+        <ProtectedRoute><GenerateMock /></ProtectedRoute>
+      </Route>
+      <Route path="/my-mocks">
+        <ProtectedRoute><MyMocks /></ProtectedRoute>
       </Route>
       <Route path="/search">
         <ProtectedRoute><SearchResults /></ProtectedRoute>

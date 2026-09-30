@@ -13,6 +13,8 @@ export const mockTestsTable = pgTable("mock_tests", {
   correctMarks: integer("correct_marks").notNull().default(4),
   incorrectMarks: integer("incorrect_marks").notNull().default(-1),
   unattemptedMarks: integer("unattempted_marks").notNull().default(0),
+  userId: text("user_id"),
+  isUserGenerated: integer("is_user_generated").notNull().default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -29,7 +31,7 @@ export const questionsTable = pgTable("questions", {
   solution: text("solution"),
 });
 
-export const insertMockTestSchema = createInsertSchema(mockTestsTable).omit({ id: true, createdAt: true, questionCount: true });
+export const insertMockTestSchema = createInsertSchema(mockTestsTable).omit({ id: true, createdAt: true, questionCount: true, userId: true, isUserGenerated: true });
 export type InsertMockTest = z.infer<typeof insertMockTestSchema>;
 export type MockTest = typeof mockTestsTable.$inferSelect;
 export type Question = typeof questionsTable.$inferSelect;
