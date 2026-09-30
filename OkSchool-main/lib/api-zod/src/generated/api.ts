@@ -351,6 +351,49 @@ export const CreateMockTestResponse = zod.object({
 
 
 /**
+ * @summary Get a mock test with questions
+ */
+export const GetMockTestParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetMockTestResponse = zod.object({
+  "id": zod.number(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "subject": zod.string(),
+  "section": zod.string(),
+  "duration": zod.number().describe('Duration in minutes'),
+  "questionCount": zod.number(),
+  "correctMarks": zod.number().describe('Marks awarded for a correct answer'),
+  "incorrectMarks": zod.number().describe('Marks deducted for an incorrect answer'),
+  "unattemptedMarks": zod.number().describe('Marks for an unattempted question'),
+  "createdAt": zod.coerce.date(),
+  "questions": zod.array(zod.object({
+  "id": zod.number().optional(),
+  "question": zod.string(),
+  "questionImage": zod.string().nullish(),
+  "optionA": zod.string(),
+  "optionB": zod.string(),
+  "optionC": zod.string(),
+  "optionD": zod.string(),
+  "correctAnswer": zod.string().describe('A, B, C, or D'),
+  "solution": zod.string().nullish()
+}))
+})
+
+
+/**
+ * @summary Delete a mock test (admin only)
+ */
+export const DeleteMockTestParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteMockTestResponse = zod.void()
+
+
+/**
  * @summary List current user's mock tests
  */
 export const ListUserMockTestsResponseItem = zod.object({

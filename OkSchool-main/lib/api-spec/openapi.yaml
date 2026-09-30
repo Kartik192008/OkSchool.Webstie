@@ -292,6 +292,42 @@ paths:
               schema:
                 $ref: "#/components/schemas/MockTest"
 
+  /mock-tests/{id}:
+    get:
+      operationId: getMockTest
+      tags: [mock-tests]
+      summary: Get a mock test with questions
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Mock test with questions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MockTestDetail"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteMockTest
+      tags: [mock-tests]
+      summary: Delete a mock test (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+
   /mock-tests/user:
     get:
       operationId: listUserMockTests

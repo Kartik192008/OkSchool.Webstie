@@ -1093,6 +1093,153 @@ export const useCreateMockTest = <TError = ErrorType<unknown>,
       return useMutation(getCreateMockTestMutationOptions(options));
     }
 
+export const getGetMockTestUrl = (id: number,) => {
+
+
+
+
+  return `/api/mock-tests/${id}`
+}
+
+/**
+ * @summary Get a mock test with questions
+ */
+export const getMockTest = async (id: number, options?: RequestInit): Promise<MockTestDetail> => {
+
+  return customFetch<MockTestDetail>(getGetMockTestUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetMockTestQueryKey = (id: number,) => {
+    return [
+    `/api/mock-tests/${id}`
+    ] as const;
+    }
+
+
+export const getGetMockTestQueryOptions = <TData = Awaited<ReturnType<typeof getMockTest>>, TError = ErrorType<void>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMockTest>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMockTestQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMockTest>>> = ({ signal }) => getMockTest(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMockTest>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetMockTestQueryResult = NonNullable<Awaited<ReturnType<typeof getMockTest>>>
+export type GetMockTestQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get a mock test with questions
+ */
+
+export function useGetMockTest<TData = Awaited<ReturnType<typeof getMockTest>>, TError = ErrorType<void>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMockTest>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetMockTestQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getDeleteMockTestUrl = (id: number,) => {
+
+
+
+
+  return `/api/mock-tests/${id}`
+}
+
+/**
+ * @summary Delete a mock test (admin only)
+ */
+export const deleteMockTest = async (id: number, options?: RequestInit): Promise<void> => {
+
+  return customFetch<void>(getDeleteMockTestUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getDeleteMockTestMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteMockTest>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteMockTest>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['deleteMockTest'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteMockTest>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteMockTest(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteMockTestMutationResult = NonNullable<Awaited<ReturnType<typeof deleteMockTest>>>
+
+    export type DeleteMockTestMutationError = ErrorType<void>
+
+    /**
+ * @summary Delete a mock test (admin only)
+ */
+export const useDeleteMockTest = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteMockTest>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteMockTest>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getDeleteMockTestMutationOptions(options));
+    }
+
 export const getListUserMockTestsUrl = () => {
 
 
