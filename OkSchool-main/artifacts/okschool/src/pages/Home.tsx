@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { Search, FileText, Lock } from "lucide-react";
 import { Input } from "@/components/ui/input";
