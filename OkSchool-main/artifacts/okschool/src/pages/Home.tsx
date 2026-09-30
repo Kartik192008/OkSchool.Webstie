@@ -1,12 +1,12 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { FileText } from "lucide-react";
+import { Search, FileText, Lock } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/lib/supabase";
 import { Link } from "wouter";
 import { API_BASE } from "@/lib/api";
 import { Boxes } from "@/components/ui/background-boxes";
-import { GooeyInput } from "@/components/ui/gooey-input";
 
 const CATEGORIES = [
   { id: "notes", label: "Notes" },
@@ -64,6 +64,11 @@ export function Home() {
     }
   };
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchVal.trim()) setLocation(`/search?q=${encodeURIComponent(searchVal.trim())}`);
+  };
+
   return (
     <div>
       {/* Hero */}
@@ -79,28 +84,19 @@ export function Home() {
           <p className="text-muted-foreground text-lg mb-8">
             Download PDF free. Get editable Word file for just ₹20–₹30.
           </p>
-          <div className="flex justify-center">
+          <form onSubmit={handleSearch} className="flex justify-center">
             <div className="relative w-full max-w-lg">
-              <GooeyInput
-                value={searchVal}
-                onValueChange={(value) => {
-                  setSearchVal(value);
-                  if (homeTimerRef.current) window.clearTimeout(homeTimerRef.current);
-                  homeTimerRef.current = window.setTimeout(() => {
-                    const trimmed = value.trim();
-                    if (trimmed) {
-                      setLocation(`/search?q=${encodeURIComponent(trimmed)}`);
-                    }
-                  }, 400);
-                }}
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
                 placeholder="Search notes, projects, papers..."
-                className="bg-card"
-                collapsedWidth={44}
-                expandedWidth={280}
-                expandedOffset={12}
+                className="pl-10 h-11 bg-card border-border rounded-full text-base shadow-sm transition-all focus:shadow-md focus:ring-2 focus:ring-primary/20"
+                value={searchVal}
+                onChange={(e) => setSearchVal(e.target.value)}
+                data-testid="input-hero-search"
               />
             </div>
-          </div>
+          </form>
         </div>
       </section>
 
