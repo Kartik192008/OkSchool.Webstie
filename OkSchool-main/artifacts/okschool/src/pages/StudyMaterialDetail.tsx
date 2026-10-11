@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "wouter";
-import { Download, ArrowLeft, FileText, Lock, BookOpen, X, CreditCard, CheckCircle, ExternalLink } from "lucide-react";
+import { Download, ArrowLeft, FileText, Lock, BookOpen, X, CreditCard, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
@@ -290,22 +290,9 @@ export function StudyMaterialDetail() {
       <div className="grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
           <div className="bg-card border border-card-border rounded-xl overflow-hidden">
-            <div className="bg-muted/50 border-b px-4 py-2 flex items-center justify-between gap-2 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2 min-w-0">
-                <FileText className="h-4 w-4 shrink-0" />
-                <span className="truncate">{doc.title}</span>
-              </div>
-              {doc.fileUrl && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-7 px-2 shrink-0"
-                  onClick={() => window.open(proxyFileUrl("pdf"), "_blank")}
-                  data-testid="button-open-pdf-new-tab"
-                >
-                  <ExternalLink className="h-3.5 w-3.5" />
-                </Button>
-              )}
+            <div className="bg-muted/50 border-b px-4 py-2 flex items-center gap-2 text-sm text-muted-foreground">
+              <FileText className="h-4 w-4 shrink-0" />
+              <span className="truncate">{doc.title}</span>
             </div>
             <div className="relative h-[560px] bg-muted/30" data-testid="document-preview">
               {pdfLoading && (
@@ -320,18 +307,7 @@ export function StudyMaterialDetail() {
                 <div className="flex h-full items-center justify-center text-center text-muted-foreground">
                   <div>
                     <FileText className="h-16 w-16 mx-auto mb-3 text-muted-foreground/30" />
-                    <p className="text-sm mb-3">Preview could not be loaded.</p>
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setPdfError(false);
-                        setPdfLoading(true);
-                        window.open(proxyFileUrl("pdf"), "_blank");
-                      }}
-                    >
-                      <ExternalLink className="h-4 w-4 mr-2" />
-                      Open PDF
-                    </Button>
+                    <p className="text-sm">Preview could not be loaded. Please try again later.</p>
                   </div>
                 </div>
               ) : doc.fileUrl ? (
