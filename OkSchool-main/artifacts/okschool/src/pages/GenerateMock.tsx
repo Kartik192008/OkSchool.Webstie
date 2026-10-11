@@ -183,6 +183,30 @@ export function GenerateMock() {
     setParsedQuestions((prev) => prev.map((q, i) => (i === index ? { ...q, hasImage: false, imageUrl: null } : q)));
   };
 
+  const postMockTest = async (payload: unknown, attempts = 2): Promise<Response> => {
+    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+    for (let attempt = 1; attempt <= attempts; attempt++) {
+      try {
+        const res = await fetch(`${API_BASE}/mock-tests/user`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        // Render free-tier services spin down; a cold start answers 502/503/504.
+        // Retry once so the first request after idle can succeed.
+        if (res.ok || ![502, 503, 504].includes(res.status) || attempt === attempts) {
+          return res;
+        }
+        await sleep(6000);
+      } catch (err) {
+        if (attempt === attempts) throw err;
+        await sleep(6000);
+      }
+    }
+    throw new Error("Request failed");
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -225,26 +249,29 @@ export function GenerateMock() {
       });
 
       setIsSubmitting(true);
-      const res = await fetch(`${API_BASE}/mock-tests/user`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId,
-          title: form.title,
-          description: form.description,
-          subject: form.subject,
-          section: form.section || "General",
-          duration: parseInt(form.duration, 10) || 30,
-          correctMarks: parseInt(form.correctMarks, 10) || 4,
-          incorrectMarks: parseInt(form.incorrectMarks, 10) || -1,
-          unattemptedMarks: parseInt(form.unattemptedMarks, 10) || 0,
-          questions,
-        }),
+      const res = await postMockTest({
+        userId,
+        title: form.title,
+        description: form.description,
+        subject: form.subject,
+        section: form.section || "General",
+        duration: parseInt(form.duration, 10) || 30,
+        correctMarks: parseInt(form.correctMarks, 10) || 4,
+        incorrectMarks: parseInt(form.incorrectMarks, 10) || -1,
+        unattemptedMarks: parseInt(form.unattemptedMarks, 10) || 0,
+        questions,
       });
 
       if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || err.details || "Failed to create");
+        let detail = `Request failed with status ${res.status}`;
+        try {
+          const err = await res.json();
+          detail = err.error || err.details || detail;
+        } catch {
+          const text = await res.text().catch(() => "");
+          if (text) detail = `${detail} - ${text.slice(0, 200)}`;
+        }
+        throw new Error(detail);
       }
 
       toast({ title: "Mock test created!" });
