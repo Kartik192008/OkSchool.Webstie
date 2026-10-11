@@ -104,7 +104,7 @@ export function GenerateMock() {
       return;
     }
     try {
-      const res = await fetch(`${API_BASE}/mock-tests/user?userId=${encodeURIComponent(userId)}`);
+      const res = await fetch(`${API_BASE}/api/mock-tests/user?userId=${encodeURIComponent(userId)}`);
       if (res.ok) setMocks(await res.json());
     } catch {
       setMocks([]);
@@ -115,7 +115,7 @@ export function GenerateMock() {
     const userId = await getUserId();
     if (!userId) return;
     try {
-      const res = await fetch(`${API_BASE}/mock-test/history/${encodeURIComponent(userId)}`);
+      const res = await fetch(`${API_BASE}/api/mock-test/history/${encodeURIComponent(userId)}`);
       if (res.ok) setAttempts(await res.json());
     } catch {
       setAttempts([]);
@@ -188,7 +188,7 @@ export function GenerateMock() {
 
     for (let attempt = 1; attempt <= attempts; attempt++) {
       try {
-        const res = await fetch(`${API_BASE}/mock-tests/user`, {
+        const res = await fetch(`${API_BASE}/api/mock-tests/user`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -293,7 +293,7 @@ export function GenerateMock() {
   const handleDelete = async (id: number) => {
     if (!confirm("Delete this mock test? This cannot be undone.")) return;
     try {
-      const res = await fetch(`${API_BASE}/mock-tests/user/${id}`, { method: "DELETE" });
+      const res = await fetch(`${API_BASE}/api/mock-tests/user/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to delete");
       setMocks((prev) => prev.filter((m) => m.id !== id));
       toast({ title: "Mock test deleted" });
