@@ -23,3 +23,8 @@ export * from './mockTestInput';
 export * from './question';
 export * from './searchResults';
 export * from './sectionCount';
+export * from './trackVisit201';
+export * from './visitInput';
+export * from './visitInputMetadata';
+export * from './visitRecord';
+export * from './visitRecordMetadata';

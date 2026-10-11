@@ -1,0 +1,1 @@
+ALTER TABLE "mock_tests" ADD COLUMN "section" text DEFAULT 'General' NOT NULL;

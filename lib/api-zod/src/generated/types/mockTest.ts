@@ -11,8 +11,22 @@ export interface MockTest {
   title: string;
   description: string;
   subject: string;
+  section: string;
   /** Duration in minutes */
   duration: number;
   questionCount: number;
+  /** Marks awarded for a correct answer */
+  correctMarks: number;
+  /** Marks deducted for an incorrect answer (negative marking) */
+  incorrectMarks: number;
+  /** Marks for an unattempted question */
+  unattemptedMarks: number;
+  /**
+     * User ID if user-generated
+     * @nullable
+     */
+  userId?: string | null;
+  /** 1 if user-generated, 0 if admin-created */
+  isUserGenerated?: number;
   createdAt: Date;
 }

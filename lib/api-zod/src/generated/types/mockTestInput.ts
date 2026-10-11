@@ -12,6 +12,13 @@ export interface MockTestInput {
   title: string;
   description: string;
   subject: string;
+  section: string;
   duration: number;
+  /** Marks for correct answer */
+  correctMarks?: number;
+  /** Marks for incorrect answer */
+  incorrectMarks?: number;
+  /** Marks for unattempted question */
+  unattemptedMarks?: number;
   questions?: Question[];
 }

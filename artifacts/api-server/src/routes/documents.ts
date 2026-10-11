@@ -140,6 +140,70 @@ router.post("/documents/:id/view", async (req, res): Promise<void> => {
   res.json(doc);
 });
 
+router.get("/documents/:id/download", async (req, res): Promise<void> => {
+  try {
+    const params = GetDocumentParams.safeParse(req.params);
+    if (!params.success) {
+      res.status(400).json({ error: params.error.message });
+      return;
+    }
+
+    const fileType = typeof req.query.type === "string" ? req.query.type : "pdf";
+
+    const [doc] = await db.select().from(documentsTable).where(eq(documentsTable.id, params.data.id));
+    if (!doc) {
+      res.status(404).json({ error: "Document not found" });
+      return;
+    }
+
+    let fileUrl: string | null = null;
+    let contentType = "application/octet-stream";
+
+    switch (fileType) {
+      case "word":
+        fileUrl = doc.wordFileUrl;
+        contentType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+        break;
+      case "thumbnail":
+        fileUrl = doc.thumbnailUrl;
+        contentType = "image/jpeg";
+        break;
+      case "pdf":
+      default:
+        fileUrl = doc.fileUrl;
+        contentType = "application/pdf";
+        break;
+    }
+
+    if (!fileUrl) {
+      res.status(404).json({ error: "File not found" });
+      return;
+    }
+
+    const response = await fetch(fileUrl);
+    if (!response.ok) {
+      res.status(502).json({ error: "Failed to fetch file from storage" });
+      return;
+    }
+
+    const upstreamContentType = response.headers.get("content-type");
+    if (upstreamContentType) {
+      contentType = upstreamContentType;
+    }
+
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Content-Disposition", "inline");
+    res.removeHeader("X-Frame-Options");
+
+    const arrayBuffer = await response.arrayBuffer();
+    res.setHeader("Content-Length", String(arrayBuffer.byteLength));
+    res.send(Buffer.from(arrayBuffer));
+    } catch (err) {
+    console.error("Error serving document file:", err);
+    res.status(500).json({ error: "Failed to serve file" });
+  }
+});
+
 router.post("/documents/:id/download", async (req, res): Promise<void> => {
   const params = RecordDocumentDownloadParams.safeParse(req.params);
   if (!params.success) {

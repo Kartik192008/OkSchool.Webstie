@@ -34,7 +34,10 @@ import type {
   MockTest,
   MockTestDetail,
   MockTestInput,
-  SearchResults
+  SearchResults,
+  TrackVisit201,
+  VisitInput,
+  VisitRecord
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -1237,6 +1240,300 @@ export const useDeleteMockTest = <TError = ErrorType<void>,
       return useMutation(getDeleteMockTestMutationOptions(options));
     }
 
+export const getListUserMockTestsUrl = () => {
+
+
+
+
+  return `/api/mock-tests/user`
+}
+
+/**
+ * @summary List current user's mock tests
+ */
+export const listUserMockTests = async ( options?: RequestInit): Promise<MockTest[]> => {
+
+  return customFetch<MockTest[]>(getListUserMockTestsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListUserMockTestsQueryKey = () => {
+    return [
+    `/api/mock-tests/user`
+    ] as const;
+    }
+
+
+export const getListUserMockTestsQueryOptions = <TData = Awaited<ReturnType<typeof listUserMockTests>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listUserMockTests>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListUserMockTestsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listUserMockTests>>> = ({ signal }) => listUserMockTests({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listUserMockTests>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListUserMockTestsQueryResult = NonNullable<Awaited<ReturnType<typeof listUserMockTests>>>
+export type ListUserMockTestsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List current user's mock tests
+ */
+
+export function useListUserMockTests<TData = Awaited<ReturnType<typeof listUserMockTests>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listUserMockTests>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListUserMockTestsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateUserMockTestUrl = () => {
+
+
+
+
+  return `/api/mock-tests/user`
+}
+
+/**
+ * @summary Create a user mock test
+ */
+export const createUserMockTest = async (mockTestInput: MockTestInput, options?: RequestInit): Promise<MockTest> => {
+
+  return customFetch<MockTest>(getCreateUserMockTestUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(mockTestInput)
+  }
+);}
+
+
+
+
+export const getCreateUserMockTestMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createUserMockTest>>, TError,{data: BodyType<MockTestInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createUserMockTest>>, TError,{data: BodyType<MockTestInput>}, TContext> => {
+
+const mutationKey = ['createUserMockTest'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createUserMockTest>>, {data: BodyType<MockTestInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createUserMockTest(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateUserMockTestMutationResult = NonNullable<Awaited<ReturnType<typeof createUserMockTest>>>
+    export type CreateUserMockTestMutationBody = BodyType<MockTestInput>
+    export type CreateUserMockTestMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Create a user mock test
+ */
+export const useCreateUserMockTest = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createUserMockTest>>, TError,{data: BodyType<MockTestInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createUserMockTest>>,
+        TError,
+        {data: BodyType<MockTestInput>},
+        TContext
+      > => {
+      return useMutation(getCreateUserMockTestMutationOptions(options));
+    }
+
+export const getGetUserMockTestUrl = (id: number,) => {
+
+
+
+
+  return `/api/mock-tests/user/${id}`
+}
+
+/**
+ * @summary Get a user mock test with questions
+ */
+export const getUserMockTest = async (id: number, options?: RequestInit): Promise<MockTestDetail> => {
+
+  return customFetch<MockTestDetail>(getGetUserMockTestUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetUserMockTestQueryKey = (id: number,) => {
+    return [
+    `/api/mock-tests/user/${id}`
+    ] as const;
+    }
+
+
+export const getGetUserMockTestQueryOptions = <TData = Awaited<ReturnType<typeof getUserMockTest>>, TError = ErrorType<void>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getUserMockTest>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetUserMockTestQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getUserMockTest>>> = ({ signal }) => getUserMockTest(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getUserMockTest>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetUserMockTestQueryResult = NonNullable<Awaited<ReturnType<typeof getUserMockTest>>>
+export type GetUserMockTestQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get a user mock test with questions
+ */
+
+export function useGetUserMockTest<TData = Awaited<ReturnType<typeof getUserMockTest>>, TError = ErrorType<void>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getUserMockTest>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetUserMockTestQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getDeleteUserMockTestUrl = (id: number,) => {
+
+
+
+
+  return `/api/mock-tests/user/${id}`
+}
+
+/**
+ * @summary Delete a user mock test
+ */
+export const deleteUserMockTest = async (id: number, options?: RequestInit): Promise<void> => {
+
+  return customFetch<void>(getDeleteUserMockTestUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getDeleteUserMockTestMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteUserMockTest>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteUserMockTest>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['deleteUserMockTest'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteUserMockTest>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteUserMockTest(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteUserMockTestMutationResult = NonNullable<Awaited<ReturnType<typeof deleteUserMockTest>>>
+
+    export type DeleteUserMockTestMutationError = ErrorType<void>
+
+    /**
+ * @summary Delete a user mock test
+ */
+export const useDeleteUserMockTest = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteUserMockTest>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteUserMockTest>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getDeleteUserMockTestMutationOptions(options));
+    }
+
 export const getGetAdminStatsUrl = () => {
 
 
@@ -1386,6 +1683,153 @@ export function useGlobalSearch<TData = Awaited<ReturnType<typeof globalSearch>>
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGlobalSearchQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getTrackVisitUrl = () => {
+
+
+
+
+  return `/api/visits`
+}
+
+/**
+ * @summary Track a user visit
+ */
+export const trackVisit = async (visitInput: VisitInput, options?: RequestInit): Promise<TrackVisit201> => {
+
+  return customFetch<TrackVisit201>(getTrackVisitUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(visitInput)
+  }
+);}
+
+
+
+
+export const getTrackVisitMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof trackVisit>>, TError,{data: BodyType<VisitInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof trackVisit>>, TError,{data: BodyType<VisitInput>}, TContext> => {
+
+const mutationKey = ['trackVisit'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof trackVisit>>, {data: BodyType<VisitInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  trackVisit(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type TrackVisitMutationResult = NonNullable<Awaited<ReturnType<typeof trackVisit>>>
+    export type TrackVisitMutationBody = BodyType<VisitInput>
+    export type TrackVisitMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Track a user visit
+ */
+export const useTrackVisit = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof trackVisit>>, TError,{data: BodyType<VisitInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof trackVisit>>,
+        TError,
+        {data: BodyType<VisitInput>},
+        TContext
+      > => {
+      return useMutation(getTrackVisitMutationOptions(options));
+    }
+
+export const getGetUserVisitsUrl = (userId: number,) => {
+
+
+
+
+  return `/api/visits/${userId}`
+}
+
+/**
+ * @summary Get user visit history
+ */
+export const getUserVisits = async (userId: number, options?: RequestInit): Promise<VisitRecord[]> => {
+
+  return customFetch<VisitRecord[]>(getGetUserVisitsUrl(userId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetUserVisitsQueryKey = (userId: number,) => {
+    return [
+    `/api/visits/${userId}`
+    ] as const;
+    }
+
+
+export const getGetUserVisitsQueryOptions = <TData = Awaited<ReturnType<typeof getUserVisits>>, TError = ErrorType<unknown>>(userId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getUserVisits>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetUserVisitsQueryKey(userId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getUserVisits>>> = ({ signal }) => getUserVisits(userId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: userId !== null && userId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getUserVisits>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetUserVisitsQueryResult = NonNullable<Awaited<ReturnType<typeof getUserVisits>>>
+export type GetUserVisitsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get user visit history
+ */
+
+export function useGetUserVisits<TData = Awaited<ReturnType<typeof getUserVisits>>, TError = ErrorType<unknown>>(
+ userId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getUserVisits>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetUserVisitsQueryOptions(userId,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

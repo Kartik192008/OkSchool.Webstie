@@ -292,8 +292,14 @@ export const ListMockTestsResponseItem = zod.object({
   "title": zod.string(),
   "description": zod.string(),
   "subject": zod.string(),
+  "section": zod.string(),
   "duration": zod.number().describe('Duration in minutes'),
   "questionCount": zod.number(),
+  "correctMarks": zod.number().describe('Marks awarded for a correct answer'),
+  "incorrectMarks": zod.number().describe('Marks deducted for an incorrect answer (negative marking)'),
+  "unattemptedMarks": zod.number().describe('Marks for an unattempted question'),
+  "userId": zod.string().nullish().describe('User ID if user-generated'),
+  "isUserGenerated": zod.number().optional().describe('1 if user-generated, 0 if admin-created'),
   "createdAt": zod.coerce.date()
 })
 export const ListMockTestsResponse = zod.array(ListMockTestsResponseItem)
@@ -309,7 +315,11 @@ export const CreateMockTestBody = zod.object({
   "title": zod.string().min(1),
   "description": zod.string(),
   "subject": zod.string(),
+  "section": zod.string(),
   "duration": zod.number(),
+  "correctMarks": zod.number().optional().describe('Marks for correct answer'),
+  "incorrectMarks": zod.number().optional().describe('Marks for incorrect answer'),
+  "unattemptedMarks": zod.number().optional().describe('Marks for unattempted question'),
   "questions": zod.array(zod.object({
   "id": zod.number().optional(),
   "question": zod.string(),
@@ -328,8 +338,14 @@ export const CreateMockTestResponse = zod.object({
   "title": zod.string(),
   "description": zod.string(),
   "subject": zod.string(),
+  "section": zod.string(),
   "duration": zod.number().describe('Duration in minutes'),
   "questionCount": zod.number(),
+  "correctMarks": zod.number().describe('Marks awarded for a correct answer'),
+  "incorrectMarks": zod.number().describe('Marks deducted for an incorrect answer (negative marking)'),
+  "unattemptedMarks": zod.number().describe('Marks for an unattempted question'),
+  "userId": zod.string().nullish().describe('User ID if user-generated'),
+  "isUserGenerated": zod.number().optional().describe('1 if user-generated, 0 if admin-created'),
   "createdAt": zod.coerce.date()
 })
 
@@ -346,8 +362,12 @@ export const GetMockTestResponse = zod.object({
   "title": zod.string(),
   "description": zod.string(),
   "subject": zod.string(),
-  "duration": zod.number(),
+  "section": zod.string(),
+  "duration": zod.number().describe('Duration in minutes'),
   "questionCount": zod.number(),
+  "correctMarks": zod.number().describe('Marks awarded for a correct answer'),
+  "incorrectMarks": zod.number().describe('Marks deducted for an incorrect answer'),
+  "unattemptedMarks": zod.number().describe('Marks for an unattempted question'),
   "createdAt": zod.coerce.date(),
   "questions": zod.array(zod.object({
   "id": zod.number().optional(),
@@ -371,6 +391,115 @@ export const DeleteMockTestParams = zod.object({
 })
 
 export const DeleteMockTestResponse = zod.void()
+
+
+/**
+ * @summary List current user's mock tests
+ */
+export const ListUserMockTestsResponseItem = zod.object({
+  "id": zod.number(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "subject": zod.string(),
+  "section": zod.string(),
+  "duration": zod.number().describe('Duration in minutes'),
+  "questionCount": zod.number(),
+  "correctMarks": zod.number().describe('Marks awarded for a correct answer'),
+  "incorrectMarks": zod.number().describe('Marks deducted for an incorrect answer (negative marking)'),
+  "unattemptedMarks": zod.number().describe('Marks for an unattempted question'),
+  "userId": zod.string().nullish().describe('User ID if user-generated'),
+  "isUserGenerated": zod.number().optional().describe('1 if user-generated, 0 if admin-created'),
+  "createdAt": zod.coerce.date()
+})
+export const ListUserMockTestsResponse = zod.array(ListUserMockTestsResponseItem)
+
+
+/**
+ * @summary Create a user mock test
+ */
+
+
+
+export const CreateUserMockTestBody = zod.object({
+  "title": zod.string().min(1),
+  "description": zod.string(),
+  "subject": zod.string(),
+  "section": zod.string(),
+  "duration": zod.number(),
+  "correctMarks": zod.number().optional().describe('Marks for correct answer'),
+  "incorrectMarks": zod.number().optional().describe('Marks for incorrect answer'),
+  "unattemptedMarks": zod.number().optional().describe('Marks for unattempted question'),
+  "questions": zod.array(zod.object({
+  "id": zod.number().optional(),
+  "question": zod.string(),
+  "questionImage": zod.string().nullish(),
+  "optionA": zod.string(),
+  "optionB": zod.string(),
+  "optionC": zod.string(),
+  "optionD": zod.string(),
+  "correctAnswer": zod.string().describe('A, B, C, or D'),
+  "solution": zod.string().nullish()
+})).optional()
+})
+
+export const CreateUserMockTestResponse = zod.object({
+  "id": zod.number(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "subject": zod.string(),
+  "section": zod.string(),
+  "duration": zod.number().describe('Duration in minutes'),
+  "questionCount": zod.number(),
+  "correctMarks": zod.number().describe('Marks awarded for a correct answer'),
+  "incorrectMarks": zod.number().describe('Marks deducted for an incorrect answer (negative marking)'),
+  "unattemptedMarks": zod.number().describe('Marks for an unattempted question'),
+  "userId": zod.string().nullish().describe('User ID if user-generated'),
+  "isUserGenerated": zod.number().optional().describe('1 if user-generated, 0 if admin-created'),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Get a user mock test with questions
+ */
+export const GetUserMockTestParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetUserMockTestResponse = zod.object({
+  "id": zod.number(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "subject": zod.string(),
+  "section": zod.string(),
+  "duration": zod.number().describe('Duration in minutes'),
+  "questionCount": zod.number(),
+  "correctMarks": zod.number().describe('Marks awarded for a correct answer'),
+  "incorrectMarks": zod.number().describe('Marks deducted for an incorrect answer'),
+  "unattemptedMarks": zod.number().describe('Marks for an unattempted question'),
+  "createdAt": zod.coerce.date(),
+  "questions": zod.array(zod.object({
+  "id": zod.number().optional(),
+  "question": zod.string(),
+  "questionImage": zod.string().nullish(),
+  "optionA": zod.string(),
+  "optionB": zod.string(),
+  "optionC": zod.string(),
+  "optionD": zod.string(),
+  "correctAnswer": zod.string().describe('A, B, C, or D'),
+  "solution": zod.string().nullish()
+}))
+})
+
+
+/**
+ * @summary Delete a user mock test
+ */
+export const DeleteUserMockTestParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteUserMockTestResponse = zod.void()
 
 
 /**
@@ -442,10 +571,53 @@ export const GlobalSearchResponse = zod.object({
   "title": zod.string(),
   "description": zod.string(),
   "subject": zod.string(),
+  "section": zod.string(),
   "duration": zod.number().describe('Duration in minutes'),
   "questionCount": zod.number(),
+  "correctMarks": zod.number().describe('Marks awarded for a correct answer'),
+  "incorrectMarks": zod.number().describe('Marks deducted for an incorrect answer (negative marking)'),
+  "unattemptedMarks": zod.number().describe('Marks for an unattempted question'),
+  "userId": zod.string().nullish().describe('User ID if user-generated'),
+  "isUserGenerated": zod.number().optional().describe('1 if user-generated, 0 if admin-created'),
   "createdAt": zod.coerce.date()
 }))
 })
+
+
+/**
+ * @summary Track a user visit
+ */
+export const TrackVisitBody = zod.object({
+  "userId": zod.number(),
+  "page": zod.string(),
+  "action": zod.string().optional(),
+  "metadata": zod.object({
+
+}).passthrough().optional()
+})
+
+export const TrackVisitResponse = zod.object({
+  "success": zod.boolean().optional()
+})
+
+
+/**
+ * @summary Get user visit history
+ */
+export const GetUserVisitsParams = zod.object({
+  "userId": zod.coerce.number()
+})
+
+export const GetUserVisitsResponseItem = zod.object({
+  "id": zod.number(),
+  "userId": zod.number(),
+  "page": zod.string(),
+  "action": zod.string().optional(),
+  "metadata": zod.object({
+
+}).passthrough().optional(),
+  "createdAt": zod.coerce.date()
+})
+export const GetUserVisitsResponse = zod.array(GetUserVisitsResponseItem)
 
 

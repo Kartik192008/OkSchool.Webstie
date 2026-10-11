@@ -12,8 +12,16 @@ export interface MockTestDetail {
   title: string;
   description: string;
   subject: string;
+  section: string;
+  /** Duration in minutes */
   duration: number;
   questionCount: number;
+  /** Marks awarded for a correct answer */
+  correctMarks: number;
+  /** Marks deducted for an incorrect answer */
+  incorrectMarks: number;
+  /** Marks for an unattempted question */
+  unattemptedMarks: number;
   createdAt: Date;
   questions: Question[];
 }

@@ -20,6 +20,8 @@ tags:
     description: Admin operations
   - name: search
     description: Global search
+  - name: visits
+    description: User visit tracking
 
 paths:
   /healthz:
@@ -290,7 +292,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/MockTest"
 
-   /mock-tests/{id}:
+  /mock-tests/{id}:
     get:
       operationId: getMockTest
       tags: [mock-tests]
@@ -326,82 +328,73 @@ paths:
         "404":
           description: Not found
 
-  /mock-test/results:
-    post:
-      operationId: createMockTestResult
+  /mock-tests/user:
+    get:
+      operationId: listUserMockTests
       tags: [mock-tests]
-      summary: Save mock test result
+      summary: List current user's mock tests
+      responses:
+        "200":
+          description: List of user mock tests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MockTest"
+    post:
+      operationId: createUserMockTest
+      tags: [mock-tests]
+      summary: Create a user mock test
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              required: [userId, mockTestId, score, maxScore, correct, incorrect, unattempted, timeTaken]
-              properties:
-                userId:
-                  type: string
-                mockTestId:
-                  type: integer
-                score:
-                  type: integer
-                maxScore:
-                  type: integer
-                correct:
-                  type: integer
-                incorrect:
-                  type: integer
-                unattempted:
-                  type: integer
-                timeTaken:
-                  type: integer
-                answers:
-                  type: object
+              $ref: "#/components/schemas/MockTestInput"
       responses:
         "201":
           description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MockTest"
 
-  /mock-test/history/{userId}:
+  /mock-tests/user/{id}:
     get:
-      operationId: getMockTestHistory
+      operationId: getUserMockTest
       tags: [mock-tests]
-      summary: Get user mock test history
+      summary: Get a user mock test with questions
       parameters:
-        - name: userId
+        - name: id
           in: path
           required: true
           schema:
-            type: string
+            type: integer
       responses:
         "200":
-          description: List of mock test results
+          description: User mock test with questions
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/MockTestResult"
-
-  /payments/history/{userId}:
-    get:
-      operationId: getPaymentHistory
-      tags: [payments]
-      summary: Get user payment/purchase history
+                $ref: "#/components/schemas/MockTestDetail"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteUserMockTest
+      tags: [mock-tests]
+      summary: Delete a user mock test
       parameters:
-        - name: userId
+        - name: id
           in: path
           required: true
           schema:
-            type: string
+            type: integer
       responses:
-        "200":
-          description: List of payments
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/PaymentHistoryItem"
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
 
   /admin/stats:
     get:
@@ -434,6 +427,49 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SearchResults"
+
+  /visits:
+    post:
+      operationId: trackVisit
+      tags: [visits]
+      summary: Track a user visit
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VisitInput"
+      responses:
+        "201":
+          description: Visit tracked
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+
+  /visits/{userId}:
+    get:
+      operationId: getUserVisits
+      tags: [visits]
+      summary: Get user visit history
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User visits
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VisitRecord"
 
 components:
   schemas:
@@ -586,7 +622,7 @@ components:
 
     MockTest:
       type: object
-      required: [id, title, description, subject, duration, questionCount, createdAt]
+      required: [id, title, description, subject, section, duration, questionCount, correctMarks, incorrectMarks, unattemptedMarks, createdAt]
       properties:
         id:
           type: integer
@@ -596,18 +632,35 @@ components:
           type: string
         subject:
           type: string
+        section:
+          type: string
         duration:
           type: integer
           description: Duration in minutes
         questionCount:
           type: integer
+        correctMarks:
+          type: integer
+          description: Marks awarded for a correct answer
+        incorrectMarks:
+          type: integer
+          description: Marks deducted for an incorrect answer (negative marking)
+        unattemptedMarks:
+          type: integer
+          description: Marks for an unattempted question
+        userId:
+          type: ["string", "null"]
+          description: User ID if user-generated
+        isUserGenerated:
+          type: integer
+          description: 1 if user-generated, 0 if admin-created
         createdAt:
           type: string
           format: date-time
 
     MockTestInput:
       type: object
-      required: [title, description, subject, duration]
+      required: [title, description, subject, section, duration]
       properties:
         title:
           type: string
@@ -616,8 +669,19 @@ components:
           type: string
         subject:
           type: string
+        section:
+          type: string
         duration:
           type: integer
+        correctMarks:
+          type: integer
+          description: Marks for correct answer
+        incorrectMarks:
+          type: integer
+          description: Marks for incorrect answer
+        unattemptedMarks:
+          type: integer
+          description: Marks for unattempted question
         questions:
           type: array
           items:
@@ -625,7 +689,7 @@ components:
 
     MockTestDetail:
       type: object
-      required: [id, title, description, subject, duration, questionCount, questions, createdAt]
+      required: [id, title, description, subject, section, duration, questionCount, correctMarks, incorrectMarks, unattemptedMarks, questions, createdAt]
       properties:
         id:
           type: integer
@@ -635,10 +699,22 @@ components:
           type: string
         subject:
           type: string
+        section:
+          type: string
         duration:
           type: integer
+          description: Duration in minutes
         questionCount:
           type: integer
+        correctMarks:
+          type: integer
+          description: Marks awarded for a correct answer
+        incorrectMarks:
+          type: integer
+          description: Marks deducted for an incorrect answer
+        unattemptedMarks:
+          type: integer
+          description: Marks for an unattempted question
         createdAt:
           type: string
           format: date-time
@@ -712,58 +788,40 @@ components:
         amazonProducts:
           type: array
           items:
-            $ref: "#/components/schemas/AmazonProduct"
+             $ref: "#/components/schemas/AmazonProduct"
         mockTests:
           type: array
           items:
             $ref: "#/components/schemas/MockTest"
 
-    MockTestResult:
+    VisitInput:
       type: object
-      required: [id, userId, mockTestId, score, maxScore, correct, incorrect, unattempted, timeTaken, createdAt]
+      required: [userId, page]
+      properties:
+        userId:
+          type: integer
+        page:
+          type: string
+        action:
+          type: string
+        metadata:
+          type: object
+
+    VisitRecord:
+      type: object
+      required: [id, userId, page, createdAt]
       properties:
         id:
           type: integer
         userId:
+          type: integer
+        page:
           type: string
-        mockTestId:
-          type: integer
-        title:
-          type: ["string", "null"]
-        score:
-          type: integer
-        maxScore:
-          type: integer
-        correct:
-          type: integer
-        incorrect:
-          type: integer
-        unattempted:
-          type: integer
-        timeTaken:
-          type: integer
+        action:
+          type: string
+        metadata:
+          type: object
         createdAt:
           type: string
           format: date-time
 
-    PaymentHistoryItem:
-      type: object
-      required: [id, userId, documentId, amount, currency, status, createdAt]
-      properties:
-        id:
-          type: integer
-        userId:
-          type: string
-        documentId:
-          type: integer
-        amount:
-          type: integer
-        currency:
-          type: string
-        status:
-          type: string
-        razorpayPaymentId:
-          type: string
-        createdAt:
-          type: string
-          format: date-time

@@ -107,9 +107,23 @@ export interface MockTest {
   title: string;
   description: string;
   subject: string;
+  section: string;
   /** Duration in minutes */
   duration: number;
   questionCount: number;
+  /** Marks awarded for a correct answer */
+  correctMarks: number;
+  /** Marks deducted for an incorrect answer (negative marking) */
+  incorrectMarks: number;
+  /** Marks for an unattempted question */
+  unattemptedMarks: number;
+  /**
+     * User ID if user-generated
+     * @nullable
+     */
+  userId?: string | null;
+  /** 1 if user-generated, 0 if admin-created */
+  isUserGenerated?: number;
   createdAt: string;
 }
 
@@ -133,7 +147,14 @@ export interface MockTestInput {
   title: string;
   description: string;
   subject: string;
+  section: string;
   duration: number;
+  /** Marks for correct answer */
+  correctMarks?: number;
+  /** Marks for incorrect answer */
+  incorrectMarks?: number;
+  /** Marks for unattempted question */
+  unattemptedMarks?: number;
   questions?: Question[];
 }
 
@@ -142,8 +163,16 @@ export interface MockTestDetail {
   title: string;
   description: string;
   subject: string;
+  section: string;
+  /** Duration in minutes */
   duration: number;
   questionCount: number;
+  /** Marks awarded for a correct answer */
+  correctMarks: number;
+  /** Marks deducted for an incorrect answer */
+  incorrectMarks: number;
+  /** Marks for an unattempted question */
+  unattemptedMarks: number;
   createdAt: string;
   questions: Question[];
 }
@@ -168,6 +197,26 @@ export interface SearchResults {
   mockTests: MockTest[];
 }
 
+export type VisitInputMetadata = { [key: string]: unknown };
+
+export interface VisitInput {
+  userId: number;
+  page: string;
+  action?: string;
+  metadata?: VisitInputMetadata;
+}
+
+export type VisitRecordMetadata = { [key: string]: unknown };
+
+export interface VisitRecord {
+  id: number;
+  userId: number;
+  page: string;
+  action?: string;
+  metadata?: VisitRecordMetadata;
+  createdAt: string;
+}
+
 export type ListDocumentsParams = {
 category?: string;
 q?: string;
@@ -175,5 +224,9 @@ q?: string;
 
 export type GlobalSearchParams = {
 q: string;
+};
+
+export type TrackVisit201 = {
+  success?: boolean;
 };
 
