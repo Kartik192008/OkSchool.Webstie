@@ -1,371 +1,311 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { ArrowLeft, Plus, Trash2, FileJson } from "lucide-react";
+import { ArrowLeft, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
 import { API_BASE } from "@/lib/api";
 import { Link } from "wouter";
 
-type Question = {
-  id?: number;
-  question: string;
-  optionA: string;
-  optionB: string;
-  optionC: string;
-  optionD: string;
-  correctAnswer: string;
-  solution?: string;
+type UserMock = {
+  id: number;
+  title: string;
+  description: string;
+  subject: string;
+  section: string;
+  duration: number;
+  questionCount: number;
+  correctMarks: number;
+  incorrectMarks: number;
+  unattemptedMarks: number;
+  userId?: string;
+  isUserGenerated: number;
+  createdAt: string;
+};
+
+const EMPTY_FORM = {
+  title: "",
+  description: "",
+  subject: "",
+  section: "",
+  duration: "30",
+  correctMarks: "4",
+  incorrectMarks: "-1",
+  unattemptedMarks: "0",
 };
 
 export function GenerateMock() {
   const [, setLocation] = useLocation();
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [subject, setSubject] = useState("");
-  const [duration, setDuration] = useState(30);
-  const [correctMarks, setCorrectMarks] = useState(4);
-  const [incorrectMarks, setIncorrectMarks] = useState(-1);
-  const [unattemptedMarks, setUnattemptedMarks] = useState(0);
-  const [questions, setQuestions] = useState<Question[]>([
-    { question: "", optionA: "", optionB: "", optionC: "", optionD: "", correctAnswer: "A" },
-  ]);
+  const { toast } = useToast();
+
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [mocks, setMocks] = useState<UserMock[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState("");
+  const [uploading, setUploading] = useState(false);
 
-  const addQuestion = () => {
-    setQuestions([...questions, { question: "", optionA: "", optionB: "", optionC: "", optionD: "", correctAnswer: "A" }]);
-  };
-
-  const removeQuestion = (index: number) => {
-    if (questions.length > 1) {
-      setQuestions(questions.filter((_, i) => i !== index));
-    }
-  };
-
-  const updateQuestion = (index: number, field: keyof Question, value: string) => {
-    const updated = [...questions];
-    updated[index] = { ...updated[index], [field]: value };
-    setQuestions(updated);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setError("");
-
+  const loadMocks = async () => {
     try {
       const { data: sessionData } = await supabase.auth.getSession();
       const userId = sessionData?.session?.user?.id;
       if (!userId) {
-        setError("Please login to create a mock test");
+        setLocation("/login");
+        return;
+      }
+      const res = await fetch(`${API_BASE}/mock-tests/user?userId=${encodeURIComponent(userId)}`);
+      if (!res.ok) throw new Error("Failed to load");
+      const data = await res.json();
+      setMocks(data);
+    } catch {
+      setMocks([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadMocks();
+  }, []);
+
+  const handleDelete = async (id: number) => {
+    if (!confirm("Delete this mock test? This cannot be undone.")) return;
+    try {
+      const res = await fetch(`${API_BASE}/mock-tests/user/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete");
+      setMocks((prev) => prev.filter((m) => m.id !== id));
+      toast({ title: "Mock test deleted" });
+    } catch {
+      toast({ title: "Error", description: "Could not delete the mock test.", variant: "destructive" });
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setUploading(true);
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const userId = sessionData?.session?.user?.id;
+      if (!userId) {
+        toast({ title: "Please login first" });
+        setLocation("/login");
         return;
       }
 
-      const validQuestions = questions.filter(q => q.question.trim() && q.optionA.trim() && q.optionB.trim() && q.optionC.trim() && q.optionD.trim());
-
-      if (validQuestions.length === 0) {
-        setError("Please add at least one complete question");
+      const input = document.getElementById("gm-json") as HTMLInputElement | null;
+      const file = input?.files?.[0];
+      if (!file) {
+        toast({ title: "Questions JSON file is required", variant: "destructive" });
         return;
       }
 
-      const response = await fetch(`${API_BASE}/mock-tests/user`, {
+      const text = await file.text();
+      const jsonData = JSON.parse(text);
+      let questionsArray: any[];
+      if (Array.isArray(jsonData)) {
+        questionsArray = jsonData;
+      } else if (jsonData.questions && Array.isArray(jsonData.questions)) {
+        questionsArray = jsonData.questions;
+      } else {
+        toast({ title: "Invalid JSON", description: "JSON must be an array of questions or contain a 'questions' array", variant: "destructive" });
+        return;
+      }
+
+      const questions = questionsArray.map((q: any, index: number) => {
+        let optionA = "", optionB = "", optionC = "", optionD = "";
+
+        if (q.options && Array.isArray(q.options)) {
+          q.options.forEach((opt: any) => {
+            const optId = String(opt.optionId || opt.id || "").toUpperCase();
+            const optText = opt.text || opt.content || opt.value || "";
+            if (optId === "A") optionA = optText;
+            if (optId === "B") optionB = optText;
+            if (optId === "C") optionC = optText;
+            if (optId === "D") optionD = optText;
+          });
+        } else {
+          optionA = q.optionA || q.A || q.a || "";
+          optionB = q.optionB || q.B || q.b || "";
+          optionC = q.optionC || q.C || q.c || "";
+          optionD = q.optionD || q.D || q.d || "";
+        }
+
+        return {
+          question: q.question || q.questionText || q.q || `Question ${index + 1}`,
+          questionImage: q.questionImage || q.image || null,
+          optionA,
+          optionB,
+          optionC,
+          optionD,
+          correctAnswer: String(q.correctAnswer || q.answer || q.correct || "").toUpperCase(),
+          solution: q.solution || q.explanation || null,
+        };
+      });
+
+      setIsSubmitting(true);
+      const res = await fetch(`${API_BASE}/mock-tests/user`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId,
-          title,
-          description,
-          subject: subject || "General",
-          section: "My Mocks",
-          duration,
-          correctMarks,
-          incorrectMarks,
-          unattemptedMarks,
-          questions: validQuestions,
+          title: form.title,
+          description: form.description,
+          subject: form.subject,
+          section: form.section || "General",
+          duration: parseInt(form.duration, 10) || 30,
+          correctMarks: parseInt(form.correctMarks, 10) || 4,
+          incorrectMarks: parseInt(form.incorrectMarks, 10) || -1,
+          unattemptedMarks: parseInt(form.unattemptedMarks, 10) || 0,
+          questions,
         }),
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to create mock test");
-      }
+      if (!res.ok) throw new Error("Failed to create");
 
-      setLocation("/my-mocks");
-    } catch (err) {
-      console.error("Failed to create mock test:", err);
-      setError("Failed to create mock test. Please try again.");
+      toast({ title: "Mock test created!" });
+      setForm(EMPTY_FORM);
+      if (input) input.value = "";
+      await loadMocks();
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message || "Could not create the mock test.", variant: "destructive" });
     } finally {
+      setUploading(false);
       setIsSubmitting(false);
     }
   };
 
-  const handleJSONImport = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const data = JSON.parse(event.target?.result as string);
-        if (data.questions && Array.isArray(data.questions)) {
-          setQuestions(data.questions.map((q: any) => ({
-            question: q.question || "",
-            optionA: q.optionA || "",
-            optionB: q.optionB || "",
-            optionC: q.optionC || "",
-            optionD: q.optionD || "",
-            correctAnswer: q.correctAnswer || "A",
-            solution: q.solution || "",
-          })));
-        }
-        if (data.title) setTitle(data.title);
-        if (data.description) setDescription(data.description);
-        if (data.subject) setSubject(data.subject);
-        if (data.duration) setDuration(data.duration);
-        if (data.correctMarks) setCorrectMarks(data.correctMarks);
-        if (data.incorrectMarks) setIncorrectMarks(data.incorrectMarks);
-        if (data.unattemptedMarks) setUnattemptedMarks(data.unattemptedMarks);
-      } catch (err) {
-        console.error("Failed to parse JSON:", err);
-        alert("Invalid JSON file");
-      }
-    };
-    reader.readAsText(file);
-  };
+  const sections = [...new Set(mocks.map((m) => m.section))];
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-4">
-              <Link href="/mock-tests">
-                <Button variant="ghost" size="icon">
-                  <ArrowLeft className="h-4 w-4" />
-                </Button>
-              </Link>
-              <div>
-                <h1 className="text-3xl font-serif font-bold text-foreground">Generate Your Own Mock</h1>
-                <p className="text-muted-foreground text-sm mt-1">Create a personalized mock test for yourself</p>
-              </div>
-            </div>
-            <div>
-              <label htmlFor="json-import" className="cursor-pointer">
-                <Button variant="outline" size="sm" asChild>
-                  <span>
-                    <FileJson className="h-4 w-4 mr-2" />
-                    Import JSON
-                  </span>
-                </Button>
-              </label>
-              <input
-                id="json-import"
-                type="file"
-                accept=".json"
-                onChange={handleJSONImport}
-                className="hidden"
-              />
-            </div>
+    <div className="container mx-auto px-4 py-8 max-w-6xl">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-4">
+          <Link href="/mock-tests">
+            <Button variant="ghost" size="icon">
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+          </Link>
+          <h1 className="font-serif text-2xl font-bold">Generate Your Own Mock</h1>
+        </div>
+      </div>
+
+      {/* Create form */}
+      <div className="bg-card border border-card-border rounded-xl p-6 mb-8">
+        <h2 className="font-semibold mb-4 flex items-center gap-2"><Plus className="h-4 w-4" /> Add Mock Test</h2>
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="sm:col-span-2">
+            <Label htmlFor="gm-title">Title *</Label>
+            <Input id="gm-title" placeholder="Test name" value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} className="mt-1" required />
           </div>
+          <div className="sm:col-span-2">
+            <Label htmlFor="gm-desc">Description</Label>
+            <Input id="gm-desc" placeholder="Brief description" value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} className="mt-1" />
+          </div>
+          <div>
+            <Label htmlFor="gm-subject">Subject *</Label>
+            <Input id="gm-subject" placeholder="Physics, Chemistry, etc." value={form.subject} onChange={(e) => setForm((f) => ({ ...f, subject: e.target.value }))} className="mt-1" required />
+          </div>
+          <div>
+            <Label htmlFor="gm-section">Section / Exam *</Label>
+            <Input id="gm-section" list="gm-section-list" placeholder="e.g. JEE, NEET, CBSE" value={form.section} onChange={(e) => setForm((f) => ({ ...f, section: e.target.value }))} className="mt-1" required />
+            <datalist id="gm-section-list">
+              {sections.map((section) => (
+                <option key={section} value={section} />
+              ))}
+            </datalist>
+          </div>
+          <div>
+            <Label htmlFor="gm-duration">Duration (minutes) *</Label>
+            <Input id="gm-duration" type="number" placeholder="30" value={form.duration} onChange={(e) => setForm((f) => ({ ...f, duration: e.target.value }))} className="mt-1" required />
+          </div>
+          <div>
+            <Label htmlFor="gm-correct">Correct Answer Marks *</Label>
+            <Input id="gm-correct" type="number" placeholder="4" value={form.correctMarks} onChange={(e) => setForm((f) => ({ ...f, correctMarks: e.target.value }))} className="mt-1" required />
+          </div>
+          <div>
+            <Label htmlFor="gm-incorrect">Incorrect Answer Marks *</Label>
+            <Input id="gm-incorrect" type="number" placeholder="-1" value={form.incorrectMarks} onChange={(e) => setForm((f) => ({ ...f, incorrectMarks: e.target.value }))} className="mt-1" required />
+          </div>
+          <div>
+            <Label htmlFor="gm-unattempted">Unattempted Marks *</Label>
+            <Input id="gm-unattempted" type="number" placeholder="0" value={form.unattemptedMarks} onChange={(e) => setForm((f) => ({ ...f, unattemptedMarks: e.target.value }))} className="mt-1" required />
+          </div>
+          <div className="sm:col-span-2">
+            <Label htmlFor="gm-json">Questions JSON File *</Label>
+            <Input id="gm-json" type="file" className="mt-1" accept=".json" required />
+            <p className="text-xs text-muted-foreground mt-1">
+              Upload a JSON file with questions. Supports images via "questionImage" field. Format: array of objects with question, options, correctAnswer, and solution fields.
+            </p>
+            <details className="mt-3">
+              <summary className="text-xs text-primary cursor-pointer hover:underline">View JSON format example</summary>
+              <pre className="mt-2 bg-muted rounded-lg p-3 text-xs overflow-x-auto text-muted-foreground">
+{`[
+  {
+    "question": "How many blocks of wood planks are obtained by crafting a single log?",
+    "questionImage": "https://example.com/images/crafting-table.png",
+    "options": [
+      { "optionId": "A", "text": "2" },
+      { "optionId": "B", "text": "4" },
+      { "optionId": "C", "text": "6" },
+      { "optionId": "D", "text": "8" }
+    ],
+    "correctAnswer": "B",
+    "solution": "One log crafts into 4 wooden planks."
+  }
+]`}
+              </pre>
+            </details>
+          </div>
+          <div className="sm:col-span-2 flex justify-end">
+            <Button type="submit" disabled={uploading || isSubmitting} data-testid="button-create-mock">
+              {uploading ? "Creating..." : isSubmitting ? "Adding..." : "Add Mock Test"}
+            </Button>
+          </div>
+        </form>
+      </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {error && (
-              <div className="bg-destructive/10 text-destructive px-4 py-3 rounded-lg text-sm">
-                {error}
-              </div>
-            )}
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Test Details</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Title *</label>
-                    <Input
-                      value={title}
-                      onChange={(e) => setTitle(e.target.value)}
-                      placeholder="My Mock Test"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Subject</label>
-                    <Input
-                      value={subject}
-                      onChange={(e) => setSubject(e.target.value)}
-                      placeholder="e.g., Mathematics"
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Description</label>
-                  <Textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Describe your mock test..."
-                    rows={3}
-                  />
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Duration (min)</label>
-                    <Input
-                      type="number"
-                      value={duration}
-                      onChange={(e) => setDuration(Number(e.target.value))}
-                      min={1}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Correct Marks</label>
-                    <Input
-                      type="number"
-                      value={correctMarks}
-                      onChange={(e) => setCorrectMarks(Number(e.target.value))}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Incorrect Marks</label>
-                    <Input
-                      type="number"
-                      value={incorrectMarks}
-                      onChange={(e) => setIncorrectMarks(Number(e.target.value))}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Unattempted Marks</label>
-                    <Input
-                      type="number"
-                      value={unattemptedMarks}
-                      onChange={(e) => setUnattemptedMarks(Number(e.target.value))}
-                    />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-serif font-semibold">Questions</h2>
-              <Button type="button" variant="outline" size="sm" onClick={addQuestion}>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Question
-              </Button>
-            </div>
-
-            {questions.map((q, index) => (
-              <Card key={index}>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-base">Question {index + 1}</CardTitle>
-                    {questions.length > 1 && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeQuestion(index)}
-                      >
+      {/* My mocks table */}
+      <div className="bg-card border border-card-border rounded-xl overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/50 border-b border-card-border">
+              <tr>
+                <th className="text-left px-4 py-3 font-medium">Title</th>
+                <th className="text-left px-4 py-3 font-medium">Section</th>
+                <th className="text-left px-4 py-3 font-medium hidden sm:table-cell">Subject</th>
+                <th className="text-left px-4 py-3 font-medium hidden sm:table-cell">Duration</th>
+                <th className="text-left px-4 py-3 font-medium hidden sm:table-cell">Questions</th>
+                <th className="text-right px-4 py-3 font-medium">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-card-border">
+              {isLoading ? (
+                <tr><td colSpan={6} className="px-4 py-6 text-center text-muted-foreground">Loading...</td></tr>
+              ) : mocks.length === 0 ? (
+                <tr><td colSpan={6} className="px-4 py-6 text-center text-muted-foreground">No mock tests yet. Create one above.</td></tr>
+              ) : (
+                mocks.map((test) => (
+                  <tr key={test.id} className="hover:bg-muted/30">
+                    <td className="px-4 py-3">
+                      <Link href={`/mock-test/${test.id}`} className="font-medium text-foreground hover:text-primary">
+                        {test.title}
+                      </Link>
+                    </td>
+                    <td className="px-4 py-3 text-muted-foreground">{test.section}</td>
+                    <td className="px-4 py-3 text-muted-foreground hidden sm:table-cell">{test.subject}</td>
+                    <td className="px-4 py-3 text-muted-foreground hidden sm:table-cell">{test.duration} min</td>
+                    <td className="px-4 py-3 text-muted-foreground hidden sm:table-cell">{test.questionCount}</td>
+                    <td className="px-4 py-3 text-right">
+                      <Button variant="ghost" size="sm" onClick={() => handleDelete(test.id)}>
                         <Trash2 className="h-4 w-4 text-destructive" />
                       </Button>
-                    )}
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Question *</label>
-                    <Textarea
-                      value={q.question}
-                      onChange={(e) => updateQuestion(index, "question", e.target.value)}
-                      placeholder="Enter your question..."
-                      rows={2}
-                      required
-                    />
-                  </div>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Option A *</label>
-                      <Input
-                        value={q.optionA}
-                        onChange={(e) => updateQuestion(index, "optionA", e.target.value)}
-                        placeholder="Option A"
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Option B *</label>
-                      <Input
-                        value={q.optionB}
-                        onChange={(e) => updateQuestion(index, "optionB", e.target.value)}
-                        placeholder="Option B"
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Option C *</label>
-                      <Input
-                        value={q.optionC}
-                        onChange={(e) => updateQuestion(index, "optionC", e.target.value)}
-                        placeholder="Option C"
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Option D *</label>
-                      <Input
-                        value={q.optionD}
-                        onChange={(e) => updateQuestion(index, "optionD", e.target.value)}
-                        placeholder="Option D"
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div className="grid md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Correct Answer *</label>
-                    <Select
-                      value={q.correctAnswer}
-                      onValueChange={(value) => updateQuestion(index, "correctAnswer", value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select correct answer" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="A">A</SelectItem>
-                        <SelectItem value="B">B</SelectItem>
-                        <SelectItem value="C">C</SelectItem>
-                        <SelectItem value="D">D</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Solution (Optional)</label>
-                      <Input
-                        value={q.solution}
-                        onChange={(e) => updateQuestion(index, "solution", e.target.value)}
-                        placeholder="Explain the answer..."
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-
-            <div className="flex gap-4">
-              <Button type="submit" className="flex-1" disabled={isSubmitting}>
-                {isSubmitting ? "Creating..." : "Create Mock Test"}
-              </Button>
-              <Link href="/mock-tests">
-                <Button type="button" variant="outline">
-                  Cancel
-                </Button>
-              </Link>
-            </div>
-          </form>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
