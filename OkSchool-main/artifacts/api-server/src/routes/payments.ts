@@ -13,10 +13,18 @@ if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
   console.error("Missing Razorpay credentials. Set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET environment variables.");
 }
 
-const razorpay = new Razorpay({
-  key_id: RAZORPAY_KEY_ID || "",
-  key_secret: RAZORPAY_KEY_SECRET || "",
-});
+let razorpayInstance: Razorpay | null = null;
+
+function getRazorpay(): Razorpay | null {
+  if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) return null;
+  if (!razorpayInstance) {
+    razorpayInstance = new Razorpay({
+      key_id: RAZORPAY_KEY_ID,
+      key_secret: RAZORPAY_KEY_SECRET,
+    });
+  }
+  return razorpayInstance;
+}
 
 router.post("/razorpay/create-order", async (req, res): Promise<void> => {
   try {
@@ -45,6 +53,12 @@ router.post("/razorpay/create-order", async (req, res): Promise<void> => {
     }
 
     const receipt = `doc_${documentId}_user_${userId}`;
+
+    const razorpay = getRazorpay();
+    if (!razorpay) {
+      res.status(500).json({ error: "Payment gateway not configured" });
+      return;
+    }
 
     const order = await razorpay.orders.create({
       amount: amountNum,
