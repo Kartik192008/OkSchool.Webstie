@@ -61,6 +61,9 @@ function Router() {
       <Route path="/login">
         <PublicLayout><Login /></PublicLayout>
       </Route>
+      <Route path="/study-material/:id/:slug">
+        <ProtectedRoute><StudyMaterialDetail /></ProtectedRoute>
+      </Route>
       <Route path="/study-material/:id">
         <ProtectedRoute><StudyMaterialDetail /></ProtectedRoute>
       </Route>

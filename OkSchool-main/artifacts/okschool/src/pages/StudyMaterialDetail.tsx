@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "wouter";
+import { useSEO, documentUrl } from "@/lib/seo";
 import { Download, ArrowLeft, FileText, Lock, BookOpen, X, CreditCard, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -39,6 +40,36 @@ export function StudyMaterialDetail() {
 
   const { data: doc, isLoading } = useGetDocument(docId, {
     query: { enabled: !!docId, queryKey: getGetDocumentQueryKey(docId) },
+  });
+
+  useSEO({
+    title: doc ? `${doc.title} - ${doc.subject}` : "Study Material",
+    description: doc
+      ? `${doc.description || "Study material"} — free PDF download for students on OkSchool. Category: ${doc.category.replace(/-/g, " ")}.`
+      : "Download free notes, projects and question papers on OkSchool.",
+    path: doc ? documentUrl(doc.id, doc.title) : `/study-material/${docId}`,
+    image: doc?.thumbnailUrl || undefined,
+    type: "article",
+    noindex: !doc,
+    jsonLd: doc
+      ? {
+          "@context": "https://schema.org",
+          "@type": "LearningResource",
+          name: doc.title,
+          description: doc.description || doc.title,
+          educationalLevel: "Class 10-12",
+          learningResourceType: doc.category.replace(/-/g, " "),
+          isAccessibleForFree: !!doc.isFree,
+          inLanguage: "en",
+          url: `https://okschool-s.onrender.com${documentUrl(doc.id, doc.title)}`,
+          provider: {
+            "@type": "Organization",
+            name: "OkSchool",
+            url: "https://okschool-s.onrender.com",
+          },
+        }
+      : undefined,
+    jsonLdId: "document",
   });
 
   const recordView = useRecordDocumentView();

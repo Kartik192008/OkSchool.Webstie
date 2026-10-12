@@ -1,2 +1,4 @@
 User-agent: *
 Allow: /
+
+Sitemap: https://okschool-s.onrender.com/sitemap.xml

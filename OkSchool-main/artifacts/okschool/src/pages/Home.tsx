@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase";
 import { Link } from "wouter";
 import { API_BASE } from "@/lib/api";
 import { Boxes } from "@/components/ui/background-boxes";
+import { useSEO, documentUrl } from "@/lib/seo";
 
 const CATEGORIES = [
   { id: "notes", label: "Notes" },
@@ -25,6 +26,27 @@ export function Home() {
   const homeTimerRef = useRef<number | null>(null);
 
   const [thumbnailBlobs, setThumbnailBlobs] = useState<Record<number, string>>({});
+
+  useSEO({
+    title: "",
+    description:
+      "OkSchool — free notes, investigatory projects, question papers and mock tests for students. Download PDFs free, editable Word files at low cost.",
+    path: "/",
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: "OkSchool",
+      url: "https://okschool-s.onrender.com",
+      description:
+        "Free notes, projects and mock tests for students. Download PDF free, editable Word file for ₹20-₹30.",
+      potentialAction: {
+        "@type": "SearchAction",
+        target: "https://okschool-s.onrender.com/search?q={search_term_string}",
+        "query-input": "required name=search_term_string",
+      },
+    },
+    jsonLdId: "website",
+  });
 
   useEffect(() => {
     fetchDocuments();
@@ -140,7 +162,7 @@ export function Home() {
           <div className="max-h-[70vh] overflow-y-auto pr-1">
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {docs.map((doc) => (
-                <Link href={`/study-material/${doc.id}`} key={doc.id} data-testid={`card-document-${doc.id}`}>
+                <Link href={documentUrl(doc.id, doc.title)} key={doc.id} data-testid={`card-document-${doc.id}`}>
                   <div className="group bg-card border border-card-border rounded-xl overflow-hidden hover:shadow-lg transition-all duration-200 cursor-pointer h-full">
                     <div className="relative bg-muted aspect-[3/4] flex items-center justify-center">
                       {thumbnailBlobs[doc.id] ? (
