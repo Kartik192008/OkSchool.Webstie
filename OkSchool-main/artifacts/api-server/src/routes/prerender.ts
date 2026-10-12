@@ -98,8 +98,14 @@ function sendHtml(res: any, html: string) {
   res.send(html);
 }
 
-/** GET /api/prerender/study-material/:id/:slug? — dynamic HTML for a document. */
-router.get("/api/prerender/study-material/:id/:slug?", async (req, res): Promise<void> => {
+/**
+ * Express 5 (path-to-regexp v8) rejects optional ":param?" syntax, so each
+ * route is registered twice: once with a slug and once without. The router is
+ * already mounted under "/api", so paths must not repeat that prefix.
+ */
+
+/** Dynamic HTML for a document. */
+async function documentPage(req: any, res: any): Promise<void> {
   try {
     const id = parseInt(req.params.id, 10);
     if (Number.isNaN(id)) {
@@ -152,10 +158,10 @@ router.get("/api/prerender/study-material/:id/:slug?", async (req, res): Promise
     console.error("Prerender document failed:", err);
     res.status(500).json({ error: "Prerender failed" });
   }
-});
+}
 
-/** GET /api/prerender/mock-test/:id/:slug? — dynamic HTML for an admin mock. */
-router.get("/api/prerender/mock-test/:id/:slug?", async (req, res): Promise<void> => {
+/** Dynamic HTML for an admin mock. */
+async function mockPage(req: any, res: any): Promise<void> {
   try {
     const id = parseInt(req.params.id, 10);
     if (Number.isNaN(id)) {
@@ -205,6 +211,11 @@ router.get("/api/prerender/mock-test/:id/:slug?", async (req, res): Promise<void
     console.error("Prerender mock failed:", err);
     res.status(500).json({ error: "Prerender failed" });
   }
-});
+}
+
+router.get("/prerender/study-material/:id/:slug", documentPage);
+router.get("/prerender/study-material/:id", documentPage);
+router.get("/prerender/mock-test/:id/:slug", mockPage);
+router.get("/prerender/mock-test/:id", mockPage);
 
 export default router;
