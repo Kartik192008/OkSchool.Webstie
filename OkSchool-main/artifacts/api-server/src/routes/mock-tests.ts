@@ -130,7 +130,9 @@ router.delete("/mock-tests/user/:id", async (req, res): Promise<void> => {
 
 router.get("/mock-tests", async (_req, res): Promise<void> => {
   try {
-    const tests = await db.select().from(mockTestsTable).orderBy(mockTestsTable.createdAt);
+    const tests = await db.select().from(mockTestsTable)
+      .where(eq(mockTestsTable.isUserGenerated, 0))
+      .orderBy(mockTestsTable.createdAt);
     res.json(tests);
   } catch (err) {
     console.error("Failed to list mock tests:", err);

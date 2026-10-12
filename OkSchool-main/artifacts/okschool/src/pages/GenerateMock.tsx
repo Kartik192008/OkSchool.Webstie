@@ -126,6 +126,11 @@ export function GenerateMock() {
     Promise.all([loadLibrary(), loadHistory()]).finally(() => setIsLoading(false));
   }, [loadLibrary, loadHistory]);
 
+  // Only attempts on mocks the user generated themselves. Admin-provided
+  // mocks have their own history on the Mock Test History page.
+  const myMockIds = new Set(mocks.map((m) => m.id));
+  const myAttempts = attempts.filter((a) => myMockIds.has(a.mockTestId));
+
   const handleParseJsonFile = async (file: File) => {
     setJsonFile(file);
     try {
@@ -334,7 +339,7 @@ export function GenerateMock() {
             onClick={() => setActiveTab("history")}
             className={`px-4 py-2 rounded-md border border-black bg-white text-black text-sm transition duration-200 ${activeTab === "history" ? "shadow-[4px_4px_0px_0px_rgba(0,0,0)]" : ""}`}
           >
-            <History className="h-4 w-4 inline mr-1.5" /> History ({attempts.length})
+            <History className="h-4 w-4 inline mr-1.5" /> History ({myAttempts.length})
           </button>
         </div>
       </div>
@@ -523,10 +528,10 @@ export function GenerateMock() {
               <tbody className="divide-y divide-card-border">
                 {isLoading ? (
                   <tr><td colSpan={6} className="px-4 py-6 text-center text-muted-foreground">Loading...</td></tr>
-                ) : attempts.length === 0 ? (
-                  <tr><td colSpan={6} className="px-4 py-6 text-center text-muted-foreground">No attempts yet. Attempt a mock test to see your history.</td></tr>
+                ) : myAttempts.length === 0 ? (
+                  <tr><td colSpan={6} className="px-4 py-6 text-center text-muted-foreground">No attempts yet. Attempt one of your own mocks to see your history.</td></tr>
                 ) : (
-                  attempts.map((a) => (
+                  myAttempts.map((a) => (
                     <tr key={a.id} className="hover:bg-muted/30">
                       <td className="px-4 py-3">
                         <Link href={`/mock-test/${a.mockTestId}`} className="font-medium text-foreground hover:text-primary">{a.title || `Mock #${a.mockTestId}`}</Link>
