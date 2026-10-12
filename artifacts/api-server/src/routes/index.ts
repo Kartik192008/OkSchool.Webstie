@@ -8,6 +8,7 @@ import searchRouter from "./search";
 import visitsRouter from "./visits";
 import paymentsRouter from "./payments";
 import historyRouter from "./history";
+import prerenderRouter from "./prerender";
 
 const router: IRouter = Router();
 
@@ -20,5 +21,6 @@ router.use(searchRouter);
 router.use(visitsRouter);
 router.use(paymentsRouter);
 router.use(historyRouter);
+router.use(prerenderRouter);
 
 export default router;
