@@ -137,51 +137,53 @@ export function Home() {
             <p className="text-muted-foreground text-sm">Documents will appear here once uploaded by the admin.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {docs.map((doc) => (
-              <Link href={`/study-material/${doc.id}`} key={doc.id} data-testid={`card-document-${doc.id}`}>
-                <div className="group bg-card border border-card-border rounded-xl overflow-hidden hover:shadow-lg transition-all duration-200 cursor-pointer h-full">
-                  <div className="relative bg-muted aspect-[3/4] flex items-center justify-center">
-                    {thumbnailBlobs[doc.id] ? (
-                      <img
-                        src={thumbnailBlobs[doc.id]}
-                        alt={doc.title}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (doc as any).thumbnail_url ? (
-                      <img
-                        src={(doc as any).thumbnail_url}
-                        alt={doc.title}
-                        className="w-full h-full object-cover"
-                        onLoad={() => {
-                          setThumbnailBlobs((prev) => {
-                            if (prev[doc.id]) return prev;
-                            return { ...prev, [doc.id]: (doc as any).thumbnail_url };
-                          });
-                        }}
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = 'none';
-                        }}
-                      />
-                    ) : (
-                      <FileText className="h-12 w-12 text-muted-foreground/40" />
-                    )}
-                    <span className={`absolute top-2 left-2 text-[10px] font-bold px-1.5 py-0.5 rounded ${doc.isFree ? "bg-green-100 text-green-700" : "bg-primary text-primary-foreground"}`}>
-                      {doc.isFree ? "FREE" : `₹${doc.price ?? ""}`}
-                    </span>
+          <div className="max-h-[70vh] overflow-y-auto pr-1">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {docs.map((doc) => (
+                <Link href={`/study-material/${doc.id}`} key={doc.id} data-testid={`card-document-${doc.id}`}>
+                  <div className="group bg-card border border-card-border rounded-xl overflow-hidden hover:shadow-lg transition-all duration-200 cursor-pointer h-full">
+                    <div className="relative bg-muted aspect-[3/4] flex items-center justify-center">
+                      {thumbnailBlobs[doc.id] ? (
+                        <img
+                          src={thumbnailBlobs[doc.id]}
+                          alt={doc.title}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (doc as any).thumbnail_url ? (
+                        <img
+                          src={(doc as any).thumbnail_url}
+                          alt={doc.title}
+                          className="w-full h-full object-cover"
+                          onLoad={() => {
+                            setThumbnailBlobs((prev) => {
+                              if (prev[doc.id]) return prev;
+                              return { ...prev, [doc.id]: (doc as any).thumbnail_url };
+                            });
+                          }}
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                      ) : (
+                        <FileText className="h-12 w-12 text-muted-foreground/40" />
+                      )}
+                      <span className={`absolute top-2 left-2 text-[10px] font-bold px-1.5 py-0.5 rounded ${doc.isFree ? "bg-green-100 text-green-700" : "bg-primary text-primary-foreground"}`}>
+                        {doc.isFree ? "FREE" : `₹${doc.price ?? ""}`}
+                      </span>
+                    </div>
+                    <div className="p-3">
+                      <Badge variant="outline" className="text-[10px] mb-1 capitalize">
+                        {doc.category.replace(/-/g, " ")}
+                      </Badge>
+                      <p className="text-sm font-medium text-foreground line-clamp-2 transition-colors">
+                        {doc.title}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{doc.description}</p>
+                    </div>
                   </div>
-                  <div className="p-3">
-                    <Badge variant="outline" className="text-[10px] mb-1 capitalize">
-                      {doc.category.replace(/-/g, " ")}
-                    </Badge>
-                    <p className="text-sm font-medium text-foreground line-clamp-2 transition-colors">
-                      {doc.title}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{doc.description}</p>
-                  </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              ))}
+            </div>
           </div>
         )}
       </section>
