@@ -146,10 +146,10 @@ async function main() {
     // Write to both layouts so the page resolves whether the host supports
     // directory index resolution or explicit .html paths. Both carry the same
     // canonical URL so search engines treat them as one page.
-    const dirPath = path.join(dist, "study-material", slug);
-    await mkdir(dirPath, { recursive: true });
-    await writeFile(path.join(dirPath, "index.html"), html, "utf8");
-    await writeFile(path.join(dist, "study-material", `${slug}.html`), html, "utf8");
+    const baseDir = path.join(dist, "study-material", String(doc.id), slug);
+    await mkdir(baseDir, { recursive: true });
+    await writeFile(path.join(baseDir, "index.html"), html, "utf8");
+    await writeFile(path.join(baseDir, `${slug}.html`), html, "utf8");
     count++;
   }
 
@@ -178,10 +178,10 @@ async function main() {
         </main>`,
     });
 
-    const dirPath = path.join(dist, "mock-test", slug);
-    await mkdir(dirPath, { recursive: true });
-    await writeFile(path.join(dirPath, "index.html"), html, "utf8");
-    await writeFile(path.join(dist, "mock-test", `${slug}.html`), html, "utf8");
+    const baseDir = path.join(dist, "mock-test", String(mock.id), slug);
+    await mkdir(baseDir, { recursive: true });
+    await writeFile(path.join(baseDir, "index.html"), html, "utf8");
+    await writeFile(path.join(baseDir, `${slug}.html`), html, "utf8");
     count++;
   }
 
