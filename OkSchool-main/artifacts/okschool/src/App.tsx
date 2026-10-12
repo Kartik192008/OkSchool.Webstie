@@ -67,6 +67,9 @@ function Router() {
       <Route path="/study-material/:id">
         <ProtectedRoute><StudyMaterialDetail /></ProtectedRoute>
       </Route>
+      <Route path="/mock-test/:id/:slug">
+        <ProtectedRoute><MockTestExam /></ProtectedRoute>
+      </Route>
       <Route path="/mock-test/:id">
         <ProtectedRoute><MockTestExam /></ProtectedRoute>
       </Route>

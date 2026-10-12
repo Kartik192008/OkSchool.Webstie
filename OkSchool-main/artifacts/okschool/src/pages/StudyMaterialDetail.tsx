@@ -43,9 +43,9 @@ export function StudyMaterialDetail() {
   });
 
   useSEO({
-    title: doc ? `${doc.title} - ${doc.subject}` : "Study Material",
+    title: doc ? doc.title : "Study Material",
     description: doc
-      ? `${doc.description || "Study material"} — free PDF download for students on OkSchool. Category: ${doc.category.replace(/-/g, " ")}.`
+      ? `${doc.description} - free PDF download for students on OkSchool. Category: ${doc.category.replace(/-/g, " ")}.`
       : "Download free notes, projects and question papers on OkSchool.",
     path: doc ? documentUrl(doc.id, doc.title) : `/study-material/${docId}`,
     image: doc?.thumbnailUrl || undefined,
