@@ -213,6 +213,75 @@ async function mockPage(req: any, res: any): Promise<void> {
   }
 }
 
+/**
+ * Live sitemap generated from the database so new documents and admin mocks
+ * appear automatically. Without this, a static sitemap.xml silently omits
+ * every document uploaded after the last build.
+ */
+let sitemapCache: { xml: string; at: number } | null = null;
+const SITEMAP_TTL = 10 * 60 * 1000;
+
+const STATIC_PAGES: Array<[string, string]> = [
+  ["/", "1.0"],
+  ["/mock-tests", "0.9"],
+  ["/about", "0.6"],
+  ["/privacy-policy", "0.3"],
+  ["/terms-of-service", "0.3"],
+  ["/refund-cancellation", "0.3"],
+];
+
+/** GET /api/sitemap.xml */
+router.get("/sitemap.xml", async (_req, res): Promise<void> => {
+  try {
+    if (sitemapCache && Date.now() - sitemapCache.at < SITEMAP_TTL) {
+      res.setHeader("Content-Type", "application/xml; charset=utf-8");
+      res.setHeader("Cache-Control", "public, max-age=300");
+      res.send(sitemapCache.xml);
+      return;
+    }
+
+    const [docs, mocks] = await Promise.all([
+      db.select().from(documentsTable),
+      db.select().from(mockTestsTable),
+    ]);
+
+    const entries: Array<[string, string]> = [...STATIC_PAGES];
+
+    for (const d of docs) {
+      const slug = slugify(d.title);
+      if (slug) entries.push([`/study-material/${d.id}/${slug}`, "0.9"]);
+    }
+
+    for (const m of mocks) {
+      if (Number(m.isUserGenerated) !== 0) continue;
+      const slug = slugify(m.title);
+      if (slug) entries.push([`/mock-test/${m.id}/${slug}`, "0.7"]);
+    }
+
+    const today = new Date().toISOString().slice(0, 10);
+    const xml =
+      `<?xml version="1.0" encoding="UTF-8"?>\n` +
+      `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
+      entries
+        .map(
+          ([loc, priority]) =>
+            `  <url>\n    <loc>${SITE}${loc}</loc>\n    <lastmod>${today}</lastmod>\n    <priority>${priority}</priority>\n  </url>`,
+        )
+        .join("\n") +
+      `\n</urlset>\n`;
+
+    sitemapCache = { xml, at: Date.now() };
+    res.setHeader("Content-Type", "application/xml; charset=utf-8");
+    res.setHeader("Cache-Control", "public, max-age=300");
+    res.send(xml);
+  } catch (err) {
+    console.error("Sitemap generation failed:", err);
+    res.status(500).type("application/xml").send(
+      `<?xml version="1.0" encoding="UTF-8"?><error>failed</error>`,
+    );
+  }
+});
+
 router.get("/prerender/study-material/:id/:slug", documentPage);
 router.get("/prerender/study-material/:id", documentPage);
 router.get("/prerender/mock-test/:id/:slug", mockPage);
