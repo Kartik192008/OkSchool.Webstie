@@ -190,7 +190,7 @@ export function Home() {
                         <FileText className="h-12 w-12 text-muted-foreground/40" />
                       )}
                       <span className={`absolute top-2 left-2 text-[10px] font-bold px-1.5 py-0.5 rounded ${doc.isFree ? "bg-green-100 text-green-700" : "bg-primary text-primary-foreground"}`}>
-                        {doc.isFree ? "FREE" : `₹${doc.price ?? ""}`}
+                        {doc.isFree ? "FREE" : `${doc.price ?? ""}`}
                       </span>
                     </div>
                     <div className="p-3">
