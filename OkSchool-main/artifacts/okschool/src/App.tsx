@@ -1,8 +1,7 @@
-import { Switch, Route, Router as WouterRouter } from "wouter";
+import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import NotFound from "@/pages/not-found";
 import { Marquee } from "./components/layout/Marquee";
 import { Navbar } from "./components/layout/Navbar";
 import { Footer } from "./components/layout/Footer";
@@ -106,11 +105,16 @@ function Router() {
       <Route path="/refund-cancellation">
         <PublicLayout><RefundCancellation /></PublicLayout>
       </Route>
+      {/* Some links, bookmarks and shares use "/index.html". Redirecting keeps
+          the app working and avoids a duplicate URL of the home page. */}
+      <Route path="/index.html">
+        <Redirect to="/" />
+      </Route>
       <Route path="/">
         <PublicLayout><Home /></PublicLayout>
       </Route>
       <Route>
-        <PublicLayout><NotFound /></PublicLayout>
+        <Redirect to="/" />
       </Route>
     </Switch>
   );

@@ -167,9 +167,9 @@ export function Navbar() {
                     </div>
                     <div className="py-1.5">
                       <SettingsItem href="/about">About Us</SettingsItem>
-                      <SettingsItem href="/terms">Terms of Service</SettingsItem>
-                      <SettingsItem href="/privacy">Privacy Policy</SettingsItem>
-                      <SettingsItem href="/refund">Refund & Cancellation Policy</SettingsItem>
+                      <SettingsItem href="/terms-of-service">Terms of Service</SettingsItem>
+                      <SettingsItem href="/privacy-policy">Privacy Policy</SettingsItem>
+                      <SettingsItem href="/refund-cancellation">Refund & Cancellation Policy</SettingsItem>
                     </div>
                   </div>
                 </>
