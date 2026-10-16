@@ -1,15 +1,8 @@
-import { ArrowLeft } from "lucide-react";
 import { Link } from "wouter";
 
 export function PrivacyPolicy() {
   return (
     <div className="container mx-auto px-4 py-10 max-w-4xl">
-      <Link href="/">
-        <button className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors">
-          <ArrowLeft className="h-4 w-4" /> Back
-        </button>
-      </Link>
-
       <div className="bg-card border border-card-border rounded-xl p-8 md:p-12">
         <h1 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-2">
           Privacy Policy

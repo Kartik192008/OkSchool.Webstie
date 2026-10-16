@@ -1,4 +1,4 @@
-import { ShoppingCart, ExternalLink, Package, ChevronLeft } from "lucide-react";
+import { ShoppingCart, ExternalLink, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
@@ -10,11 +10,6 @@ export function AmazonStore() {
   return (
     <div className="container mx-auto px-4 py-10">
       <div className="mb-8">
-        <Link href="/">
-          <button className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4 transition-colors">
-            <ChevronLeft className="h-4 w-4" /> Back to Home
-          </button>
-        </Link>
         <div className="flex items-center gap-2 mb-2">
           <ShoppingCart className="h-6 w-6 text-primary" />
           <Badge variant="outline" className="text-xs">Amazon Affiliate</Badge>

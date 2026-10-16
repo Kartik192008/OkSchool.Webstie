@@ -46,7 +46,6 @@ export function QuizEngine() {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
         <h2 className="font-serif text-2xl">Test not found</h2>
-        <Button variant="outline" className="mt-4" onClick={() => setLocation("/mock-tests")}>Back to Tests</Button>
       </div>
     );
   }
@@ -124,7 +123,6 @@ export function QuizEngine() {
           <Button variant="outline" className="flex-1" onClick={() => { setAnswers({}); setCurrent(0); setFinished(false); setStarted(false); setTimeLeft(test.duration * 60); }}>
             Retake Test
           </Button>
-          <Button className="flex-1" onClick={() => setLocation("/mock-tests")}>Back to Tests</Button>
         </div>
       </div>
     );

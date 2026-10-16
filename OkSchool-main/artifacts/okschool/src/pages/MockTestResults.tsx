@@ -1,4 +1,4 @@
-import { CheckCircle, XCircle, Clock, ArrowLeft } from "lucide-react";
+import { CheckCircle, XCircle, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
@@ -46,12 +46,6 @@ export function MockTestResults({ test, questionStates, timeTaken }: MockTestRes
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-5xl">
-      <Link href="/mock-tests">
-        <button className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors">
-          <ArrowLeft className="h-4 w-4" /> Back to Tests
-        </button>
-      </Link>
-
       {/* Score Summary */}
       <div className="bg-card border border-card-border rounded-xl p-8 mb-6">
         <h1 className="font-serif text-3xl font-bold mb-6">Test Results</h1>

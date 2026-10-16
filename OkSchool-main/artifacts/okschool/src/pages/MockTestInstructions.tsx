@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, Link } from "wouter";
-import { Clock, FileText, ArrowLeft, CheckCircle } from "lucide-react";
+import { Clock, FileText, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useGetMockTest, getGetMockTestQueryKey } from "@workspace/api-client-react";
 
@@ -32,7 +32,6 @@ export function MockTestInstructions({ onStart }: MockTestInstructionsProps) {
       <div className="container mx-auto px-4 py-16 text-center">
         <FileText className="h-16 w-16 text-muted-foreground/40 mx-auto mb-4" />
         <h2 className="font-serif text-2xl font-bold">Test not found</h2>
-        <Link href="/mock-tests"><Button variant="outline" className="mt-4">Back to Tests</Button></Link>
       </div>
     );
   }
@@ -44,12 +43,6 @@ export function MockTestInstructions({ onStart }: MockTestInstructionsProps) {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <Link href="/mock-tests">
-        <button className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors">
-          <ArrowLeft className="h-4 w-4" /> Back to Tests
-        </button>
-      </Link>
-
       <div className="bg-card border border-card-border rounded-xl p-8 shadow-sm">
         <div className="flex items-start justify-between mb-6">
           <div>

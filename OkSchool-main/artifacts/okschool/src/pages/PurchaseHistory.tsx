@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
-import { ArrowLeft, Receipt, Calendar, CreditCard, FileText } from "lucide-react";
+import { Receipt, Calendar, CreditCard, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/lib/supabase";
@@ -58,12 +58,6 @@ export function PurchaseHistory() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-5xl">
-      <Link href="/">
-        <button className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors">
-          <ArrowLeft className="h-4 w-4" /> Back to Home
-        </button>
-      </Link>
-
       <h1 className="font-serif text-3xl font-bold mb-6">Purchase History</h1>
 
       {loading ? (

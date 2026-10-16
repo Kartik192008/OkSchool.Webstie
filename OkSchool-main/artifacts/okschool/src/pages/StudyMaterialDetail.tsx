@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "wouter";
 import { useSEO, documentUrl } from "@/lib/seo";
-import { Download, ArrowLeft, FileText, Lock, BookOpen, X, CreditCard, CheckCircle } from "lucide-react";
+import { Download, FileText, Lock, BookOpen, X, CreditCard, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
@@ -312,12 +312,6 @@ export function StudyMaterialDetail() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-5xl">
-      <Link href="/" data-testid="link-back">
-        <button className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors">
-          <ArrowLeft className="h-4 w-4" /> Back
-        </button>
-      </Link>
-
       <div className="grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
           <div className="bg-card border border-card-border rounded-xl overflow-hidden">

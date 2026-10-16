@@ -98,11 +98,6 @@ export function MockTestList() {
   return (
     <div className="container mx-auto px-4 py-10">
       <div className="max-w-4xl mx-auto">
-        <Link href="/">
-          <button className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4 transition-colors">
-            <ChevronLeft className="h-4 w-4" /> Back to Home
-          </button>
-        </Link>
         <h1 className="font-serif text-3xl font-bold mb-2">Mock Tests</h1>
         <p className="text-muted-foreground mb-8">Choose your exam section to see available mock tests.</p>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">

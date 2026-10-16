@@ -1,5 +1,5 @@
 import { useSearch } from "wouter";
-import { FileText, ShoppingCart, FileQuestion, SearchIcon, ChevronLeft } from "lucide-react";
+import { FileText, ShoppingCart, FileQuestion, SearchIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import { useGlobalSearch, getGlobalSearchQueryKey } from "@workspace/api-client-react";
@@ -19,11 +19,6 @@ export function SearchResults() {
   return (
     <div className="container mx-auto px-4 py-10 max-w-3xl">
       <div className="mb-8">
-        <Link href="/">
-          <button className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4 transition-colors">
-            <ChevronLeft className="h-4 w-4" /> Back to Home
-          </button>
-        </Link>
         <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
           <SearchIcon className="h-4 w-4" />
           <span>Search results for</span>

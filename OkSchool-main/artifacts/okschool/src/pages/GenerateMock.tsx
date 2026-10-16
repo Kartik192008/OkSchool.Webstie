@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useLocation } from "wouter";
-import { ArrowLeft, Plus, Trash2, Upload, X, History, Library } from "lucide-react";
+import { Plus, Trash2, Upload, X, History, Library } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -311,11 +311,6 @@ export function GenerateMock() {
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
-          <Link href="/mock-tests">
-            <Button variant="ghost" size="icon">
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-          </Link>
           <h1 className="font-serif text-2xl font-bold">Generate Your Own Mock</h1>
         </div>
       </div>

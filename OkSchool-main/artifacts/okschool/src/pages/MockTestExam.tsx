@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "wouter";
-import { Clock, AlertCircle, ArrowLeft } from "lucide-react";
+import { Clock, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useGetMockTest } from "@workspace/api-client-react";
