@@ -61,37 +61,37 @@ function Router() {
         <PublicLayout><Login /></PublicLayout>
       </Route>
       <Route path="/study-material/:id/:slug">
-        <ProtectedRoute><StudyMaterialDetail /></ProtectedRoute>
+        <ProtectedRoute><PublicLayout><StudyMaterialDetail /></PublicLayout></ProtectedRoute>
       </Route>
       <Route path="/study-material/:id">
-        <ProtectedRoute><StudyMaterialDetail /></ProtectedRoute>
+        <ProtectedRoute><PublicLayout><StudyMaterialDetail /></PublicLayout></ProtectedRoute>
       </Route>
       <Route path="/mock-test/:id/:slug">
-        <ProtectedRoute><MockTestExam /></ProtectedRoute>
+        <ProtectedRoute><PublicLayout><MockTestExam /></PublicLayout></ProtectedRoute>
       </Route>
       <Route path="/mock-test/:id">
-        <ProtectedRoute><MockTestExam /></ProtectedRoute>
+        <ProtectedRoute><PublicLayout><MockTestExam /></PublicLayout></ProtectedRoute>
       </Route>
       <Route path="/mock-tests">
-        <ProtectedRoute><MockTestList /></ProtectedRoute>
+        <ProtectedRoute><PublicLayout><MockTestList /></PublicLayout></ProtectedRoute>
       </Route>
       <Route path="/mock-test-history">
-        <ProtectedRoute><MockTestHistory /></ProtectedRoute>
+        <ProtectedRoute><PublicLayout><MockTestHistory /></PublicLayout></ProtectedRoute>
       </Route>
       <Route path="/purchase-history">
-        <ProtectedRoute><PurchaseHistory /></ProtectedRoute>
+        <ProtectedRoute><PublicLayout><PurchaseHistory /></PublicLayout></ProtectedRoute>
       </Route>
       <Route path="/amazon-store">
-        <ProtectedRoute><AmazonStore /></ProtectedRoute>
+        <ProtectedRoute><PublicLayout><AmazonStore /></PublicLayout></ProtectedRoute>
       </Route>
       <Route path="/generate-mock">
-        <ProtectedRoute><GenerateMock /></ProtectedRoute>
+        <ProtectedRoute><PublicLayout><GenerateMock /></PublicLayout></ProtectedRoute>
       </Route>
       <Route path="/my-mocks">
-        <ProtectedRoute><MyMocks /></ProtectedRoute>
+        <ProtectedRoute><PublicLayout><MyMocks /></PublicLayout></ProtectedRoute>
       </Route>
       <Route path="/search">
-        <ProtectedRoute><SearchResults /></ProtectedRoute>
+        <ProtectedRoute><PublicLayout><SearchResults /></PublicLayout></ProtectedRoute>
       </Route>
       <Route path="/privacy-policy">
         <PublicLayout><PrivacyPolicy /></PublicLayout>
