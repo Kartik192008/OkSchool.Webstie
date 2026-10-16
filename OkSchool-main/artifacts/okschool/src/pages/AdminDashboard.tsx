@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { useLocation, Link } from "wouter";
 import {
   LayoutDashboard, FileText, ShoppingCart, BarChart2,
-  Search, Eye, Download, Plus, Trash2, BookOpen, LogOut, ClipboardList
+  Search, Eye, Download, Plus, Trash2, BookOpen, LogOut, ClipboardList,
+  Edit2, Save, X, AlertCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +15,7 @@ import {
   useGetAdminStats, useListDocuments, useListAmazonProducts, useListMockTests,
   useDeleteDocument, useDeleteAmazonProduct, useDeleteMockTest,
   useCreateDocument, useCreateAmazonProduct, useCreateMockTest,
+  useUpdateDocument, useUpdateAmazonProduct, useUpdateMockTest,
   getGetAdminStatsQueryKey, getListDocumentsQueryKey, getListAmazonProductsQueryKey, getListMockTestsQueryKey,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -58,7 +60,7 @@ export function AdminDashboard() {
     checkAdmin();
 
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
-      if (!session || session.user.email !== ADMIN_EMAIL) {
+      if (event === "SIGNED_OUT" && (!session || session.user.email !== ADMIN_EMAIL)) {
         setLocation("/login");
       }
     });
@@ -77,6 +79,25 @@ export function AdminDashboard() {
   const createDoc = useCreateDocument();
   const createProduct = useCreateAmazonProduct();
   const createMockTest = useCreateMockTest();
+  const updateDoc = useUpdateDocument();
+  const updateProduct = useUpdateAmazonProduct();
+  const updateMockTest = useUpdateMockTest();
+
+  // Edit form state
+  const [editDocId, setEditDocId] = useState<number | null>(null);
+  const [editDocForm, setEditDocForm] = useState<any>(null);
+  const [editDocFile, setEditDocFile] = useState<File | null>(null);
+  const [editDocWordFile, setEditDocWordFile] = useState<File | null>(null);
+  const [editDocThumbnail, setEditDocThumbnail] = useState<File | null>(null);
+
+  const [editProductId, setEditProductId] = useState<number | null>(null);
+  const [editProductForm, setEditProductForm] = useState<any>(null);
+  const [editProductImage, setEditProductImage] = useState<File | null>(null);
+
+  const [editMockId, setEditMockId] = useState<number | null>(null);
+  const [editMockForm, setEditMockForm] = useState<{ title: string; description: string; subject: string; section: string; duration: string; correctMarks: string; incorrectMarks: string; unattemptedMarks: string } | null>(null);
+  const [editMockQuestions, setEditMockQuestions] = useState<any[]>([]);
+  const [editMockQuestionImages, setEditMockQuestionImages] = useState<Record<number, string>>({});
 
   // Add Document form state
   const [docForm, setDocForm] = useState({ title: "", description: "", category: "notes", price: "", thumbnailUrl: "" });
@@ -476,6 +497,147 @@ export function AdminDashboard() {
     setParsedQuestions(prev => prev.map((q, i) => i === index ? { ...q, hasImage: false, imageUrl: null } : q));
   };
 
+  const openEditDoc = (doc: any) => {
+    setEditDocId(doc.id);
+    setEditDocForm({ ...doc, price: doc.price ? String(doc.price) : "" });
+    setEditDocFile(null);
+    setEditDocWordFile(null);
+    setEditDocThumbnail(null);
+  };
+
+  const openEditProduct = (p: any) => {
+    setEditProductId(p.id);
+    setEditProductForm({ ...p, price: p.price ? String(p.price) : "" });
+    setEditProductImage(null);
+  };
+
+  const openEditMock = (test: any) => {
+    setEditMockId(test.id);
+    setEditMockForm({ title: test.title, description: test.description ?? "", subject: test.subject, section: test.section, duration: String(test.duration), correctMarks: String(test.correctMarks), incorrectMarks: String(test.incorrectMarks), unattemptedMarks: String(test.unattemptedMarks) });
+    setEditMockQuestions(test.questions ?? []);
+    setEditMockQuestionImages({});
+  };
+
+  const cancelEditDoc = () => { setEditDocId(null); setEditDocForm(null); setEditDocFile(null); setEditDocWordFile(null); setEditDocThumbnail(null); };
+  const cancelEditProduct = () => { setEditProductId(null); setEditProductForm(null); setEditProductImage(null); };
+  const cancelEditMock = () => { setEditMockId(null); setEditMockForm(null); setEditMockQuestions([]); setEditMockQuestionImages({}); };
+
+  const handleSaveDoc = async () => {
+    if (!editDocId || !editDocForm) return;
+    setUploading(true);
+    try {
+      let fileUrl = editDocForm.fileUrl ?? null;
+      let wordFileUrl = editDocForm.wordFileUrl ?? null;
+      let thumbnailUrl = editDocForm.thumbnailUrl ?? null;
+      if (editDocFile) fileUrl = await uploadFile(editDocFile, 'documents');
+      if (editDocWordFile) wordFileUrl = await uploadFile(editDocWordFile, 'word-files');
+      if (editDocThumbnail) thumbnailUrl = await uploadFile(editDocThumbnail, 'thumbnails');
+
+      const data = {
+        title: editDocForm.title,
+        description: editDocForm.description,
+        category: editDocForm.category,
+        fileType: "pdf",
+        isFree: !wordFileUrl,
+        price: wordFileUrl ? (parseInt(editDocForm.price, 10) || null) : null,
+        fileUrl,
+        wordFileUrl,
+        thumbnailUrl,
+      };
+
+      updateDoc.mutate({ id: editDocId, data }, {
+        onSuccess: () => {
+          toast({ title: "Document updated" });
+          cancelEditDoc();
+          qc.invalidateQueries({ queryKey: getListDocumentsQueryKey({}) });
+          qc.invalidateQueries({ queryKey: getGetAdminStatsQueryKey() });
+        },
+        onError: (err: any) => toast({ title: "Update failed", description: err.message, variant: "destructive" }),
+        onSettled: () => setUploading(false),
+      });
+    } catch (err: any) {
+      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+      setUploading(false);
+    }
+  };
+
+  const handleSaveProduct = async () => {
+    if (!editProductId || !editProductForm) return;
+    setUploading(true);
+    try {
+      let imageUrl = editProductForm.imageUrl ?? "";
+      if (editProductImage) imageUrl = await uploadFile(editProductImage, 'amazon-products');
+
+      updateProduct.mutate({ id: editProductId, data: { title: editProductForm.title, description: editProductForm.description, affiliateUrl: editProductForm.affiliateUrl, imageUrl: imageUrl || null, price: editProductForm.price ? String(editProductForm.price) : null } }, {
+        onSuccess: () => {
+          toast({ title: "Product updated" });
+          cancelEditProduct();
+          qc.invalidateQueries({ queryKey: getListAmazonProductsQueryKey() });
+        },
+        onError: (err: any) => toast({ title: "Update failed", description: err.message, variant: "destructive" }),
+        onSettled: () => setUploading(false),
+      });
+    } catch (err: any) {
+      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+      setUploading(false);
+    }
+  };
+
+  const handleSaveMock = async () => {
+    if (!editMockId || !editMockForm) return;
+    setUploading(true);
+    try {
+      const payload = {
+        title: editMockForm.title,
+        description: editMockForm.description,
+        subject: editMockForm.subject,
+        section: editMockForm.section || "General",
+        duration: parseInt(editMockForm.duration, 10),
+        correctMarks: parseInt(editMockForm.correctMarks, 10) || 4,
+        incorrectMarks: parseInt(editMockForm.incorrectMarks, 10) || -1,
+        unattemptedMarks: parseInt(editMockForm.unattemptedMarks, 10) || 0,
+        questions: editMockQuestions.map((q, index) => {
+          let optionA = "", optionB = "", optionC = "", optionD = "";
+          if (q.options && Array.isArray(q.options)) {
+            q.options.forEach((opt: any) => {
+              const optId = String(opt.optionId || opt.id || "").toUpperCase();
+              const optText = opt.text || opt.content || opt.value || "";
+              if (optId === "A") optionA = optText;
+              if (optId === "B") optionB = optText;
+              if (optId === "C") optionC = optText;
+              if (optId === "D") optionD = optText;
+            });
+          } else {
+            optionA = q.optionA || q.A || q.a || "";
+            optionB = q.optionB || q.B || q.b || "";
+            optionC = q.optionC || q.C || q.c || "";
+            optionD = q.optionD || q.D || q.d || "";
+          }
+          return {
+            question: q.question || q.questionText || q.q || `Question ${index + 1}`,
+            questionImage: editMockQuestionImages[index] || q.questionImage || q.imageUrl || null,
+            optionA, optionB, optionC, optionD,
+            correctAnswer: String(q.correctAnswer || q.answer || q.correct || q.correct_option || "").toUpperCase(),
+            solution: q.solution || q.explanation || null,
+          };
+        }),
+      };
+
+      updateMockTest.mutate({ id: editMockId, data: payload }, {
+        onSuccess: () => {
+          toast({ title: "Mock test updated" });
+          cancelEditMock();
+          qc.invalidateQueries({ queryKey: getListMockTestsQueryKey() });
+        },
+        onError: (err: any) => toast({ title: "Update failed", description: err.message, variant: "destructive" }),
+        onSettled: () => setUploading(false),
+      });
+    } catch (err: any) {
+      toast({ title: "Update failed", description: err.message, variant: "destructive" });
+      setUploading(false);
+    }
+  };
+
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     setLocation("/");
@@ -656,6 +818,53 @@ export function AdminDashboard() {
                 </form>
               </div>
 
+              {/* Edit document form */}
+              {editDocId && editDocForm && (
+                <div className="bg-card border border-primary/50 rounded-xl p-6 mb-6">
+                  <h2 className="font-semibold mb-4 flex items-center gap-2"><Edit2 className="h-4 w-4" /> Edit Document</h2>
+                  <form onSubmit={handleSaveDoc} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="sm:col-span-2">
+                      <Label htmlFor="edit-doc-title">Title *</Label>
+                      <Input id="edit-doc-title" placeholder="Document name" value={editDocForm.title} onChange={(e) => setEditDocForm({ ...editDocForm, title: e.target.value })} className="mt-1" required />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <Label htmlFor="edit-doc-desc">Description</Label>
+                      <Input id="edit-doc-desc" placeholder="Brief description" value={editDocForm.description} onChange={(e) => setEditDocForm({ ...editDocForm, description: e.target.value })} className="mt-1" />
+                    </div>
+                    <div>
+                      <Label htmlFor="edit-doc-cat">Category</Label>
+                      <Input id="edit-doc-cat" value={editDocForm.category} onChange={(e) => setEditDocForm({ ...editDocForm, category: e.target.value })} className="mt-1" />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <div className="text-xs text-muted-foreground mb-2">Current PDF: {editDocForm.fileUrl ?? "none"}</div>
+                      <Label htmlFor="edit-doc-file">Replace PDF File</Label>
+                      <Input id="edit-doc-file" type="file" accept=".pdf" onChange={(e) => setEditDocFile(e.target.files?.[0] || null)} className="mt-1" />
+                    </div>
+                    <div>
+                      <div className="text-xs text-muted-foreground mb-2">Current Word: {editDocForm.wordFileUrl ?? "none"}</div>
+                      <Label htmlFor="edit-doc-word-file">Replace Word File</Label>
+                      <Input id="edit-doc-word-file" type="file" accept=".doc,.docx" onChange={(e) => {
+                        setEditDocWordFile(e.target.files?.[0] || null);
+                        if (e.target.files?.[0]) setEditDocForm({ ...editDocForm, price: editDocForm.price || "" });
+                      }} className="mt-1" />
+                      {editDocWordFile && (
+                        <Input placeholder="Word file price (₹)" value={editDocForm.price} onChange={(e) => setEditDocForm({ ...editDocForm, price: e.target.value })} className="mt-2 w-full" type="number" />
+                      )}
+                    </div>
+                    <div>
+                      <div className="text-xs text-muted-foreground mb-2">Current Thumbnail: {editDocForm.thumbnailUrl ?? "none"}</div>
+                      <Label htmlFor="edit-doc-thumb-file">Replace Thumbnail</Label>
+                      <Input id="edit-doc-thumb-file" type="file" accept="image/*" onChange={(e) => setEditDocThumbnail(e.target.files?.[0] || null)} className="mt-1" />
+                    </div>
+                    <div className="sm:col-span-2 flex items-end gap-2">
+                      <Button type="button" onClick={cancelEditDoc} variant="outline">Cancel</Button>
+                      <Button type="submit" disabled={updateDoc.isPending || uploading} data-testid="button-save-doc">
+                        {updateDoc.isPending ? "Saving..." : "Save Changes"}
+                      </Button>
+                    </div>
+                  </form>
+                </div>
+              )}
               {/* Documents table */}
               <div className="bg-card border border-card-border rounded-xl overflow-hidden">
                 <table className="w-full text-sm">
@@ -678,6 +887,9 @@ export function AdminDashboard() {
                           </Badge>
                         </td>
                         <td className="px-4 py-3">
+                          <button onClick={() => openEditDoc(doc)} className="text-primary hover:text-primary/80 transition-colors" data-testid={`button-edit-doc-${doc.id}`}>
+                            <Edit2 className="h-4 w-4" />
+                          </button>
                           <button onClick={() => handleDeleteDoc(doc.id)} className="text-muted-foreground hover:text-destructive transition-colors" data-testid={`button-delete-doc-${doc.id}`}>
                             <Trash2 className="h-4 w-4" />
                           </button>
@@ -742,6 +954,41 @@ export function AdminDashboard() {
                 </form>
               </div>
 
+              {/* Edit product form */}
+              {editProductId && editProductForm && (
+                <div className="bg-card border border-primary/50 rounded-xl p-6 mb-6">
+                  <h2 className="font-semibold mb-4 flex items-center gap-2"><Edit2 className="h-4 w-4" /> Edit Product</h2>
+                  <form onSubmit={handleSaveProduct} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="sm:col-span-2">
+                      <Label htmlFor="edit-product-title">Title *</Label>
+                      <Input id="edit-product-title" value={editProductForm.title} onChange={(e) => setEditProductForm({ ...editProductForm, title: e.target.value })} className="mt-1" required />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <Label htmlFor="edit-product-desc">Description</Label>
+                      <Input id="edit-product-desc" value={editProductForm.description} onChange={(e) => setEditProductForm({ ...editProductForm, description: e.target.value })} className="mt-1" />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <Label htmlFor="edit-product-affiliate">Affiliate URL</Label>
+                      <Input id="edit-product-affiliate" placeholder="https://amzn.to/..." value={editProductForm.affiliateUrl} onChange={(e) => setEditProductForm({ ...editProductForm, affiliateUrl: e.target.value })} className="mt-1" />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <div className="text-xs text-muted-foreground mb-2">Current Image: {editProductForm.imageUrl ?? "none"}</div>
+                      <Label htmlFor="edit-product-image">Replace Image</Label>
+                      <Input id="edit-product-image" type="file" accept="image/*" onChange={(e) => setEditProductImage(e.target.files?.[0] || null)} className="mt-1" />
+                    </div>
+                    <div>
+                      <Label htmlFor="edit-product-price">Price (₹)</Label>
+                      <Input id="edit-product-price" placeholder="499" value={editProductForm.price} onChange={(e) => setEditProductForm({ ...editProductForm, price: e.target.value })} className="mt-1" type="number" />
+                    </div>
+                    <div className="sm:col-span-2 flex items-end gap-2">
+                      <Button type="button" onClick={cancelEditProduct} variant="outline">Cancel</Button>
+                      <Button type="submit" disabled={updateProduct.isPending || uploading} data-testid="button-save-product">
+                        {updateProduct.isPending ? "Saving..." : "Save Changes"}
+                      </Button>
+                    </div>
+                  </form>
+                </div>
+              )}
               {/* Products table */}
               <div className="bg-card border border-card-border rounded-xl overflow-hidden">
                 <table className="w-full text-sm">
@@ -758,6 +1005,9 @@ export function AdminDashboard() {
                         <td className="px-4 py-3 font-medium text-foreground">{p.title}</td>
                         <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{p.price ?? "—"}</td>
                         <td className="px-4 py-3">
+                          <button onClick={() => openEditProduct(p)} className="text-primary hover:text-primary/80 transition-colors" data-testid={`button-edit-amazon-${p.id}`}>
+                            <Edit2 className="h-4 w-4" />
+                          </button>
                           <button onClick={() => handleDeleteProduct(p.id)} className="text-muted-foreground hover:text-destructive transition-colors" data-testid={`button-delete-amazon-${p.id}`}>
                             <Trash2 className="h-4 w-4" />
                           </button>
@@ -944,6 +1194,100 @@ export function AdminDashboard() {
                 </form>
               </div>
 
+              {/* Edit mock test form */}
+              {editMockId && editMockForm && (
+                <div className="bg-card border border-primary/50 rounded-xl p-6 mb-6">
+                  <h2 className="font-semibold mb-4 flex items-center gap-2"><Edit2 className="h-4 w-4" /> Edit Mock Test</h2>
+                  <form onSubmit={handleSaveMock} className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="edit-mock-title">Title *</Label>
+                        <Input id="edit-mock-title" value={editMockForm.title} onChange={(e) => setEditMockForm({ ...editMockForm, title: e.target.value })} className="mt-1" required />
+                      </div>
+                      <div>
+                        <Label htmlFor="edit-mock-subject">Subject</Label>
+                        <Input id="edit-mock-subject" value={editMockForm.subject} onChange={(e) => setEditMockForm({ ...editMockForm, subject: e.target.value })} className="mt-1" />
+                      </div>
+                      <div>
+                        <Label htmlFor="edit-mock-section">Section</Label>
+                        <Input id="edit-mock-section" value={editMockForm.section} onChange={(e) => setEditMockForm({ ...editMockForm, section: e.target.value })} className="mt-1" />
+                      </div>
+                      <div>
+                        <Label htmlFor="edit-mock-duration">Duration (min)</Label>
+                        <Input id="edit-mock-duration" type="number" value={editMockForm.duration} onChange={(e) => setEditMockForm({ ...editMockForm, duration: e.target.value })} className="mt-1" />
+                      </div>
+                      <div>
+                        <Label htmlFor="edit-mock-correct">Correct Marks</Label>
+                        <Input id="edit-mock-correct" type="number" value={editMockForm.correctMarks} onChange={(e) => setEditMockForm({ ...editMockForm, correctMarks: e.target.value })} className="mt-1" />
+                      </div>
+                      <div>
+                        <Label htmlFor="edit-mock-incorrect">Incorrect Marks</Label>
+                        <Input id="edit-mock-incorrect" type="number" value={editMockForm.incorrectMarks} onChange={(e) => setEditMockForm({ ...editMockForm, incorrectMarks: e.target.value })} className="mt-1" />
+                      </div>
+                      <div>
+                        <Label htmlFor="edit-mock-unattempted">Unattempted Marks</Label>
+                        <Input id="edit-mock-unattempted" type="number" value={editMockForm.unattemptedMarks} onChange={(e) => setEditMockForm({ ...editMockForm, unattemptedMarks: e.target.value })} className="mt-1" />
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="edit-mock-desc">Description</Label>
+                      <Input id="edit-mock-desc" className="mt-1" value={editMockForm.description} onChange={(e) => setEditMockForm({ ...editMockForm, description: e.target.value })} />
+                    </div>
+
+                    <div className="pt-4 border-t">
+                      <h3 className="font-medium mb-2 flex items-center gap-2">Questions<span className="text-xs text-muted-foreground font-normal">({editMockQuestions.length})</span></h3>
+                      <div className="space-y-3">
+                        {editMockQuestions.map((q, index) => (
+                          <div key={index} className="border border-card-border rounded-xl p-3 sm:p-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-2">
+                              <div className="sm:col-span-2">
+                                <Label>Question</Label>
+                                <Input value={q.question || ""} onChange={(e) => setEditMockQuestions(prev => prev.map((p, i) => i === index ? { ...p, question: e.target.value } : p))} className="mt-1" />
+                              </div>
+                              <div>
+                                <Label>Option A</Label>
+                                <Input value={q.optionA || ""} onChange={(e) => setEditMockQuestions(prev => prev.map((p, i) => i === index ? { ...p, optionA: e.target.value } : p))} className="mt-1" />
+                              </div>
+                              <div>
+                                <Label>Option B</Label>
+                                <Input value={q.optionB || ""} onChange={(e) => setEditMockQuestions(prev => prev.map((p, i) => i === index ? { ...p, optionB: e.target.value } : p))} className="mt-1" />
+                              </div>
+                              <div>
+                                <Label>Option C</Label>
+                                <Input value={q.optionC || ""} onChange={(e) => setEditMockQuestions(prev => prev.map((p, i) => i === index ? { ...p, optionC: e.target.value } : p))} className="mt-1" />
+                              </div>
+                              <div>
+                                <Label>Option D</Label>
+                                <Input value={q.optionD || ""} onChange={(e) => setEditMockQuestions(prev => prev.map((p, i) => i === index ? { ...p, optionD: e.target.value } : p))} className="mt-1" />
+                              </div>
+                              <div>
+                                <Label>Correct Answer</Label>
+                                <select value={q.correctAnswer || "A"} onChange={(e) => setEditMockQuestions(prev => prev.map((p, i) => i === index ? { ...p, correctAnswer: e.target.value } : p))} className="mt-1 border border-input bg-background px-3 py-2 rounded-md shadow-sm focus-visible:ring-1 focus-visible:ring-ring">
+                                  <option value="A">A</option>
+                                  <option value="B">B</option>
+                                  <option value="C">C</option>
+                                  <option value="D">D</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div className="flex justify-end gap-2">
+                              <button type="button" onClick={() => setEditMockQuestions(prev => prev.filter((_, i) => i !== index))} className="text-xs text-muted-foreground hover:text-destructive">Remove</button>
+                            </div>
+                          </div>
+                        ))}
+                        <button type="button" onClick={() => setEditMockQuestions([...editMockQuestions, { question: "", optionA: "", optionB: "", optionC: "", optionD: "", correctAnswer: "A" }])} className="text-xs text-primary underline hover:text-primary/80">Add Question</button>
+                      </div>
+                    </div>
+
+                    <div className="flex items-end gap-2">
+                      <Button type="button" onClick={cancelEditMock} variant="outline">Cancel</Button>
+                      <Button type="submit" disabled={updateMockTest.isPending || uploading} data-testid="button-save-mock">
+                        {updateMockTest.isPending ? "Saving..." : "Save Changes"}
+                      </Button>
+                    </div>
+                  </form>
+                </div>
+              )}
               {/* Mock tests table */}
               <div className="bg-card border border-card-border rounded-xl overflow-hidden">
                 <table className="w-full text-sm">
@@ -966,6 +1310,9 @@ export function AdminDashboard() {
                         <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{test.duration} min</td>
                         <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{test.questionCount}</td>
                         <td className="px-4 py-3">
+                          <button onClick={() => openEditMock(test)} className="text-primary hover:text-primary/80 transition-colors" data-testid={`button-edit-mock-${test.id}`}>
+                            <Edit2 className="h-4 w-4" />
+                          </button>
                           <button onClick={() => handleDeleteMockTest(test.id)} className="text-muted-foreground hover:text-destructive transition-colors">
                             <Trash2 className="h-4 w-4" />
                           </button>

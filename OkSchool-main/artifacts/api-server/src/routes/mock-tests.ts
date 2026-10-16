@@ -6,6 +6,8 @@ import {
   GetMockTestParams,
   GetUserMockTestParams,
   DeleteUserMockTestParams,
+  UpdateMockTestBody,
+  UpdateMockTestParams,
 } from "@workspace/api-zod";
 
 const router: IRouter = Router();
@@ -201,6 +203,48 @@ router.get("/mock-tests/:id", async (req, res): Promise<void> => {
   } catch (err) {
     console.error("Failed to fetch mock test:", err);
     res.status(500).json({ error: "Failed to fetch mock test" });
+  }
+});
+
+router.patch("/mock-tests/:id", async (req, res): Promise<void> => {
+  try {
+    const params = UpdateMockTestParams.safeParse(req.params);
+    if (!params.success) {
+      res.status(400).json({ error: params.error.message });
+      return;
+    }
+
+    const parsed = UpdateMockTestBody.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message, details: parsed.error });
+      return;
+    }
+
+    const { id } = params.data;
+
+    const [test] = await db.select().from(mockTestsTable).where(eq(mockTestsTable.id, id));
+    if (!test) {
+      res.status(404).json({ error: "Mock test not found" });
+      return;
+    }
+
+    const { questions, ...testData } = parsed.data;
+
+    const [updated] = await db.update(mockTestsTable).set(testData).where(eq(mockTestsTable.id, id)).returning();
+
+    if (questions && questions.length > 0) {
+      await db.delete(questionsTable).where(eq(questionsTable.mockTestId, id));
+      await db.insert(questionsTable).values(questions.map((q) => ({ ...q, mockTestId: id })));
+      await db.update(mockTestsTable).set({ questionCount: questions.length }).where(eq(mockTestsTable.id, id));
+    }
+
+    const [final] = await db.select().from(mockTestsTable).where(eq(mockTestsTable.id, id));
+    const savedQuestions = await db.select().from(questionsTable).where(eq(questionsTable.mockTestId, id));
+
+    res.json({ ...final, questions: savedQuestions });
+  } catch (err) {
+    console.error("Failed to update mock test:", err);
+    res.status(500).json({ error: "Failed to update mock test", details: err instanceof Error ? err.message : String(err) });
   }
 });
 

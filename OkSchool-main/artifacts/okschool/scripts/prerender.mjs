@@ -58,6 +58,18 @@ async function buildPage(template, { title, description, url, jsonLd, body }) {
     /<meta property="og:description" content="[^"]*"\s*\/?>/,
     `<meta property="og:description" content="${esc(description)}" />`,
   );
+  html = html.replace(
+    /<meta property="og:url" content="[^"]*"\s*\/?>/,
+    `<meta property="og:url" content="${esc(url)}" />`,
+  );
+  html = html.replace(
+    /<meta name="twitter:title" content="[^"]*"\s*\/?>/,
+    `<meta name="twitter:title" content="${esc(title)} | OkSchool" />`,
+  );
+  html = html.replace(
+    /<meta name="twitter:description" content="[^"]*"\s*\/?>/,
+    `<meta name="twitter:description" content="${esc(description)}" />`,
+  );
 
   // Replace an existing canonical link, or insert one before </head>.
   html = /<link rel="canonical"/.test(html)
@@ -102,6 +114,23 @@ function documentBody(doc, url) {
     </main>`;
 }
 
+/**
+ * Render rewrites cannot proxy to an external host, so /sitemap.xml cannot be
+ * served from the backend. Ship the generated sitemap as a static file instead
+ * so documents uploaded after the last build are never silently omitted.
+ */
+async function writeSitemap() {
+  try {
+    const res = await fetch(`${apiBase}/api/sitemap.xml`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const xml = await res.text();
+    await writeFile(path.join(dist, "sitemap.xml"), xml, "utf8");
+    console.log(`[prerender] wrote sitemap.xml (${(xml.match(/<loc>/g) || []).length} urls)`);
+  } catch (err) {
+    console.warn(`[prerender] could not build sitemap.xml (${err.message}); keeping the static fallback.`);
+  }
+}
+
 async function main() {
   console.log("[prerender] starting");
 
@@ -111,8 +140,8 @@ async function main() {
     documents = await fetchJson(`${apiBase}/api/documents`);
     mocks = await fetchJson(`${apiBase}/api/mock-tests`);
   } catch (err) {
+    // Never fail the build over prerendering; a missing page only costs SEO.
     console.warn(`[prerender] could not reach API (${err.message}); skipping prerender. Build still succeeds.`);
-    return;
   }
 
   const template = await readFile(path.join(dist, "index.html"), "utf8");
@@ -186,6 +215,8 @@ async function main() {
   }
 
   console.log(`[prerender] generated ${count} pages (${documents.length} documents, ${mocks.length} public mocks)`);
+
+  await writeSitemap();
 }
 
 main().catch((err) => {

@@ -28,7 +28,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
         setIsAuthenticated(true);
-      } else {
+      } else if (event === "SIGNED_OUT") {
         setIsAuthenticated(false);
         setLocation("/login");
       }

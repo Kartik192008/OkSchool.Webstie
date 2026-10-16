@@ -66,6 +66,18 @@ function render(shell: string, opts: {
     /<meta property="og:description" content="[^"]*"\s*\/?>/,
     `<meta property="og:description" content="${esc(opts.description)}" />`,
   );
+  html = html.replace(
+    /<meta property="og:url" content="[^"]*"\s*\/?>/,
+    `<meta property="og:url" content="${esc(opts.canonical)}" />`,
+  );
+  html = html.replace(
+    /<meta name="twitter:title" content="[^"]*"\s*\/?>/,
+    `<meta name="twitter:title" content="${esc(opts.title)} | OkSchool" />`,
+  );
+  html = html.replace(
+    /<meta name="twitter:description" content="[^"]*"\s*\/?>/,
+    `<meta name="twitter:description" content="${esc(opts.description)}" />`,
+  );
 
   html = /<link rel="canonical"/.test(html)
     ? html.replace(/<link rel="canonical" href="[^"]*"\s*\/?>/, `<link rel="canonical" href="${esc(opts.canonical)}" />`)

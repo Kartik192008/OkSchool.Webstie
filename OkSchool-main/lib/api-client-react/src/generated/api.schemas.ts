@@ -158,6 +158,18 @@ export interface MockTestInput {
   questions?: Question[];
 }
 
+export interface MockTestPatch {
+  title?: string;
+  description?: string;
+  subject?: string;
+  section?: string;
+  duration?: number;
+  correctMarks?: number;
+  incorrectMarks?: number;
+  unattemptedMarks?: number;
+  questions?: Question[];
+}
+
 export interface MockTestDetail {
   id: number;
   title: string;

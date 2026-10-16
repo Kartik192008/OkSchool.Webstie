@@ -34,6 +34,7 @@ import type {
   MockTest,
   MockTestDetail,
   MockTestInput,
+  MockTestPatch,
   SearchResults,
   TrackVisit201,
   VisitInput,
@@ -1169,6 +1170,77 @@ export function useGetMockTest<TData = Awaited<ReturnType<typeof getMockTest>>, 
 
 
 
+
+export const getUpdateMockTestUrl = (id: number,) => {
+
+
+
+
+  return `/api/mock-tests/${id}`
+}
+
+/**
+ * @summary Update a mock test (admin only)
+ */
+export const updateMockTest = async (id: number,
+    mockTestPatch: MockTestPatch, options?: RequestInit): Promise<MockTest> => {
+
+  return customFetch<MockTest>(getUpdateMockTestUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(mockTestPatch)
+  }
+);}
+
+
+
+
+export const getUpdateMockTestMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMockTest>>, TError,{id: number;data: BodyType<MockTestPatch>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateMockTest>>, TError,{id: number;data: BodyType<MockTestPatch>}, TContext> => {
+
+const mutationKey = ['updateMockTest'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateMockTest>>, {id: number;data: BodyType<MockTestPatch>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateMockTest(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateMockTestMutationResult = NonNullable<Awaited<ReturnType<typeof updateMockTest>>>
+    export type UpdateMockTestMutationBody = BodyType<MockTestPatch>
+    export type UpdateMockTestMutationError = ErrorType<void>
+
+    /**
+ * @summary Update a mock test (admin only)
+ */
+export const useUpdateMockTest = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMockTest>>, TError,{id: number;data: BodyType<MockTestPatch>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateMockTest>>,
+        TError,
+        {id: number;data: BodyType<MockTestPatch>},
+        TContext
+      > => {
+      return useMutation(getUpdateMockTestMutationOptions(options));
+    }
 
 export const getDeleteMockTestUrl = (id: number,) => {
 

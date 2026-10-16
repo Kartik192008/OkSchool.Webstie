@@ -312,6 +312,31 @@ paths:
                 $ref: "#/components/schemas/MockTestDetail"
         "404":
           description: Not found
+    patch:
+      operationId: updateMockTest
+      tags: [mock-tests]
+      summary: Update a mock test (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MockTestPatch'
+      responses:
+        "200":
+          description: Updated mock test
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MockTest'
+        "404":
+          description: Not found
     delete:
       operationId: deleteMockTest
       tags: [mock-tests]
@@ -686,6 +711,30 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Question"
+
+    MockTestPatch:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        subject:
+          type: string
+        section:
+          type: string
+        duration:
+          type: integer
+        correctMarks:
+          type: integer
+        incorrectMarks:
+          type: integer
+        unattemptedMarks:
+          type: integer
+        questions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Question'
 
     MockTestDetail:
       type: object

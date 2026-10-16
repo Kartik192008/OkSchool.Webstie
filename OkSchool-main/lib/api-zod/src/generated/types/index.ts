@@ -20,6 +20,7 @@ export * from './listDocumentsParams';
 export * from './mockTest';
 export * from './mockTestDetail';
 export * from './mockTestInput';
+export * from './mockTestPatch';
 export * from './question';
 export * from './searchResults';
 export * from './sectionCount';

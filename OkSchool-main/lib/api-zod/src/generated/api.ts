@@ -384,6 +384,52 @@ export const GetMockTestResponse = zod.object({
 
 
 /**
+ * @summary Update a mock test (admin only)
+ */
+export const UpdateMockTestParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const UpdateMockTestBody = zod.object({
+  "title": zod.string().optional(),
+  "description": zod.string().optional(),
+  "subject": zod.string().optional(),
+  "section": zod.string().optional(),
+  "duration": zod.number().optional(),
+  "correctMarks": zod.number().optional(),
+  "incorrectMarks": zod.number().optional(),
+  "unattemptedMarks": zod.number().optional(),
+  "questions": zod.array(zod.object({
+  "id": zod.number().optional(),
+  "question": zod.string(),
+  "questionImage": zod.string().nullish(),
+  "optionA": zod.string(),
+  "optionB": zod.string(),
+  "optionC": zod.string(),
+  "optionD": zod.string(),
+  "correctAnswer": zod.string().describe('A, B, C, or D'),
+  "solution": zod.string().nullish()
+})).optional()
+})
+
+export const UpdateMockTestResponse = zod.object({
+  "id": zod.number(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "subject": zod.string(),
+  "section": zod.string(),
+  "duration": zod.number().describe('Duration in minutes'),
+  "questionCount": zod.number(),
+  "correctMarks": zod.number().describe('Marks awarded for a correct answer'),
+  "incorrectMarks": zod.number().describe('Marks deducted for an incorrect answer (negative marking)'),
+  "unattemptedMarks": zod.number().describe('Marks for an unattempted question'),
+  "userId": zod.string().nullish().describe('User ID if user-generated'),
+  "isUserGenerated": zod.number().optional().describe('1 if user-generated, 0 if admin-created'),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
  * @summary Delete a mock test (admin only)
  */
 export const DeleteMockTestParams = zod.object({
