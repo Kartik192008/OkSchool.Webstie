@@ -61,16 +61,16 @@ function Router() {
         <PublicLayout><Login /></PublicLayout>
       </Route>
       <Route path="/study-material/:id/:slug">
-        <ProtectedRoute><PublicLayout><StudyMaterialDetail /></PublicLayout></ProtectedRoute>
+        <PublicLayout><StudyMaterialDetail /></PublicLayout>
       </Route>
       <Route path="/study-material/:id">
-        <ProtectedRoute><PublicLayout><StudyMaterialDetail /></PublicLayout></ProtectedRoute>
+        <PublicLayout><StudyMaterialDetail /></PublicLayout>
       </Route>
       <Route path="/mock-test/:id/:slug">
-        <ProtectedRoute><PublicLayout><MockTestExam /></PublicLayout></ProtectedRoute>
+        <PublicLayout><MockTestExam /></PublicLayout>
       </Route>
       <Route path="/mock-test/:id">
-        <ProtectedRoute><PublicLayout><MockTestExam /></PublicLayout></ProtectedRoute>
+        <PublicLayout><MockTestExam /></PublicLayout>
       </Route>
       <Route path="/mock-tests">
         <ProtectedRoute><PublicLayout><MockTestList /></PublicLayout></ProtectedRoute>
