@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "wouter";
-import { Clock, AlertCircle } from "lucide-react";
+import { Clock, AlertCircle, Maximize2, Minimize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useGetMockTest } from "@workspace/api-client-react";
@@ -30,6 +30,16 @@ export function MockTestExam() {
   const [questionStates, setQuestionStates] = useState<QuestionState[]>([]);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const toggleFullscreen = () => {
+    if (!isFullscreen) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+    setIsFullscreen((prev) => !prev);
+  };
 
   const { timeLeft, formattedTime, isWarning, start, pause, reset } = useExamTimer({
     initialSeconds: (test?.duration ?? 30) * 60,
@@ -263,7 +273,7 @@ export function MockTestExam() {
   const statusCounts = getStatusCounts();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className={`min-h-screen bg-background ${isFullscreen ? "fixed inset-0 z-[60]" : ""}`}>
       {/* Header */}
       <header className="bg-card border-b border-card-border sticky top-0 z-10">
         <div className="container mx-auto px-4 py-3">
@@ -274,6 +284,15 @@ export function MockTestExam() {
                 <Clock className="h-4 w-4" />
                 {formattedTime}
               </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleFullscreen}
+                className="ml-2"
+                aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+              >
+                {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+              </Button>
             </div>
             <Button
               variant="outline"
