@@ -7,7 +7,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
             <Link href="/" className="flex items-center gap-2 mb-4">
-              <img src="favicon.png" alt="OkSchool" className="h-9 w-9" />
+              <img src="/logo.png" alt="OkSchool" className="h-9 w-9" />
               <span className="font-serif font-bold text-xl tracking-tight text-foreground">OkSchool</span>
             </Link>
             <p className="text-muted-foreground max-w-sm">

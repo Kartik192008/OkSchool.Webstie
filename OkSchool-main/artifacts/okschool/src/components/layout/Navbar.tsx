@@ -121,7 +121,7 @@ export function Navbar() {
           </Sheet>
 
           <Link href="/" className="flex items-center gap-2.5" data-testid="link-home">
-            <img src="favicon.png" alt="OkSchool" className="h-9 w-9" />
+            <img src="/logo.png" alt="OkSchool" className="h-9 w-9" />
             <span className="font-serif font-bold text-xl tracking-tight text-foreground">OkSchool</span>
           </Link>
 
