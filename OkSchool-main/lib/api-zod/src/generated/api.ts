@@ -324,6 +324,7 @@ export const CreateMockTestBody = zod.object({
   "id": zod.number().optional(),
   "question": zod.string(),
   "questionImage": zod.string().nullish(),
+  "section": zod.string().nullish(),
   "optionA": zod.string(),
   "optionB": zod.string(),
   "optionC": zod.string(),

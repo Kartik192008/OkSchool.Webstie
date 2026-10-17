@@ -461,6 +461,7 @@ export function AdminDashboard() {
         question: q.question || q.questionText || q.q || `Question ${index + 1}`,
         hasImage: !!q.questionImage || !!q.image,
         imageUrl: q.questionImage || q.image || null,
+        section: q.section || null,
         options: q.options || [],
         correctAnswer: q.correctAnswer || q.answer || q.correct || "",
       }));
@@ -616,6 +617,7 @@ export function AdminDashboard() {
           return {
             question: q.question || q.questionText || q.q || `Question ${index + 1}`,
             questionImage: editMockQuestionImages[index] || q.questionImage || q.imageUrl || null,
+            section: q.section || null,
             optionA, optionB, optionC, optionD,
             correctAnswer: String(q.correctAnswer || q.answer || q.correct || q.correct_option || "").toUpperCase(),
             solution: q.solution || q.explanation || null,
@@ -1154,6 +1156,16 @@ export function AdminDashboard() {
                                   </label>
                                 </div>
                                 <p className="text-xs text-muted-foreground truncate pr-4">{q.question}</p>
+                                <div className="flex items-center gap-2 mt-2">
+                                  <label className="text-xs text-muted-foreground shrink-0">Section:</label>
+                                  <input
+                                    type="text"
+                                    value={q.section || ""}
+                                    onChange={(e) => setParsedQuestions(prev => prev.map((item, i) => i === index ? { ...item, section: e.target.value } : item))}
+                                    placeholder="e.g. Physics"
+                                    className="text-xs border border-input px-2 py-1 rounded bg-background"
+                                  />
+                                </div>
                                 {q.hasImage && !questionImages[index] && (
                                   <div className="mt-2">
                                     <input
@@ -1245,6 +1257,10 @@ export function AdminDashboard() {
                                 <Input value={q.question || ""} onChange={(e) => setEditMockQuestions(prev => prev.map((p, i) => i === index ? { ...p, question: e.target.value } : p))} className="mt-1" />
                               </div>
                               <div>
+                                <Label>Section</Label>
+                                <Input value={q.section || ""} onChange={(e) => setEditMockQuestions(prev => prev.map((p, i) => i === index ? { ...p, section: e.target.value } : p))} className="mt-1" placeholder="e.g. Physics" />
+                              </div>
+                              <div>
                                 <Label>Option A</Label>
                                 <Input value={q.optionA || ""} onChange={(e) => setEditMockQuestions(prev => prev.map((p, i) => i === index ? { ...p, optionA: e.target.value } : p))} className="mt-1" />
                               </div>
@@ -1275,7 +1291,7 @@ export function AdminDashboard() {
                             </div>
                           </div>
                         ))}
-                        <button type="button" onClick={() => setEditMockQuestions([...editMockQuestions, { question: "", optionA: "", optionB: "", optionC: "", optionD: "", correctAnswer: "A" }])} className="text-xs text-primary underline hover:text-primary/80">Add Question</button>
+                        <button type="button" onClick={() => setEditMockQuestions([...editMockQuestions, { question: "", optionA: "", optionB: "", optionC: "", optionD: "", correctAnswer: "A", section: "" }])} className="text-xs text-primary underline hover:text-primary/80">Add Question</button>
                       </div>
                     </div>
 

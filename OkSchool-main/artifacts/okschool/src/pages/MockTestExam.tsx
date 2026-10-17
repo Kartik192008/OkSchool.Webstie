@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams } from "wouter";
-import { Clock, AlertCircle, Maximize2, Minimize2 } from "lucide-react";
+import { Clock, AlertCircle, Maximize2, Minimize2, Layout, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useGetMockTest } from "@workspace/api-client-react";
@@ -31,6 +31,31 @@ export function MockTestExam() {
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [selectedSection, setSelectedSection] = useState<string | null>(null);
+
+  const sections = useMemo(() => {
+    const seen = new Set<string>();
+    test?.questions.forEach((q: any) => {
+      const s = q.section || "General";
+      if (s) seen.add(s);
+    });
+    return Array.from(seen);
+  }, [test?.questions]);
+
+  const visibleQuestions = useMemo(() => {
+    if (!selectedSection) return test?.questions ?? [];
+    return (test?.questions ?? []).filter((q: any) => (q.section || "General") === selectedSection);
+  }, [test?.questions, selectedSection]);
+
+  const originalIndexForVisible = useMemo(() => {
+    const map: number[] = [];
+    (test?.questions ?? []).forEach((q: any, i: number) => {
+      if (!selectedSection || (q.section || "General") === selectedSection) {
+        map.push(i);
+      }
+    });
+    return map;
+  }, [test?.questions, selectedSection]);
 
   const toggleFullscreen = () => {
     if (!isFullscreen) {
@@ -56,13 +81,15 @@ export function MockTestExam() {
   useEffect(() => {
     if (test && !examStarted) {
       setQuestionStates(
-        test.questions.map(() => ({
+        visibleQuestions.map(() => ({
           selectedOption: null,
           status: "not-visited" as QuestionStatus,
         }))
       );
+      setCurrentQuestionIndex(0);
+      setSelectedSection(null);
     }
-  }, [test, examStarted]);
+  }, [test, visibleQuestions, examStarted]);
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -158,16 +185,17 @@ export function MockTestExam() {
     }
   };
 
-  const goToQuestion = (index: number) => {
-    setCurrentQuestionIndex(index);
-    markQuestionAsVisited(index);
+  const goToQuestion = (visibleIndex: number) => {
+    const origIdx = originalIndexForVisible[visibleIndex] ?? visibleIndex;
+    setCurrentQuestionIndex(visibleIndex);
+    markQuestionAsVisited(origIdx);
   };
 
-  const markQuestionAsVisited = (index: number) => {
+  const markQuestionAsVisited = (origIndex: number) => {
     setQuestionStates((prev) => {
       const updated = [...prev];
-      if (updated[index].status === "not-visited") {
-        updated[index].status = "not-answered";
+      if (updated[origIndex].status === "not-visited") {
+        updated[origIndex].status = "not-answered";
       }
       return updated;
     });
@@ -187,9 +215,10 @@ export function MockTestExam() {
           let incorrect = 0;
           let unattempted = 0;
           questionStates.forEach((state, index) => {
+            const origIdx = originalIndexForVisible[index] ?? index;
             if (!state.selectedOption) {
               unattempted++;
-            } else if (state.selectedOption === test.questions[index].correctAnswer) {
+            } else if (state.selectedOption === test.questions[origIdx].correctAnswer) {
               correct++;
             } else {
               incorrect++;
@@ -269,7 +298,8 @@ export function MockTestExam() {
     return <MockTestInstructions onStart={handleStartExam} />;
   }
 
-  const currentQuestion = test.questions[currentQuestionIndex];
+  const currentQuestion = visibleQuestions[currentQuestionIndex];
+  const origIndex = originalIndexForVisible[currentQuestionIndex] ?? 0;
   const statusCounts = getStatusCounts();
 
   return (
@@ -277,7 +307,7 @@ export function MockTestExam() {
       {/* Header */}
       <header className="bg-card border-b border-card-border sticky top-0 z-10">
         <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <h1 className="font-semibold text-lg">{test.title}</h1>
               <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${isWarning ? "bg-red-100 text-red-700" : "bg-muted"}`}>
@@ -294,13 +324,25 @@ export function MockTestExam() {
                 {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
               </Button>
             </div>
-            <Button
-              variant="outline"
-              onClick={() => setShowSubmitModal(true)}
-              className="text-sm"
-            >
-              Submit Test
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              {sections.length > 1 && (
+                <div className="flex flex-wrap gap-2">
+                  <Button variant="outline" size="sm" onClick={() => setSelectedSection(null)} className={!selectedSection ? "bg-primary text-primary-foreground" : ""}>All</Button>
+                  {sections.map((s) => (
+                    <Button key={s} variant="outline" size="sm" onClick={() => setSelectedSection(s)} className={selectedSection === s ? "bg-primary text-primary-foreground" : ""}>
+                      {s}
+                    </Button>
+                  ))}
+                </div>
+              )}
+              <Button
+                variant="outline"
+                onClick={() => setShowSubmitModal(true)}
+                className="text-sm"
+              >
+                Submit Test
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -310,10 +352,16 @@ export function MockTestExam() {
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Question Panel */}
           <div className="lg:col-span-2">
-            <div className="bg-card border border-card-border rounded-xl p-6">
+            <div className="bg-card border border-card-border rounded-xl p-6 max-h-[calc(100dvh-200px)] overflow-y-auto">
+              {selectedSection && (
+                <div className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
+                  <List className="h-4 w-4" />
+                  <span className="font-medium">{selectedSection} section</span>
+                </div>
+              )}
               <div className="flex items-center justify-between mb-4">
                 <Badge variant="outline" className="text-sm">
-                  Question {currentQuestionIndex + 1} of {test.questions.length}
+                  Question {currentQuestionIndex + 1} of {visibleQuestions.length}
                 </Badge>
                 <Badge variant="outline" className="text-sm">
                   +{test.correctMarks ?? 4} / {test.incorrectMarks ?? -1}
@@ -323,11 +371,15 @@ export function MockTestExam() {
               <div className="mb-6">
                 <h2 className="text-lg font-medium mb-4">{currentQuestion.question}</h2>
                 {currentQuestion.questionImage && (
-                  <img
-                    src={currentQuestion.questionImage}
-                    alt="Question"
-                    className="max-w-full h-auto rounded-lg mb-4"
-                  />
+                  <div className="relative mb-4">
+                    <img
+                      src={currentQuestion.questionImage}
+                      alt="Question"
+                      className="max-w-full h-auto rounded-lg mb-4"
+                      loading="lazy"
+                      onError={(e) => { (e.target as HTMLImageElement).src = ""; }}
+                    />
+                  </div>
                 )}
               </div>
 
@@ -384,7 +436,7 @@ export function MockTestExam() {
                   >
                     Previous
                   </Button>
-                  {currentQuestionIndex < (test?.questions.length ?? 0) - 1 ? (
+                  {currentQuestionIndex < visibleQuestions.length - 1 ? (
                     <Button onClick={handleSaveAndNext} className="text-sm">
                       Save & Next
                     </Button>
@@ -439,7 +491,7 @@ export function MockTestExam() {
 
               {/* Palette Grid */}
               <div className="grid grid-cols-6 gap-2">
-                {test.questions.map((_, index) => {
+                {visibleQuestions.map((_, index) => {
                   const state = questionStates[index];
                   const getStatusColor = () => {
                     switch (state.status) {

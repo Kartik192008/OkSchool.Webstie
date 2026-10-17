@@ -11,6 +11,7 @@ export interface Question {
   question: string;
   /** @nullable */
   questionImage?: string | null;
+  section?: string | null;
   optionA: string;
   optionB: string;
   optionC: string;

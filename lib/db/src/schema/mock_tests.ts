@@ -23,6 +23,7 @@ export const questionsTable = pgTable("questions", {
   mockTestId: integer("mock_test_id").notNull().references(() => mockTestsTable.id, { onDelete: "cascade" }),
   question: text("question").notNull(),
   questionImage: text("question_image"),
+  section: text("section"),
   optionA: text("option_a").notNull(),
   optionB: text("option_b").notNull(),
   optionC: text("option_c").notNull(),
