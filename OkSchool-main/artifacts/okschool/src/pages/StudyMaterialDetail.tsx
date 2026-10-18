@@ -44,16 +44,7 @@ export function StudyMaterialDetail() {
     query: { enabled: !!docId, queryKey: getGetDocumentQueryKey(docId) },
   });
 
-  // Load Google AdSense script
-  useEffect(() => {
-    if (!document.getElementById("google-ad-script")) {
-      const s = document.createElement("script");
-      s.id = "google-ad-script";
-      s.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js";
-      s.async = true;
-      document.head.appendChild(s);
-    }
-  }, []);
+  // AdSense removed
 
   // Fetch similar documents from same category
   const { data: similarDocs } = useListDocuments(
@@ -130,9 +121,7 @@ export function StudyMaterialDetail() {
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-5xl mx-auto">
         {/* Top Ad Box */}
-        <div className="mt-6 mb-8">
-          <ins className="adsbygoogle" style={{ display: "block" }} data-ad-client="ca-pub-0000000000000000" data-ad-slot="0000000000" data-ad-format="auto" data-full-width-responsive="true"></ins>
-        </div>
+        {/* Ad box removed */}
 
         <div className="flex items-start justify-between gap-6">
           <div className="flex-1">
@@ -208,17 +197,10 @@ export function StudyMaterialDetail() {
           </div>
 
           {/* Sidebar Ad */}
-          <div className="hidden md:block w-96 shrink-0 mt-6">
-            <div className="sticky top-24">
-              <ins className="adsbygoogle" style={{ display: "block" }} data-ad-client="ca-pub-0000000000000000" data-ad-slot="0000000001" data-ad-format="auto" data-full-width-responsive="true"></ins>
-            </div>
-          </div>
         </div>
 
         {/* Bottom Ad Box */}
-        <div className="mt-12 mb-8">
-          <ins className="adsbygoogle" style={{ display: "block" }} data-ad-client="ca-pub-0000000000000000" data-ad-slot="0000000002" data-ad-format="auto" data-full-width-responsive="true"></ins>
-        </div>
+        {/* Ad box removed */}
 
         {/* Word Modal */}
         <Dialog open={showWordModal} onOpenChange={setShowWordModal}>
