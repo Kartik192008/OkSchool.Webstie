@@ -1,4 +1,4 @@
-import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
+import { Switch, Route, Router as WouterRouter, Redirect, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -40,12 +40,14 @@ const queryClient = new QueryClient({
 });
 
 function PublicLayout({ children }: { children: React.ReactNode }) {
+  const [location] = useLocation();
+  const isHome = location === "/" || location === "/index.html";
   return (
     <div className="min-h-[100dvh] flex flex-col flex-1">
       <Marquee />
       <Navbar />
       <main className="flex-1">{children}</main>
-      <Footer />
+      {isHome && <Footer />}
     </div>
   );
 }
