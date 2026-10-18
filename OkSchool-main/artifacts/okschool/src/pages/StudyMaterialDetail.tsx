@@ -100,7 +100,7 @@ export function StudyMaterialDetail() {
   useSEO({
     title: doc.title,
     description: doc
-      ? `${doc.description} - free PDF download for students on OkSchool. Category: ${doc.category.replace(/-/g, " ")}.`
+      ? `${doc.description} - free PDF download for students on OkSchool. Category: ${doc.category ? doc.category.replace(/-/g, " ") : "General"}.`
       : "Download free notes, projects and question papers on OkSchool.",
     path: doc ? documentUrl(doc.id, doc.title) : `/study-material/${docId}`,
     image: doc?.thumbnailUrl || undefined,
@@ -113,7 +113,7 @@ export function StudyMaterialDetail() {
           name: doc.title,
           description: doc.description || doc.title,
           educationalLevel: "Class 10-12",
-          learningResourceType: doc.category.replace(/-/g, " "),
+          learningResourceType: doc.category ? doc.category.replace(/-/g, " ") : "General",
           isAccessibleForFree: !!doc.isFree,
           inLanguage: "en",
           url: `https://okschool-s.onrender.com${documentUrl(doc.id, doc.title)}`,
