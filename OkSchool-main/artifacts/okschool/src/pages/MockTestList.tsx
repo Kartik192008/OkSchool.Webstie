@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Clock, FileText, Play, ChevronRight, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -51,17 +51,32 @@ export function MockTestList() {
 
   const sections = Object.keys(grouped);
 
+  const adScriptLoaded = useState(false)[0];
+
+  useEffect(() => {
+    if (!document.getElementById("google-ad-script")) {
+      const s = document.createElement("script");
+      s.id = "google-ad-script";
+      s.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js";
+      s.async = true;
+      document.head.appendChild(s);
+    }
+  }, []);
+
   if (selectedSection) {
     const sectionTests = grouped[selectedSection] || [];
     return (
-      <div className="container mx-auto px-4 py-10">
+      <div className="container mx-auto px-4 py-10 max-h-[calc(100dvh-160px)] overflow-y-auto">
         <div className="max-w-4xl mx-auto">
+          <div className="mb-8">
+            <ins className="adsbygoogle" style={{ display: "block" }} data-ad-client="ca-pub-0000000000000000" data-ad-slot="0000000000" data-ad-format="auto" data-full-width-responsive="true"></ins>
+          </div>
           <button onClick={() => setSelectedSection(null)} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4 transition-colors">
             <ChevronLeft className="h-4 w-4" /> All Sections
           </button>
           <h1 className="font-serif text-3xl font-bold mb-2">{selectedSection}</h1>
           <p className="text-muted-foreground mb-6">{sectionTests.length} test{sectionTests.length !== 1 ? 's' : ''} available</p>
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-2 gap-6 max-h-[calc(100dvh-260px)] overflow-y-auto pr-2">
             {sectionTests.map((test) => (
               <div key={test.id} className="bg-card border border-card-border rounded-xl p-6 hover:shadow-md transition-shadow">
                 <div className="flex items-start justify-between mb-4">
@@ -96,11 +111,14 @@ export function MockTestList() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-10">
+    <div className="container mx-auto px-4 py-10 max-h-[calc(100dvh-160px)] overflow-y-auto">
       <div className="max-w-4xl mx-auto">
+        <div className="mb-8">
+          <ins className="adsbygoogle" style={{ display: "block" }} data-ad-client="ca-pub-0000000000000000" data-ad-slot="0000000000" data-ad-format="auto" data-full-width-responsive="true"></ins>
+        </div>
         <h1 className="font-serif text-3xl font-bold mb-2">Mock Tests</h1>
         <p className="text-muted-foreground mb-8">Choose your exam section to see available mock tests.</p>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[calc(100dvh-240px)] overflow-y-auto pr-2">
           {sections.map((section) => (
             <button
               key={section}

@@ -17,6 +17,8 @@ import {
   getGetDocumentQueryKey,
   useRecordDocumentView,
   useRecordDocumentDownload,
+  useListDocuments,
+  getListDocumentsQueryKey,
 } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
 import { API_BASE } from "@/lib/api";
@@ -41,6 +43,32 @@ export function StudyMaterialDetail() {
   const { data: doc, isLoading } = useGetDocument(docId, {
     query: { enabled: !!docId, queryKey: getGetDocumentQueryKey(docId) },
   });
+
+  // Load Google AdSense script
+  useEffect(() => {
+    if (!document.getElementById("google-ad-script")) {
+      const s = document.createElement("script");
+      s.id = "google-ad-script";
+      s.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js";
+      s.async = true;
+      document.head.appendChild(s);
+    }
+  }, []);
+
+  // Fetch similar documents from same category
+  const { data: similarDocs } = useListDocuments(
+    doc ? { category: doc.category } : undefined,
+    {
+      query: {
+        enabled: !!doc?.category,
+        staleTime: 5 * 60 * 1000,
+      },
+    }
+  );
+
+  const similarDocuments = similarDocs
+    ? similarDocs.filter((d) => d.id !== docId).slice(0, 6)
+    : [];
 
   useSEO({
     title: doc ? doc.title : "Study Material",
@@ -483,6 +511,39 @@ export function StudyMaterialDetail() {
               <span>Category</span><span className="font-medium text-foreground capitalize">{doc.category.replace(/-/g, " ")}</span>
             </div>
           </div>
+
+          <div className="mt-6">
+            <ins className="adsbygoogle" style={{ display: "block" }} data-ad-client="ca-pub-0000000000000000" data-ad-slot="0000000000" data-ad-format="auto" data-full-width-responsive="true"></ins>
+          </div>
+        </div>
+      </div>
+
+      {similarDocuments.length > 0 && (
+        <div className="container mx-auto px-4 py-8 mt-8">
+          <div className="max-w-5xl mx-auto">
+            <h2 className="font-serif text-2xl font-bold mb-4">Similar Documents</h2>
+            <p className="text-muted-foreground mb-6">Recommended study material based on this topic</p>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[calc(100dvh-200px)] overflow-y-auto pr-2">
+              {similarDocuments.map((d) => (
+                <Link key={d.id} href={documentUrl(d.id, d.title)}>
+                  <div className="bg-card border border-card-border rounded-xl p-4 hover:shadow-md transition-shadow cursor-pointer h-full">
+                    <h3 className="font-medium line-clamp-2 mb-2">{d.title}</h3>
+                    <p className="text-xs text-muted-foreground line-clamp-2 mb-2">{d.description}</p>
+                    <div className="flex items-center justify-between mt-auto">
+                      <Badge variant="outline" className="text-xs">{d.category.replace(/-/g, " ")}</Badge>
+                      <span className="text-xs text-muted-foreground uppercase">{d.fileType}</span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-5xl mx-auto">
+          <ins className="adsbygoogle" style={{ display: "block" }} data-ad-client="ca-pub-0000000000000000" data-ad-slot="0000000001" data-ad-format="auto" data-full-width-responsive="true"></ins>
         </div>
       </div>
     </div>
