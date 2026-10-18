@@ -138,7 +138,7 @@ export function StudyMaterialDetail() {
           <div className="flex-1">
             <div className="flex items-center justify-between mb-4">
               <h1 className="font-serif text-3xl font-bold leading-tight">{doc.title}</h1>
-              <span className="badge bg-muted px-3 py-1 text-sm">{doc.category.replace(/-/g, " ")}</span>
+              <span className="badge bg-muted px-3 py-1 text-sm">{doc.category ? doc.category.replace(/-/g, " ") : "General"}</span>
             </div>
             <p className="text-muted-foreground mb-6 line-clamp-2">{doc.description || doc.title}</p>
 
@@ -181,7 +181,7 @@ export function StudyMaterialDetail() {
             {similarDocuments.length > 0 && (
               <div className="mt-8">
                 <h3 className="font-serif text-2xl font-bold mb-3">Similar Documents</h3>
-                <p className="text-muted-foreground text-sm mb-3">More from {doc.category.replace(/-/g, " ")}</p>
+                <p className="text-muted-foreground text-sm mb-3">More from {(doc.category ? doc.category.replace(/-/g, " ") : "General")}</p>
                 <div className="flex overflow-x-auto gap-4 pb-4 -mx-4 px-4">
                   {similarDocuments.map((d) => (
                     <Link key={d.id} href={documentUrl(d.id, d.title)} className="flex-shrink-0 w-72 cursor-pointer">
@@ -196,8 +196,8 @@ export function StudyMaterialDetail() {
                         )}
                         <h4 className="font-medium line-clamp-2 mb-2 text-sm leading-snug">{d.title}</h4>
                         <div className="flex items-center justify-between mt-auto">
-                          <Badge variant="outline" className="text-[10px]">{d.category.replace(/-/g, " ")}</Badge>
-                          <span className="text-[10px] text-muted-foreground uppercase">{d.fileType}</span>
+<Badge variant="outline" className="text-[10px]">{d.category ? d.category.replace(/-/g, " ") : "General"}</Badge>
+                        <span className="text-[10px] text-muted-foreground uppercase">{d.fileType || "PDF"}</span>
                         </div>
                       </div>
                     </Link>
