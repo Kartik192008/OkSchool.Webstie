@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+﻿import { useEffect, useState, useCallback } from "react";
 import { useParams } from "wouter";
 import { useSEO, documentUrl } from "@/lib/seo";
 import { Download, FileText, Lock, BookOpen, X, CreditCard, CheckCircle } from "lucide-react";
@@ -67,7 +67,7 @@ export function StudyMaterialDetail() {
   );
 
   const similarDocuments = similarDocs
-    ? similarDocs.filter((d) => d.id !== docId).slice(0, 6)
+    ? similarDocs.filter((d) => d.id !== docId).slice(0, 10)
     : [];
 
   useSEO({
@@ -390,7 +390,7 @@ export function StudyMaterialDetail() {
             <div className="flex flex-wrap gap-2 mb-4">
               <Badge variant="outline" className="capitalize text-xs">{doc.category.replace(/-/g, " ")}</Badge>
               <Badge className={doc.isFree ? "bg-green-100 text-green-700 border-green-200" : "bg-primary text-primary-foreground"}>
-                {doc.isFree ? "FREE" : `₹${doc.price ?? 20}`}
+                {doc.isFree ? "FREE" : `â‚¹${doc.price ?? 20}`}
               </Badge>
               {!doc.isFree && hasPaid && (
                 <Badge className="bg-green-100 text-green-700 border-green-200">
@@ -442,7 +442,7 @@ export function StudyMaterialDetail() {
                        data-testid="button-buy-word"
                      >
                        <CreditCard className="h-4 w-4 mr-2" />
-                       {checkingPayment ? "Checking..." : paying ? "Processing..." : `₹${doc.price ?? 20} - Unlock Word`}
+                       {checkingPayment ? "Checking..." : paying ? "Processing..." : `â‚¹${doc.price ?? 20} - Unlock Word`}
                      </Button>
                    )}
                    {!hasWord && (
@@ -460,7 +460,7 @@ export function StudyMaterialDetail() {
                       Unlock Word File
                     </DialogTitle>
                     <DialogDescription>
-                      Pay ₹{doc.price ?? 20} to unlock and download the Word file. QR code will be available during checkout.
+                      Pay â‚¹{doc.price ?? 20} to unlock and download the Word file. QR code will be available during checkout.
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-3">
@@ -470,7 +470,7 @@ export function StudyMaterialDetail() {
                       disabled={paying}
                     >
                       <CreditCard className="h-4 w-4 mr-2" />
-                      {paying ? "Processing..." : `Pay ₹${doc.price ?? 20} Now`}
+                      {paying ? "Processing..." : `Pay â‚¹${doc.price ?? 20} Now`}
                     </Button>
                     <div className="flex justify-end">
                       <Button variant="outline" onClick={() => setShowWordModal(false)}>
@@ -515,35 +515,6 @@ export function StudyMaterialDetail() {
           <div className="mt-6">
             <ins className="adsbygoogle" style={{ display: "block" }} data-ad-client="ca-pub-0000000000000000" data-ad-slot="0000000000" data-ad-format="auto" data-full-width-responsive="true"></ins>
           </div>
-        </div>
-      </div>
-
-      {similarDocuments.length > 0 && (
-        <div className="container mx-auto px-4 py-8 mt-8">
-          <div className="max-w-5xl mx-auto">
-            <h2 className="font-serif text-2xl font-bold mb-4">Similar Documents</h2>
-            <p className="text-muted-foreground mb-6">Recommended study material based on this topic</p>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[calc(100dvh-200px)] overflow-y-auto pr-2">
-              {similarDocuments.map((d) => (
-                <Link key={d.id} href={documentUrl(d.id, d.title)}>
-                  <div className="bg-card border border-card-border rounded-xl p-4 hover:shadow-md transition-shadow cursor-pointer h-full">
-                    <h3 className="font-medium line-clamp-2 mb-2">{d.title}</h3>
-                    <p className="text-xs text-muted-foreground line-clamp-2 mb-2">{d.description}</p>
-                    <div className="flex items-center justify-between mt-auto">
-                      <Badge variant="outline" className="text-xs">{d.category.replace(/-/g, " ")}</Badge>
-                      <span className="text-xs text-muted-foreground uppercase">{d.fileType}</span>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-5xl mx-auto">
-          <ins className="adsbygoogle" style={{ display: "block" }} data-ad-client="ca-pub-0000000000000000" data-ad-slot="0000000001" data-ad-format="auto" data-full-width-responsive="true"></ins>
         </div>
       </div>
     </div>
