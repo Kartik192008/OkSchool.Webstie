@@ -109,7 +109,7 @@ export function useSEO({
 /** Turns a document title into a URL-safe slug, e.g.
  * "Electrostatics & Capacitence" -> "electrostatics-capacitence" */
 export function slugify(value: string): string {
-  return value
+  return (value || "")
     .toLowerCase()
     .normalize("NFKD")
     .replace(/[^\w\s-]/g, "")
@@ -120,7 +120,7 @@ export function slugify(value: string): string {
 }
 
 /** Builds an SEO-friendly document URL that carries the title in the path. */
-export function documentUrl(id: number, title: string): string {
-  const slug = slugify(title);
+export function documentUrl(id: number, title?: string): string {
+  const slug = slugify(title || "");
   return slug ? `/study-material/${id}/${slug}` : `/study-material/${id}`;
 }
