@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useCallback } from "react";
+﻿import { useEffect, useState, useCallback, useMemo } from "react";
 import { useParams } from "wouter";
 import { useSEO, documentUrl } from "@/lib/seo";
 import { Download, FileText, Lock, BookOpen, X, CreditCard, CheckCircle } from "lucide-react";
@@ -47,19 +47,55 @@ export function StudyMaterialDetail() {
   // AdSense removed
 
   // Fetch similar documents from same category
-  const { data: similarDocs } = useListDocuments(
-    doc ? { category: doc.category } : undefined,
-    {
-      query: {
-        enabled: !!doc?.category,
-        staleTime: 5 * 60 * 1000,
-      },
-    }
-  );
+  const similarParams = doc?.category ? { category: doc.category } : undefined;
+  const { data: similarDocs } = useListDocuments(similarParams, {
+    query: {
+      queryKey: getListDocumentsQueryKey(similarParams),
+      enabled: !!doc?.category,
+      staleTime: 5 * 60 * 1000,
+    },
+  });
 
   const similarDocuments = similarDocs
     ? similarDocs.filter((d) => d.id !== docId).slice(0, 10)
     : [];
+
+  const categoryLabel = doc?.category ? doc.category.replace(/-/g, " ") : "General";
+
+  const seoJsonLd = useMemo(
+    () =>
+      doc
+        ? {
+            "@context": "https://schema.org",
+            "@type": "LearningResource",
+            name: doc.title,
+            description: doc.description || doc.title,
+            educationalLevel: "Class 10-12",
+            learningResourceType: categoryLabel,
+            isAccessibleForFree: !!doc.isFree,
+            inLanguage: "en",
+            url: `https://okschool-s.onrender.com${documentUrl(doc.id, doc.title)}`,
+            provider: {
+              "@type": "Organization",
+              name: "OkSchool",
+              url: "https://okschool-s.onrender.com",
+            },
+          }
+        : undefined,
+    [doc, categoryLabel]
+  );
+
+  useSEO({
+    title: doc?.title || "",
+    description: doc
+      ? `${doc.description || doc.title} - free PDF download for students on OkSchool. Category: ${categoryLabel}.`
+      : "Download free notes, projects and question papers on OkSchool.",
+    path: doc ? documentUrl(doc.id, doc.title) : `/study-material/${docId}`,
+    image: doc?.thumbnailUrl || undefined,
+    type: "article",
+    noindex: !doc,
+    jsonLd: seoJsonLd,
+  });
 
   if (isLoading) {
     return (
@@ -88,35 +124,6 @@ export function StudyMaterialDetail() {
     );
   }
 
-  useSEO({
-    title: doc.title,
-    description: doc
-      ? `${doc.description} - free PDF download for students on OkSchool. Category: ${doc.category ? doc.category.replace(/-/g, " ") : "General"}.`
-      : "Download free notes, projects and question papers on OkSchool.",
-    path: doc ? documentUrl(doc.id, doc.title) : `/study-material/${docId}`,
-    image: doc?.thumbnailUrl || undefined,
-    type: "article",
-    noindex: !doc,
-    jsonLd: doc
-      ? {
-          "@context": "https://schema.org",
-          "@type": "LearningResource",
-          name: doc.title,
-          description: doc.description || doc.title,
-          educationalLevel: "Class 10-12",
-          learningResourceType: doc.category ? doc.category.replace(/-/g, " ") : "General",
-          isAccessibleForFree: !!doc.isFree,
-          inLanguage: "en",
-          url: `https://okschool-s.onrender.com${documentUrl(doc.id, doc.title)}`,
-          provider: {
-            "@type": "Organization",
-            name: "OkSchool",
-            url: "https://okschool-s.onrender.com",
-          },
-        }
-      : undefined,
-  });
-
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-5xl mx-auto">
@@ -127,13 +134,12 @@ export function StudyMaterialDetail() {
           <div className="flex-1">
             <div className="flex items-center justify-between mb-4">
               <h1 className="font-serif text-3xl font-bold leading-tight">{doc.title}</h1>
-              <span className="badge bg-muted px-3 py-1 text-sm">{doc.category ? doc.category.replace(/-/g, " ") : "General"}</span>
+              <span className="badge bg-muted px-3 py-1 text-sm">{categoryLabel}</span>
             </div>
             <p className="text-muted-foreground mb-6 line-clamp-2">{doc.description || doc.title}</p>
 
             <div className="flex flex-wrap gap-2 mb-6">
-              <span className="badge bg-muted px-3 py-1 text-sm">{doc.subject || "General"}</span>
-              <span className="badge bg-muted px-3 py-1 text-sm">{doc.fileType || "PDF"}</span>
+              <span className="badge bg-muted px-3 py-1 text-sm">{(doc.fileType || "pdf").toUpperCase()}</span>
               <span className="badge bg-muted px-3 py-1 text-sm">
                 {doc.isFree ? "Free" : `₹${doc.price}`}
               </span>
@@ -170,7 +176,7 @@ export function StudyMaterialDetail() {
             {similarDocuments.length > 0 && (
               <div className="mt-8">
                 <h3 className="font-serif text-2xl font-bold mb-3">Similar Documents</h3>
-                <p className="text-muted-foreground text-sm mb-3">More from {(doc.category ? doc.category.replace(/-/g, " ") : "General")}</p>
+                <p className="text-muted-foreground text-sm mb-3">More from {categoryLabel}</p>
                 <div className="flex overflow-x-auto gap-4 pb-4 -mx-4 px-4">
                   {similarDocuments.map((d) => (
                     <Link key={d.id} href={documentUrl(d.id, d.title)} className="flex-shrink-0 w-72 cursor-pointer">

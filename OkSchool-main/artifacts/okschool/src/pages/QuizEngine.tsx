@@ -14,7 +14,7 @@ export function QuizEngine() {
   });
 
   const [current, setCurrent] = useState(0);
-  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [answers, setAnswers] = useState<Record<string, string>>({});
   const [finished, setFinished] = useState(false);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [started, setStarted] = useState(false);
@@ -52,6 +52,11 @@ export function QuizEngine() {
 
   const questions = test.questions ?? [];
 
+  // Questions are not guaranteed to carry an id (user-generated mocks can
+  // omit it), so fall back to the question index to keep answer keys unique.
+  const questionKey = (question: { id?: number }, index: number) =>
+    question.id != null ? `q${question.id}` : `i${index}`;
+
   // Start screen
   if (!started) {
     return (
@@ -84,7 +89,7 @@ export function QuizEngine() {
 
   // Score screen
   if (finished) {
-    const correct = questions.filter((q) => answers[q.id] === q.correctAnswer).length;
+    const correct = questions.filter((q, i) => answers[questionKey(q, i)] === q.correctAnswer).length;
     const total = questions.length;
     const pct = total ? Math.round((correct / total) * 100) : 0;
 
@@ -104,7 +109,7 @@ export function QuizEngine() {
 
         <div className="space-y-4">
           {questions.map((q, i) => {
-            const userAnswer = answers[q.id];
+            const userAnswer = answers[questionKey(q, i)];
             const isCorrect = userAnswer === q.correctAnswer;
             return (
               <div key={q.id} className={`bg-card border rounded-xl p-4 ${isCorrect ? "border-green-200" : "border-red-200"}`}>
@@ -162,11 +167,11 @@ export function QuizEngine() {
       {/* Options */}
       <div className="space-y-3 mb-8">
         {opts.map((opt) => {
-          const selected = answers[q.id] === opt.key;
+          const selected = answers[questionKey(q, current)] === opt.key;
           return (
             <button
               key={opt.key}
-              onClick={() => setAnswers((prev) => ({ ...prev, [q.id]: opt.key }))}
+              onClick={() => setAnswers((prev) => ({ ...prev, [questionKey(q, current)]: opt.key }))}
               className={`w-full text-left p-4 rounded-xl border transition-all flex items-center gap-3 ${
                 selected
                   ? "border-primary bg-primary/10 text-primary font-medium"
