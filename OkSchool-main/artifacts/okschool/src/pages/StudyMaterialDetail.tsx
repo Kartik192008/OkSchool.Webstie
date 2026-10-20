@@ -453,8 +453,8 @@ export function StudyMaterialDetail() {
              <div className="flex justify-between text-muted-foreground">
                <span>File Type</span><span className="font-medium text-foreground uppercase">{doc.fileType}</span>
              </div>
-             <div className="flex justify-between text-muted-foreground">
-               <span>Category</span><span className="font-medium text-foreground capitalize">{doc.category.replace(/-/g, " ")}</span>
+            <div className="flex justify-between text-muted-foreground">
+              <span>Category</span><span className="font-medium text-foreground capitalize">{doc.category ? doc.category.replace(/-/g, " ") : "General"}</span>
              </div>
            </div>
          </div>
