@@ -7,7 +7,7 @@ import { Navbar } from "./components/layout/Navbar";
 import { Footer } from "./components/layout/Footer";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { supabase, trackUserProfile } from "./lib/supabase";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useVisitTracking } from "./hooks/useVisitTracking";
 import { setBaseUrl } from "@workspace/api-client-react";
@@ -139,11 +139,9 @@ function App() {
 
   const [sessionReady, setSessionReady] = useState(false);
   const [currentSession, setCurrentSession] = useState<any>(null);
-  const adminRedirectRef = useRef(false);
 
   useEffect(() => {
     let mounted = true;
-    adminRedirectRef.current = false;
 
     const handleAuth = async () => {
       const { data } = await supabase.auth.getSession();
@@ -155,17 +153,11 @@ function App() {
       const currentPath = window.location.pathname;
       const isAdmin = session?.user?.email === 'kartik1911k@gmail.com';
 
-      // Only send the admin to the dashboard when they land on the home or
-      // login page. Redirecting from every page here traps the admin on /admin
-      // and breaks navigation to mock tests, documents, and every other page.
-      if (
-        session && isAdmin &&
-        (currentPath === homePath || currentPath === "/login") &&
-        !adminRedirectRef.current
-      ) {
-        adminRedirectRef.current = true;
-        window.location.href = adminPath;
-      } else if (session && !isAdmin && currentPath === adminPath) {
+      // The admin panel is opened only from the "Admin Panel" menu item.
+      // Never redirect here: auto-sending the admin to /admin on load or on
+      // login hijacked every page (home, mock tests, documents) for the
+      // admin account. Only non-admins are pushed away from /admin.
+      if (session && !isAdmin && currentPath === adminPath) {
         window.location.href = homePath;
       }
     };
@@ -187,14 +179,10 @@ function App() {
           avatar_url: session.user.user_metadata?.avatar_url,
         });
 
-        if (isAdmin && (currentPath === homePath || currentPath === "/login") && !adminRedirectRef.current) {
-          adminRedirectRef.current = true;
-          window.location.href = adminPath;
-        } else if (!isAdmin && currentPath === adminPath) {
+        if (!isAdmin && currentPath === adminPath) {
           window.location.href = homePath;
         }
       } else if (event === 'SIGNED_OUT') {
-        adminRedirectRef.current = false;
         if (currentPath === adminPath) {
           window.location.href = homePath;
         }
