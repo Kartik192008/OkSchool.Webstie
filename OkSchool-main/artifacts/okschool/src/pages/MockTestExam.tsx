@@ -351,8 +351,8 @@ export function MockTestExam() {
       <div className="container mx-auto px-4 py-6">
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Question Panel */}
-          <div className="lg:col-span-2">
-            <div className="bg-card border border-card-border rounded-xl p-6 max-h-[calc(100dvh-200px)] overflow-y-auto">
+            <div className="lg:col-span-2">
+              <div className="bg-card border border-card-border rounded-xl p-6 max-h-[calc(100dvh-170px)] overflow-y-auto">
               {selectedSection && (
                 <div className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
                   <List className="h-4 w-4" />
@@ -372,13 +372,13 @@ export function MockTestExam() {
                 <h2 className="text-lg font-medium mb-4">{currentQuestion.question}</h2>
                 {currentQuestion.questionImage && (
                   <div className="relative mb-4">
-                    <img
-                      src={currentQuestion.questionImage}
-                      alt="Question"
-                      className="max-w-full h-auto rounded-lg mb-4"
-                      loading="lazy"
-                      onError={(e) => { (e.target as HTMLImageElement).src = ""; }}
-                    />
+                      <img
+                        src={currentQuestion.questionImage}
+                        alt="Question"
+                        className="max-w-full max-h-[55vh] object-contain rounded-lg mb-4"
+                        loading="lazy"
+                        onError={(e) => { (e.target as HTMLImageElement).src = ""; }}
+                      />
                   </div>
                 )}
               </div>

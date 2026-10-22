@@ -59,6 +59,7 @@ const EMPTY_FORM = {
 
 const JSON_EXAMPLE = `[
   {
+    "section": "Physics",
     "question": "How many blocks of wood planks are obtained by crafting a single log?",
     "questionImage": "https://example.com/images/crafting-table.png",
     "options": [
@@ -150,6 +151,7 @@ export function GenerateMock() {
       setParsedQuestions(
         questionsArray.map((q: any, index: number) => ({
           question: q.question || q.questionText || q.q || `Question ${index + 1}`,
+          section: q.section || "General",
           hasImage: !!q.questionImage || !!q.image,
           imageUrl: q.questionImage || q.image || null,
           options: q.options || [],
@@ -242,6 +244,7 @@ export function GenerateMock() {
         }
 
         return {
+          section: q.section || form.section || "General",
           question: q.question,
           questionImage: questionImages[index] || q.imageUrl || null,
           optionA,

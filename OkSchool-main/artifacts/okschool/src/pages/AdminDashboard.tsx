@@ -384,6 +384,7 @@ export function AdminDashboard() {
           const correctAnswer = String(q.correctAnswer || q.answer || q.correct || q.correct_option || "").toUpperCase();
 
           return {
+            section: q.section || mockTestForm.section || "General",
             question: q.question,
             questionImage: questionImages[index] || q.imageUrl || null,
             optionA,
