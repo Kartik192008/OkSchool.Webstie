@@ -1,4 +1,5 @@
 import { Router, type IRouter } from "express";
+import { requireAuth, requireAdmin } from "../lib/auth";
 import { eq, sql, ilike, or } from "drizzle-orm";
 import { db, documentsTable } from "@workspace/db";
 import {
@@ -42,11 +43,14 @@ router.get("/documents", async (req, res): Promise<void> => {
   }
 
   const docs = await query.orderBy(documentsTable.createdAt);
-  res.json(docs);
+  const safe = docs.map((d: any) => {
+    const { fileUrl, wordFileUrl, ...rest } = d;
+    return rest;
+  });
+  res.json(safe);
 });
 
-router.post("/documents", async (req, res): Promise<void> => {
-  console.log("Document upload request body:", JSON.stringify(req.body, null, 2));
+router.post("/documents", requireAdmin, async (req, res): Promise<void> => {
   const parsed = CreateDocumentBody.safeParse(req.body);
   if (!parsed.success) {
     console.log("Document validation error:", parsed.error);
@@ -76,10 +80,11 @@ router.get("/documents/:id", async (req, res): Promise<void> => {
     res.status(404).json({ error: "Document not found" });
     return;
   }
-  res.json(doc);
+  const { fileUrl, wordFileUrl, ...safe } = doc as any;
+  res.json(safe);
 });
 
-router.patch("/documents/:id", async (req, res): Promise<void> => {
+router.patch("/documents/:id", requireAdmin, async (req, res): Promise<void> => {
   const params = UpdateDocumentParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -105,7 +110,7 @@ router.patch("/documents/:id", async (req, res): Promise<void> => {
   res.json(doc);
 });
 
-router.delete("/documents/:id", async (req, res): Promise<void> => {
+router.delete("/documents/:id", requireAdmin, async (req, res): Promise<void> => {
   const params = DeleteDocumentParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -144,17 +149,17 @@ router.get("/documents/:id/download", async (req, res): Promise<void> => {
   try {
     const params = GetDocumentParams.safeParse(req.params);
     if (!params.success) {
-      res.status(400).json({ error: params.error.message });
+      res.status(400).json({ error: params.success ? "" : params.error.message });
       return;
     }
-
-    const fileType = typeof req.query.type === "string" ? req.query.type : "pdf";
 
     const [doc] = await db.select().from(documentsTable).where(eq(documentsTable.id, params.data.id));
     if (!doc) {
       res.status(404).json({ error: "Document not found" });
       return;
     }
+
+    const fileType = typeof req.query.type === "string" ? req.query.type : "pdf";
 
     let fileUrl: string | null = null;
     let contentType = "application/octet-stream";
@@ -180,6 +185,32 @@ router.get("/documents/:id/download", async (req, res): Promise<void> => {
       return;
     }
 
+    // Paid material: require a verified, paying user.
+    if (!doc.isFree && fileType !== "thumbnail") {
+      const header = String(req.headers?.authorization || "");
+      const token = header.startsWith("Bearer ") ? header.slice(7).trim() : null;
+      if (!token) {
+        res.status(401).json({ error: "Login required to download paid material" });
+        return;
+      }
+      const { verifySupabaseToken } = await import("../lib/auth");
+      const user = await verifySupabaseToken(token);
+      if (!user) {
+        res.status(401).json({ error: "Invalid or expired session" });
+        return;
+      }
+      const { paymentsTable } = await import("@workspace/db");
+      const { and, eq: eqOp } = await import("drizzle-orm");
+      const [payment] = await db
+        .select()
+        .from(paymentsTable)
+        .where(and(eqOp(paymentsTable.documentId, doc.id), eqOp(paymentsTable.userId, user.id)));
+      if (!payment) {
+        res.status(402).json({ error: "Payment required" });
+        return;
+      }
+    }
+
     const response = await fetch(fileUrl);
     if (!response.ok) {
       res.status(502).json({ error: "Failed to fetch file from storage" });
@@ -187,20 +218,31 @@ router.get("/documents/:id/download", async (req, res): Promise<void> => {
     }
 
     const upstreamContentType = response.headers.get("content-type");
-    if (upstreamContentType) {
-      contentType = upstreamContentType;
-    }
+    if (upstreamContentType) contentType = upstreamContentType;
 
     res.setHeader("Content-Type", contentType);
     res.setHeader("Content-Disposition", "inline");
     res.removeHeader("X-Frame-Options");
 
-    const arrayBuffer = await response.arrayBuffer();
-    res.setHeader("Content-Length", String(arrayBuffer.byteLength));
-    res.send(Buffer.from(arrayBuffer));
-    } catch (err) {
+    const contentLength = response.headers.get("content-length");
+    if (contentLength) res.setHeader("Content-Length", contentLength);
+
+    if (response.body) {
+      const { Readable } = await import("node:stream");
+      const stream = Readable.fromWeb(response.body as any);
+      stream.on("error", (err: any) => {
+        console.error("stream error:", err);
+        if (!res.headersSent) res.status(500).end();
+        else res.end();
+      });
+      stream.pipe(res);
+    } else {
+      const arrayBuffer = await response.arrayBuffer();
+      res.send(Buffer.from(arrayBuffer));
+    }
+  } catch (err) {
     console.error("Error serving document file:", err);
-    res.status(500).json({ error: "Failed to serve file" });
+    if (!res.headersSent) res.status(500).json({ error: "Failed to serve file" });
   }
 });
 

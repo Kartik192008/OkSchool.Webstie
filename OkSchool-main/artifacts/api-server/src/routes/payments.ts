@@ -1,4 +1,5 @@
 import { Router, type IRouter } from "express";
+import { requireAuth } from "../lib/auth";
 import Razorpay from "razorpay";
 import crypto from "crypto";
 import { eq, and, sql } from "drizzle-orm";
@@ -26,7 +27,7 @@ function getRazorpay(): Razorpay | null {
   return razorpayInstance;
 }
 
-router.post("/razorpay/create-order", async (req, res): Promise<void> => {
+router.post("/razorpay/create-order", requireAuth, async (req, res): Promise<void> => {
   try {
     if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
       res.status(500).json({ error: "Payment gateway not configured" });
@@ -37,6 +38,10 @@ router.post("/razorpay/create-order", async (req, res): Promise<void> => {
 
     if (!documentId || !amount || !userId) {
       res.status(400).json({ error: "documentId, amount, and userId are required" });
+      return;
+    }
+    if (String(userId) !== req.user?.id) {
+      res.status(403).json({ error: "Forbidden" });
       return;
     }
 
@@ -83,7 +88,7 @@ router.post("/razorpay/create-order", async (req, res): Promise<void> => {
   }
 });
 
-router.post("/razorpay/verify-payment", async (req, res): Promise<void> => {
+router.post("/razorpay/verify-payment", requireAuth, async (req, res): Promise<void> => {
   try {
     if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
       res.status(500).json({ error: "Payment gateway not configured" });
@@ -94,6 +99,10 @@ router.post("/razorpay/verify-payment", async (req, res): Promise<void> => {
 
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !documentId || !userId) {
       res.status(400).json({ error: "Missing required fields" });
+      return;
+    }
+    if (String(userId) !== req.user?.id) {
+      res.status(403).json({ error: "Forbidden" });
       return;
     }
 
@@ -138,13 +147,12 @@ router.post("/razorpay/verify-payment", async (req, res): Promise<void> => {
   }
 });
 
-router.get("/payments/check/:documentId", async (req, res): Promise<void> => {
+router.get("/payments/check/:documentId", requireAuth, async (req, res): Promise<void> => {
   try {
     const { documentId } = req.params;
-    const userId = req.query.userId as string | undefined;
-
+    const userId = req.user?.id;
     if (!userId) {
-      res.status(400).json({ error: "userId query parameter is required" });
+      res.status(401).json({ error: "Authentication required" });
       return;
     }
 

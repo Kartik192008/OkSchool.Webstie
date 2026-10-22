@@ -1,4 +1,5 @@
 import { Router, type IRouter } from "express";
+import { requireAuth, requireAdmin } from "../lib/auth";
 import { eq, desc } from "drizzle-orm";
 import { db, mockTestsTable, questionsTable } from "@workspace/db";
 import {
@@ -36,11 +37,15 @@ router.get("/mock-tests/user", async (req, res): Promise<void> => {
   }
 });
 
-router.post("/mock-tests/user", async (req, res): Promise<void> => {
+router.post("/mock-tests/user", requireAuth, async (req, res): Promise<void> => {
   try {
     const userId = String(req.body.userId || "");
     if (!userId) {
       res.status(400).json({ error: "userId is required" });
+      return;
+    }
+    if (req.user?.id !== userId) {
+      res.status(403).json({ error: "Forbidden" });
       return;
     }
 
@@ -106,7 +111,7 @@ router.get("/mock-tests/user/:id", async (req, res): Promise<void> => {
   }
 });
 
-router.delete("/mock-tests/user/:id", async (req, res): Promise<void> => {
+router.delete("/mock-tests/user/:id", requireAuth, async (req, res): Promise<void> => {
   try {
     const params = DeleteUserMockTestParams.safeParse(req.params);
     if (!params.success) {
@@ -142,7 +147,7 @@ router.get("/mock-tests", async (_req, res): Promise<void> => {
   }
 });
 
-router.post("/mock-tests", async (req, res): Promise<void> => {
+router.post("/mock-tests", requireAdmin, async (req, res): Promise<void> => {
   try {
     console.log("Received body:", JSON.stringify(req.body, null, 2));
     const parsed = CreateMockTestBody.safeParse(req.body);
@@ -248,7 +253,7 @@ router.patch("/mock-tests/:id", async (req, res): Promise<void> => {
   }
 });
 
-router.delete("/mock-tests/:id", async (req, res): Promise<void> => {
+router.delete("/mock-tests/:id", requireAdmin, async (req, res): Promise<void> => {
   try {
     const params = GetMockTestParams.safeParse(req.params);
     if (!params.success) {

@@ -1,10 +1,11 @@
 import { Router, type IRouter } from "express";
+import { requireAdmin } from "../lib/auth";
 import { sql } from "drizzle-orm";
 import { db, documentsTable, amazonProductsTable, mockTestsTable } from "@workspace/db";
 
 const router: IRouter = Router();
 
-router.get("/admin/stats", async (_req, res): Promise<void> => {
+router.get("/admin/stats", requireAdmin, async (_req, res): Promise<void> => {
   const [totals] = await db
     .select({
       totalViews: sql<number>`COALESCE(SUM(${documentsTable.viewCount}), 0)`.mapWith(Number),

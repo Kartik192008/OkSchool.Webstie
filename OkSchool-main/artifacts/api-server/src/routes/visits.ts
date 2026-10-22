@@ -1,15 +1,20 @@
 import { Router, type IRouter } from "express";
+import { requireAuth } from "../lib/auth";
 import { eq } from "drizzle-orm";
 import { db, userProfilesTable, userVisitsTable } from "@workspace/db";
 
 const router: IRouter = Router();
 
-router.post("/visits", async (req, res): Promise<void> => {
+router.post("/visits", requireAuth, async (req, res): Promise<void> => {
   try {
     const { userId, page, action, metadata } = req.body;
 
     if (!userId || !page) {
       res.status(400).json({ error: "userId and page are required" });
+      return;
+    }
+    if (String(userId) !== req.user?.id) {
+      res.status(403).json({ error: "Forbidden" });
       return;
     }
 
@@ -27,9 +32,13 @@ router.post("/visits", async (req, res): Promise<void> => {
   }
 });
 
-router.get("/visits/:userId", async (req, res): Promise<void> => {
+router.get("/visits/:userId", requireAuth, async (req, res): Promise<void> => {
   try {
     const userId = Number(req.params.userId);
+    if (String(userId) !== req.user?.id) {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
     
     const visits = await db
       .select()

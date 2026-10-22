@@ -1,12 +1,17 @@
 import { Router, type IRouter } from "express";
+import { requireAuth } from "../lib/auth";
 import { eq, desc } from "drizzle-orm";
-import { db, mockTestResultsTable, mockTestsTable, paymentsTable } from "@workspace/db";
+import { db, mockTestResultsTable, mockTestsTable, paymentsTable, documentsTable } from "@workspace/db";
 
 const router: IRouter = Router();
 
-router.get("/mock-test/history/:userId", async (req, res): Promise<void> => {
+router.get("/mock-test/history/:userId", requireAuth, async (req, res): Promise<void> => {
   try {
     const userId = String(req.params.userId);
+    if (req.user?.id !== userId) {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
     const results = await db
       .select({
         id: mockTestResultsTable.id,
@@ -33,9 +38,13 @@ router.get("/mock-test/history/:userId", async (req, res): Promise<void> => {
   }
 });
 
-router.get("/payments/history/:userId", async (req, res): Promise<void> => {
+router.get("/payments/history/:userId", requireAuth, async (req, res): Promise<void> => {
   try {
     const userId = String(req.params.userId);
+    if (req.user?.id !== userId) {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
     const results = await db
       .select({
         id: paymentsTable.id,
@@ -46,8 +55,11 @@ router.get("/payments/history/:userId", async (req, res): Promise<void> => {
         razorpayOrderId: paymentsTable.razorpayOrderId,
         razorpayPaymentId: paymentsTable.razorpayPaymentId,
         createdAt: paymentsTable.createdAt,
+        documentTitle: documentsTable.title,
+        documentThumbnailUrl: documentsTable.thumbnailUrl,
       })
       .from(paymentsTable)
+      .leftJoin(documentsTable, eq(paymentsTable.documentId, documentsTable.id))
       .where(eq(paymentsTable.userId, userId))
       .orderBy(desc(paymentsTable.createdAt))
       .limit(50);
@@ -59,12 +71,15 @@ router.get("/payments/history/:userId", async (req, res): Promise<void> => {
   }
 });
 
-router.post("/mock-test/results", async (req, res): Promise<void> => {
+router.post("/mock-test/results", requireAuth, async (req, res): Promise<void> => {
   try {
     const { userId, mockTestId, score, maxScore, correct, incorrect, unattempted, timeTaken, answers } = req.body;
-
     if (!userId || !mockTestId) {
       res.status(400).json({ error: "userId and mockTestId are required" });
+      return;
+    }
+    if (String(userId) !== req.user?.id) {
+      res.status(403).json({ error: "Forbidden" });
       return;
     }
 

@@ -14,6 +14,8 @@ interface PurchaseItem {
   status: string;
   razorpayPaymentId: string;
   createdAt: string;
+  documentTitle?: string | null;
+  documentThumbnailUrl?: string | null;
 }
 
 export function PurchaseHistory() {
@@ -77,20 +79,29 @@ export function PurchaseHistory() {
         <div className="space-y-4">
           {purchases.map((item) => (
             <div key={item.id} className="bg-card border border-card-border rounded-xl p-5 hover:shadow-md transition-shadow">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <FileText className="h-4 w-4 text-muted-foreground" />
-                    <h3 className="font-semibold">Document #{item.documentId}</h3>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                {item.documentThumbnailUrl ? (
+                  <img src={item.documentThumbnailUrl} alt={item.documentTitle || "Document"} className="w-16 h-20 object-cover rounded-md border border-border shrink-0" />
+                ) : (
+                  <div className="w-16 h-20 rounded-md border border-border bg-muted flex items-center justify-center shrink-0">
+                    <FileText className="h-6 w-6 text-muted-foreground" />
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    <h3 className="font-semibold truncate">{item.documentTitle || `Document #${item.documentId}`}</h3>
                     <Badge className={item.status === "captured" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}>{item.status}</Badge>
                   </div>
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground mt-1">
+                  <div className="flex items-center gap-4 text-xs text-muted-foreground mt-1 flex-wrap">
                     <span className="flex items-center gap-1"><Calendar className="h-3 w-3" /> {formatDate(item.createdAt)}</span>
                     <span className="flex items-center gap-1"><CreditCard className="h-3 w-3" /> {item.razorpayPaymentId}</span>
                   </div>
                 </div>
-                <div className="text-xl font-bold">
-                  ₹{item.amount / 100}
+                <div className="flex flex-col items-end gap-2">
+                  <div className="text-xl font-bold">₹{item.amount / 100}</div>
+                  <Link href={`/study-material/${item.documentId}`}>
+                    <Button size="sm" variant="outline">Open</Button>
+                  </Link>
                 </div>
               </div>
             </div>

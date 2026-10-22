@@ -10,7 +10,7 @@ import { supabase, trackUserProfile } from "./lib/supabase";
 import { useEffect, useState } from "react";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useVisitTracking } from "./hooks/useVisitTracking";
-import { setBaseUrl } from "@workspace/api-client-react";
+import { setBaseUrl, setAuthTokenGetter } from "@workspace/api-client-react";
 
 // We'll define these pages next
 import { Home } from "./pages/Home";
@@ -30,14 +30,15 @@ import { RefundCancellation } from "./pages/RefundCancellation";
 import { GenerateMock } from "./pages/GenerateMock";
 import { MyMocks } from "./pages/MyMocks";
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: 2,
+        staleTime: 30_000,
+        refetchOnWindowFocus: false,
+      },
     },
-  },
-});
+  });
 
 function PublicLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
@@ -129,6 +130,10 @@ function App() {
     if (apiUrl) {
       setBaseUrl(apiUrl);
     }
+    setAuthTokenGetter(async () => {
+      const { data } = await supabase.auth.getSession();
+      return data?.session?.access_token ?? null;
+    });
   }, [apiUrl]);
 
   useVisitTracking();

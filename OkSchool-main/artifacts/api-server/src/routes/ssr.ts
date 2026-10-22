@@ -101,7 +101,7 @@ function htmlPage(opts: {
 </html>`;
 }
 
-function documentBody(doc: any, url: string): string {
+function documentBody(doc: any, url: string): { body: string; jsonLd: any } {
   const price = doc.isFree ? "Free PDF download" : `Rs. ${doc.price ?? 0}`;
   const categoryLabel = String(doc.category).replace(/-/g, " ");
   const jsonLd = {
@@ -139,7 +139,7 @@ function documentBody(doc: any, url: string): string {
   return { body, jsonLd };
 }
 
-function mockTestBody(test: any, questions: any[], url: string): string {
+function mockTestBody(test: any, questions: any[], url: string): { body: string; jsonLd: any } {
   const section = test.section || "General";
   const subject = test.subject || "";
   const jsonLd = {
