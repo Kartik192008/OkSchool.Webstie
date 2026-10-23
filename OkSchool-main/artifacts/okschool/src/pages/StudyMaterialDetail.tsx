@@ -54,6 +54,16 @@ export function StudyMaterialDetail() {
     }
   }, []);
 
+  const getAuthToken = useCallback(async (): Promise<string | null> => {
+    try {
+      const { supabase } = await import("@/lib/supabase");
+      const { data } = await supabase.auth.getSession();
+      return data?.session?.access_token ?? null;
+    } catch {
+      return null;
+    }
+  }, []);
+
   const checkPaymentStatus = useCallback(async () => {
     if (!docId || doc?.isFree) return;
     setCheckingPayment(true);
@@ -136,9 +146,13 @@ export function StudyMaterialDetail() {
         return;
       }
 
+      const token = await getAuthToken();
       const res = await fetch(`${API_BASE}/api/razorpay/create-order`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({
           documentId: doc.id,
           amount: doc.price * 100,
@@ -170,9 +184,13 @@ export function StudyMaterialDetail() {
         },
         handler: async function (response: any) {
           try {
+            const token = await getAuthToken();
             const verifyRes = await fetch(`${API_BASE}/api/razorpay/verify-payment`, {
               method: "POST",
-              headers: { "Content-Type": "application/json" },
+              headers: {
+                "Content-Type": "application/json",
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+              },
               body: JSON.stringify({
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
