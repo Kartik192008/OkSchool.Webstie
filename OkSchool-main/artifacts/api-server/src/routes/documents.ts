@@ -80,8 +80,7 @@ router.get("/documents/:id", async (req, res): Promise<void> => {
     res.status(404).json({ error: "Document not found" });
     return;
   }
-  const { fileUrl, wordFileUrl, ...safe } = doc as any;
-  res.json(safe);
+  res.json(doc);
 });
 
 router.patch("/documents/:id", requireAdmin, async (req, res): Promise<void> => {
