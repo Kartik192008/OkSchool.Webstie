@@ -396,6 +396,7 @@ export const UpdateMockTestBody = zod.object({
   "description": zod.string().optional(),
   "subject": zod.string().optional(),
   "section": zod.string().optional(),
+  "subsection": zod.string().optional(),
   "duration": zod.number().optional(),
   "correctMarks": zod.number().optional(),
   "incorrectMarks": zod.number().optional(),

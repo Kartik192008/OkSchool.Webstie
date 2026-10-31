@@ -8,6 +8,7 @@ export const mockTestsTable = pgTable("mock_tests", {
   description: text("description").notNull().default(""),
   subject: text("subject").notNull(),
   section: text("section").notNull().default("General"),
+  subsection: text("subsection"),
   duration: integer("duration").notNull().default(30),
   questionCount: integer("question_count").notNull().default(0),
   correctMarks: integer("correct_marks").notNull().default(4),

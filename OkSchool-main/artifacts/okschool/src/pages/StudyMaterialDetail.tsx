@@ -24,9 +24,22 @@ export function StudyMaterialDetail() {
   const { id } = useParams<{ id: string }>();
   const docId = parseInt(id ?? "0", 10);
   const { toast } = useToast();
+  const [downloadToken, setDownloadToken] = useState<string | null>(null);
 
-  const proxyFileUrl = (type: "pdf" | "word" | "thumbnail") =>
-    `${API_BASE}/api/documents/${docId}/download?type=${type}`;
+  const { data: doc, isLoading } = useGetDocument(docId, {
+    query: { enabled: !!docId, queryKey: getGetDocumentQueryKey(docId) },
+  });
+
+  const proxyFileUrl = useCallback(
+    (type: "pdf" | "word" | "thumbnail") => {
+      let url = `${API_BASE}/api/documents/${docId}/download?type=${type}`;
+      if (!doc?.isFree && type !== "thumbnail" && downloadToken) {
+        url += `&token=${encodeURIComponent(downloadToken)}`;
+      }
+      return url;
+    },
+    [API_BASE, docId, doc?.isFree, downloadToken],
+  );
 
   const [showWordModal, setShowWordModal] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
@@ -36,10 +49,6 @@ export function StudyMaterialDetail() {
   const [checkingPayment, setCheckingPayment] = useState(true);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
-
-  const { data: doc, isLoading } = useGetDocument(docId, {
-    query: { enabled: !!docId, queryKey: getGetDocumentQueryKey(docId) },
-  });
 
   const recordView = useRecordDocumentView();
   const recordDownload = useRecordDocumentDownload();
@@ -62,6 +71,10 @@ export function StudyMaterialDetail() {
     } catch {
       return null;
     }
+  }, []);
+
+  useEffect(() => {
+    getAuthToken().then(setDownloadToken);
   }, []);
 
   const checkPaymentStatus = useCallback(async () => {
@@ -147,6 +160,19 @@ export function StudyMaterialDetail() {
       }
 
       const token = await getAuthToken();
+
+      // Re-fetch the document so the amount always reflects the latest price.
+      let payAmount = doc.price * 100;
+      try {
+        const freshRes = await fetch(`${API_BASE}/api/documents/${docId}`);
+        if (freshRes.ok) {
+          const freshDoc = await freshRes.json();
+          if (freshDoc && typeof freshDoc.price === "number") payAmount = freshDoc.price * 100;
+        }
+      } catch {
+        // ignore, fall back to cached price
+      }
+
       const res = await fetch(`${API_BASE}/api/razorpay/create-order`, {
         method: "POST",
         headers: {
@@ -155,7 +181,7 @@ export function StudyMaterialDetail() {
         },
         body: JSON.stringify({
           documentId: doc.id,
-          amount: doc.price * 100,
+          amount: payAmount,
           userId,
         }),
       });

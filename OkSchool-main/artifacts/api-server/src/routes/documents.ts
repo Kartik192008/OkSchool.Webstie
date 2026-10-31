@@ -185,9 +185,14 @@ router.get("/documents/:id/download", async (req, res): Promise<void> => {
     }
 
     // Paid material: require a verified, paying user.
+    // Token may come from the Authorization header or a ?token= query param
+    // (needed for iframe/new-tab previews which cannot send custom headers).
     if (!doc.isFree && fileType !== "thumbnail") {
       const header = String(req.headers?.authorization || "");
-      const token = header.startsWith("Bearer ") ? header.slice(7).trim() : null;
+      let token = header.startsWith("Bearer ") ? header.slice(7).trim() : null;
+      if (!token) {
+        token = typeof req.query.token === "string" ? req.query.token : null;
+      }
       if (!token) {
         res.status(401).json({ error: "Login required to download paid material" });
         return;

@@ -8,6 +8,8 @@ import { db } from "@workspace/db";
  */
 const ensureStatements = [
   `ALTER TABLE "mock_tests" ADD COLUMN IF NOT EXISTS "user_id" text`,
+  `ALTER TABLE "mock_tests" ADD COLUMN IF NOT EXISTS "section" text`,
+  `ALTER TABLE "mock_tests" ADD COLUMN IF NOT EXISTS "subsection" text`,
   `ALTER TABLE "mock_tests" ADD COLUMN IF NOT EXISTS "is_user_generated" integer DEFAULT 0 NOT NULL`,
   `UPDATE "mock_tests" SET "is_user_generated" = 0 WHERE "is_user_generated" IS NULL`,
   `CREATE INDEX IF NOT EXISTS "mock_tests_user_idx" ON "mock_tests" USING btree ("user_id","created_at")`,
