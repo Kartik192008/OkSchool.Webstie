@@ -6,7 +6,6 @@ import { Marquee } from "./components/layout/Marquee";
 import { Navbar } from "./components/layout/Navbar";
 import { Footer } from "./components/layout/Footer";
 import { ProtectedRoute } from "./components/ProtectedRoute";
-import StillSunsetMeadow from "./components/originkit/StillSunsetMeadow";
 import { supabase, trackUserProfile } from "./lib/supabase";
 import { useEffect, useState } from "react";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -205,7 +204,6 @@ function App() {
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
-          <StillSunsetMeadow />
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
             <Router />
           </WouterRouter>
