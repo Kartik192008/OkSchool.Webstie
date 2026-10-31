@@ -147,7 +147,7 @@ export function CoffeeDialog({ open, onClose }: { open: boolean; onClose: () => 
 
           <div className="p-6 space-y-6">
             <p className="text-sm text-muted-foreground text-center">
-              Everything here is free for students. A coffee keeps the notes coming. Choose an amount:
+              We are trying our best to provide free and best resources at minimal pricing for self study benefits. If you are happy and satisfied, a coffee keeps the notes coming. Choose an amount:
             </p>
 
             <div className="grid grid-cols-3 gap-3">

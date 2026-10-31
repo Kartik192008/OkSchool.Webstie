@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
-import { Search, FileText, Lock } from "lucide-react";
+import { Search, FileText, Lock, Coffee } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/lib/supabase";
 import { Link } from "wouter";
 import { API_BASE } from "@/lib/api";
 import { useSEO, documentUrl } from "@/lib/seo";
+import { CoffeeDialog } from "@/components/CoffeeDialog";
 
 const CATEGORIES = [
   { id: "notes", label: "Notes" },
@@ -25,6 +26,7 @@ export function Home() {
   const homeTimerRef = useRef<number | null>(null);
 
   const [thumbnailBlobs, setThumbnailBlobs] = useState<Record<number, string>>({});
+  const [isCoffeeOpen, setIsCoffeeOpen] = useState(false);
 
   useSEO({
     title: "",
@@ -91,10 +93,19 @@ export function Home() {
   };
 
   return (
+    <>
     <div>
   {/* Hero */}
   <section className="relative overflow-hidden px-4 py-16 text-center">
     <div className="absolute inset-0 -z-10 hero-bg" />
+    <button
+      onClick={() => setIsCoffeeOpen(true)}
+      aria-label="Buy a coffee"
+      className="absolute top-6 right-6 z-20 flex items-center gap-2 bg-white/90 dark:bg-black/90 backdrop-blur border border-white/20 dark:border-black/20 px-3 py-2 rounded-full text-foreground shadow-lg hover:scale-105 transition-transform"
+    >
+      <Coffee className="h-4 w-4" />
+      <span className="text-sm font-medium hidden sm:block">Buy a coffee</span>
+    </button>
     <div className="relative z-10">
           <h1 className="text-5xl md:text-6xl font-serif font-bold text-foreground leading-tight mb-4">
             Free notes &amp; projects<br />for every student.
@@ -206,5 +217,7 @@ export function Home() {
         )}
       </section>
     </div>
+    <CoffeeDialog open={isCoffeeOpen} onClose={() => setIsCoffeeOpen(false)} />
+    </>
   );
 }

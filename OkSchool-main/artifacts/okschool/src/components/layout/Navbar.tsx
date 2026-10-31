@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Menu, Search, LogOut, Sun, Moon, User, Settings, ChevronRight, Coffee } from "lucide-react";
+import { Menu, Search, LogOut, Sun, Moon, User, Settings, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -7,7 +7,6 @@ import { supabase } from "@/lib/supabase";
 import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { CoffeeDialog } from "@/components/CoffeeDialog";
 
 export function Navbar() {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -18,7 +17,6 @@ export function Navbar() {
   const [mounted, setMounted] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isCoffeeOpen, setIsCoffeeOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -254,19 +252,9 @@ export function Navbar() {
               {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </Button>
           )}
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setIsCoffeeOpen(true)}
-            aria-label="Buy a coffee"
-            className="transition-transform active:scale-95"
-          >
-            <Coffee className="h-4 w-4" />
-          </Button>
         </div>
       </div>
     </nav>
-    <CoffeeDialog open={isCoffeeOpen} onClose={() => setIsCoffeeOpen(false)} />
-  </>
-);
+    </>
+  );
 }
