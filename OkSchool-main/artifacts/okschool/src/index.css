@@ -180,20 +180,4 @@
       transform: translateY(-6px) rotate(4deg);
     }
   }
-  @keyframes floatCloud64 {
-    0% {
-      transform: translateX(-120px);
-    }
-    100% {
-      transform: translateX(120vw);
-    }
-  }
-}
-
-/* OriginKit background - makes page content sit atop the animated scene */
-.originkit-bg {
-  background: transparent !important;
-}
-body.originkit-bg {
-  background: transparent !important;
 }
