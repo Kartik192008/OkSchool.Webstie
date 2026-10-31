@@ -94,6 +94,7 @@ export function Home() {
     <div>
   {/* Hero */}
   <section className="relative overflow-hidden bg-background px-4 py-16 text-center">
+    <div className="absolute inset-0 -z-10 hero-bg" />
     <div className="relative z-10">
           <h1 className="text-5xl md:text-6xl font-serif font-bold text-foreground leading-tight mb-4">
             Free notes &amp; projects<br />for every student.

@@ -47,6 +47,7 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "@types/three": "^0.186.0",
     "@vitejs/plugin-react": "catalog:",
     "@workspace/api-client-react": "workspace:*",
     "class-variance-authority": "catalog:",
@@ -77,6 +78,7 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.108.2",
     "mini-svg-data-uri": "^1.4.4",
-    "motion": "^13.4.4"
+    "motion": "^13.4.4",
+    "three": "^0.187.0"
   }
 }
