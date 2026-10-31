@@ -171,4 +171,106 @@ router.get("/payments/check/:documentId", requireAuth, async (req, res): Promise
   }
 });
 
+router.post("/razorpay/create-donation-order", requireAuth, async (req, res): Promise<void> => {
+  try {
+    if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
+      res.status(500).json({ error: "Payment gateway not configured" });
+      return;
+    }
+
+    const { amount } = req.body;
+    const amountNum = Number(amount);
+
+    const allowed = [10, 20, 50, 100, 150];
+    if (!allowed.includes(amountNum)) {
+      res.status(400).json({ error: "Amount must be one of ₹10, ₹20, ₹50, ₹100, ₹150" });
+      return;
+    }
+
+    const razorpay = getRazorpay();
+    if (!razorpay) {
+      res.status(500).json({ error: "Payment gateway not configured" });
+      return;
+    }
+
+    const receipt = `donation_user_${req.user?.id}_${Date.now()}`;
+
+    const order = await razorpay.orders.create({
+      amount: amountNum * 100,
+      currency: "INR",
+      receipt: receipt.slice(0, 40),
+      notes: {
+        userId: String(req.user?.id),
+        purpose: "donation",
+        amount: String(amountNum),
+      },
+    });
+
+    res.json({
+      order_id: order.id,
+      amount: order.amount,
+      currency: order.currency,
+      key: RAZORPAY_KEY_ID,
+    });
+  } catch (err) {
+    console.error("Failed to create donation order:", err);
+    res.status(500).json({ error: "Failed to create donation order" });
+  }
+});
+
+router.post("/razorpay/verify-donation-payment", requireAuth, async (req, res): Promise<void> => {
+  try {
+    if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
+      res.status(500).json({ error: "Payment gateway not configured" });
+      return;
+    }
+
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, amount } = req.body;
+
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !amount) {
+      res.status(400).json({ error: "Missing required fields" });
+      return;
+    }
+
+    const body = `${razorpay_order_id}|${razorpay_payment_id}`;
+    const expectedSignature = crypto
+      .createHmac("sha256", RAZORPAY_KEY_SECRET)
+      .update(body)
+      .digest("hex");
+
+    if (expectedSignature !== razorpay_signature) {
+      res.status(400).json({ error: "Invalid signature" });
+      return;
+    }
+
+    const [existing] = await db
+      .select()
+      .from(paymentsTable)
+      .where(and(
+        eq(paymentsTable.razorpayPaymentId, String(razorpay_payment_id)),
+      ));
+
+    if (existing) {
+      res.json({ success: true, message: "Donation already verified", payment: existing });
+      return;
+    }
+
+    const [payment] = await db.insert(paymentsTable).values({
+      documentId: 0,
+      userId: String(req.user?.id),
+      razorpayOrderId: razorpay_order_id,
+      razorpayPaymentId: razorpay_payment_id,
+      razorpaySignature: razorpay_signature,
+      amount: Number(amount) || 0,
+      currency: "INR",
+      status: "captured",
+    }).returning();
+
+    res.json({ success: true, payment });
+  } catch (err) {
+    console.error("Failed to verify donation payment:", err);
+    res.status(500).json({ error: "Failed to verify donation payment" });
+  }
+});
+
 export default router;

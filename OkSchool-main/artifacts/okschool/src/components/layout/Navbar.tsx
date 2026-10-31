@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Menu, Search, LogOut, Sun, Moon, User, Settings, ChevronRight } from "lucide-react";
+import { Menu, Search, LogOut, Sun, Moon, User, Settings, ChevronRight, Coffee } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase";
 import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { CoffeeDialog } from "@/components/CoffeeDialog";
 
 export function Navbar() {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -17,6 +18,7 @@ export function Navbar() {
   const [mounted, setMounted] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isCoffeeOpen, setIsCoffeeOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -80,9 +82,10 @@ export function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto px-4 lg:px-6 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-8">
+    <>
+      <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto px-4 lg:px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-8">
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="md:hidden transition-transform active:scale-95" data-testid="button-mobile-menu">
@@ -251,8 +254,19 @@ export function Navbar() {
               {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </Button>
           )}
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setIsCoffeeOpen(true)}
+            aria-label="Buy a coffee"
+            className="transition-transform active:scale-95"
+          >
+            <Coffee className="h-4 w-4" />
+          </Button>
         </div>
       </div>
     </nav>
-  );
+    <CoffeeDialog open={isCoffeeOpen} onClose={() => setIsCoffeeOpen(false)} />
+  </>
+);
 }
