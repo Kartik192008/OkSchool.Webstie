@@ -162,4 +162,28 @@
       transform: translateY(0);
     }
   }
+  @keyframes floatCloud {
+    0% {
+      transform: translateX(-120px);
+    }
+    100% {
+      transform: translateX(120vw);
+    }
+  }
+  @keyframes sway {
+    0%, 100% {
+      transform: translateY(0) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-6px) rotate(4deg);
+    }
+  }
+}
+
+/* OriginKit background - makes page content sit atop the animated scene */
+.originkit-bg {
+  background: transparent !important;
+}
+body.originkit-bg {
+  background: transparent !important;
 }
