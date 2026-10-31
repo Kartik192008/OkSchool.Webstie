@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/lib/supabase";
 import { Link } from "wouter";
 import { API_BASE } from "@/lib/api";
-import Hero64 from "@/components/originkit/Hero64";
+import Hero38 from "@/components/originkit/Hero38";
 import { useSEO, documentUrl } from "@/lib/seo";
 
 const CATEGORIES = [
@@ -95,7 +95,7 @@ export function Home() {
     <div>
   {/* Hero */}
   <section className="relative overflow-hidden bg-transparent px-4 py-16 text-center">
-    <Hero64 />
+    <Hero38 />
     <div className="absolute inset-0 bg-white/60 dark:bg-black/20" />
     <div className="relative z-10">
           <h1 className="text-5xl md:text-6xl font-serif font-bold text-foreground leading-tight mb-4">
