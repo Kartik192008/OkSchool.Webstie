@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/lib/supabase";
 import { Link } from "wouter";
 import { API_BASE } from "@/lib/api";
-import Hero38 from "@/components/originkit/Hero38";
+import Hero38 from "@/components/originkit/hero-38";
 import { useSEO, documentUrl } from "@/lib/seo";
 
 const CATEGORIES = [
