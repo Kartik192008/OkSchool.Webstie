@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/lib/supabase";
 import { Link } from "wouter";
 import { API_BASE } from "@/lib/api";
-import { Boxes } from "@/components/ui/background-boxes";
 import { useSEO, documentUrl } from "@/lib/seo";
 
 const CATEGORIES = [
@@ -93,13 +92,10 @@ export function Home() {
 
   return (
     <div>
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-background px-4 py-16 text-center">
-        <div className="absolute inset-0">
-          <Boxes />
-        </div>
-        <div className="absolute inset-0 bg-background/70 dark:bg-background/80" />
-        <div className="relative z-10">
+  {/* Hero */}
+  <section className="relative overflow-hidden bg-transparent px-4 py-16 text-center">
+    <div className="absolute inset-0 bg-white/55 dark:bg-black/15" />
+    <div className="relative z-10">
           <h1 className="text-5xl md:text-6xl font-serif font-bold text-foreground leading-tight mb-4">
             Free notes &amp; projects<br />for every student.
           </h1>
