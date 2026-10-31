@@ -13,6 +13,7 @@ export interface MockTestInput {
   description: string;
   subject: string;
   section: string;
+  subsection?: string;
   duration: number;
   /** Marks for correct answer */
   correctMarks?: number;

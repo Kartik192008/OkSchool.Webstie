@@ -95,14 +95,14 @@ export function AdminDashboard() {
   const [editProductImage, setEditProductImage] = useState<File | null>(null);
 
   const [editMockId, setEditMockId] = useState<number | null>(null);
-  const [editMockForm, setEditMockForm] = useState<{ title: string; description: string; subject: string; section: string; duration: string; correctMarks: string; incorrectMarks: string; unattemptedMarks: string } | null>(null);
+  const [editMockForm, setEditMockForm] = useState<{ title: string; description: string; subject: string; section: string; subsection?: string; duration: string; correctMarks: string; incorrectMarks: string; unattemptedMarks: string } | null>(null);
   const [editMockQuestions, setEditMockQuestions] = useState<any[]>([]);
   const [editMockQuestionImages, setEditMockQuestionImages] = useState<Record<number, string>>({});
 
   // Add Document form state
   const [docForm, setDocForm] = useState({ title: "", description: "", category: "notes", price: "", thumbnailUrl: "" });
   const [amazonForm, setAmazonForm] = useState({ title: "", description: "", affiliateUrl: "", imageUrl: "", price: "" });
-  const [mockTestForm, setMockTestForm] = useState({ title: "", description: "", subject: "", section: "", duration: "30", correctMarks: "4", incorrectMarks: "-1", unattemptedMarks: "0" });
+  const [mockTestForm, setMockTestForm] = useState({ title: "", description: "", subject: "", section: "", subsection: "", duration: "30", correctMarks: "4", incorrectMarks: "-1", unattemptedMarks: "0" });
   const [jsonFile, setJsonFile] = useState<File | null>(null);
   const [parsedQuestions, setParsedQuestions] = useState<any[]>([]);
   const [questionImages, setQuestionImages] = useState<Record<number, string>>({});
@@ -410,6 +410,7 @@ export function AdminDashboard() {
       description: mockTestForm.description,
       subject: mockTestForm.subject,
       section: mockTestForm.section || "General",
+      subsection: mockTestForm.subsection || undefined,
       duration: parseInt(mockTestForm.duration, 10),
       correctMarks: parseInt(mockTestForm.correctMarks, 10) || 4,
       incorrectMarks: parseInt(mockTestForm.incorrectMarks, 10) || -1,
@@ -425,7 +426,7 @@ export function AdminDashboard() {
     }, {
       onSuccess: () => {
         toast({ title: "Mock test added!" });
-        setMockTestForm({ title: "", description: "", subject: "", section: "", duration: "30", correctMarks: "4", incorrectMarks: "-1", unattemptedMarks: "0" });
+        setMockTestForm({ title: "", description: "", subject: "", section: "", subsection: "", duration: "30", correctMarks: "4", incorrectMarks: "-1", unattemptedMarks: "0" });
         setJsonFile(null);
         setParsedQuestions([]);
         setQuestionImages({});
@@ -515,7 +516,7 @@ export function AdminDashboard() {
 
   const openEditMock = (test: any) => {
     setEditMockId(test.id);
-    setEditMockForm({ title: test.title, description: test.description ?? "", subject: test.subject, section: test.section, duration: String(test.duration), correctMarks: String(test.correctMarks), incorrectMarks: String(test.incorrectMarks), unattemptedMarks: String(test.unattemptedMarks) });
+    setEditMockForm({ title: test.title, description: test.description ?? "", subject: test.subject, section: test.section, subsection: test.subsection ?? undefined, duration: String(test.duration), correctMarks: String(test.correctMarks), incorrectMarks: String(test.incorrectMarks), unattemptedMarks: String(test.unattemptedMarks) });
     setEditMockQuestions(test.questions ?? []);
     setEditMockQuestionImages({});
   };
@@ -594,6 +595,7 @@ export function AdminDashboard() {
         description: editMockForm.description,
         subject: editMockForm.subject,
         section: editMockForm.section || "General",
+        subsection: editMockForm.subsection || undefined,
         duration: parseInt(editMockForm.duration, 10),
         correctMarks: parseInt(editMockForm.correctMarks, 10) || 4,
         incorrectMarks: parseInt(editMockForm.incorrectMarks, 10) || -1,
@@ -1053,6 +1055,15 @@ export function AdminDashboard() {
                     <datalist id="section-list">
                       {[...new Set((mockTests ?? []).map(t => t.section))].map(section => (
                         <option key={section} value={section} />
+                      ))}
+                    </datalist>
+                  </div>
+                  <div>
+                    <Label htmlFor="mt-subsection">Subsection / Chapter (Optional)</Label>
+                    <Input id="mt-subsection" list="subsection-list" placeholder="e.g. Thermodynamics, Organic Chemistry" value={mockTestForm.subsection} onChange={(e) => setMockTestForm((f) => ({ ...f, subsection: e.target.value }))} className="mt-1" />
+                    <datalist id="subsection-list">
+                      {[...new Set((mockTests ?? []).map(t => t.subsection).filter((s): s is string => !!s))].map(subsection => (
+                        <option key={subsection} value={subsection} />
                       ))}
                     </datalist>
                   </div>

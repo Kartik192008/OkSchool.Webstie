@@ -108,6 +108,7 @@ export interface MockTest {
   description: string;
   subject: string;
   section: string;
+  subsection?: string | null;
   /** Duration in minutes */
   duration: number;
   questionCount: number;
@@ -148,6 +149,7 @@ export interface MockTestInput {
   description: string;
   subject: string;
   section: string;
+  subsection?: string;
   duration: number;
   /** Marks for correct answer */
   correctMarks?: number;
@@ -163,6 +165,7 @@ export interface MockTestPatch {
   description?: string;
   subject?: string;
   section?: string;
+  subsection?: string | null;
   duration?: number;
   correctMarks?: number;
   incorrectMarks?: number;
@@ -176,6 +179,7 @@ export interface MockTestDetail {
   description: string;
   subject: string;
   section: string;
+  subsection?: string | null;
   /** Duration in minutes */
   duration: number;
   questionCount: number;
