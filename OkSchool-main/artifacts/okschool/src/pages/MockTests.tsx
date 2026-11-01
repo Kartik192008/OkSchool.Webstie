@@ -3,12 +3,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { useListMockTests } from "@workspace/api-client-react";
+import "@/styles/okschool-bg.css";
 
 export function MockTests() {
   const { data: tests, isLoading } = useListMockTests();
 
   return (
-    <div className="container mx-auto px-4 py-10">
+    <div className="okschool-bg">
+      <div className="container mx-auto px-4 py-10">
       <div className="mb-8">
         <h1 className="font-serif text-4xl font-bold text-foreground mb-2">Mock Tests</h1>
         <p className="text-muted-foreground">Practise with timed mock exams and get instant score reports.</p>
@@ -54,6 +56,7 @@ export function MockTests() {
           ))}
         </div>
       )}
+      </div>
     </div>
   );
 }
