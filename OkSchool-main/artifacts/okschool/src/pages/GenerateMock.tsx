@@ -115,8 +115,12 @@ export function GenerateMock() {
   const loadHistory = useCallback(async () => {
     const userId = await getUserId();
     if (!userId) return;
+    const { data: session } = await supabase.auth.getSession();
+    const token = session?.session?.access_token;
     try {
-      const res = await fetch(`${API_BASE}/api/mock-test/history/${encodeURIComponent(userId)}`);
+      const res = await fetch(`${API_BASE}/api/mock-test/history/${encodeURIComponent(userId)}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
       if (res.ok) setAttempts(await res.json());
     } catch {
       setAttempts([]);
@@ -190,16 +194,19 @@ export function GenerateMock() {
     setParsedQuestions((prev) => prev.map((q, i) => (i === index ? { ...q, hasImage: false, imageUrl: null } : q)));
   };
 
-  const postMockTest = async (payload: unknown, attempts = 2): Promise<Response> => {
+  const postMockTest = async (payload: unknown, token: string, attempts = 2): Promise<Response> => {
     const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
     for (let attempt = 1; attempt <= attempts; attempt++) {
       try {
-        const res = await fetch(`${API_BASE}/api/mock-tests/user`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
+      const res = await fetch(`${API_BASE}/api/mock-tests/user`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
         // Render free-tier services spin down; a cold start answers 502/503/504.
         // Retry once so the first request after idle can succeed.
         if (res.ok || ![502, 503, 504].includes(res.status) || attempt === attempts) {
@@ -223,6 +230,9 @@ export function GenerateMock() {
         setLocation("/login");
         return;
       }
+
+      const { data: session } = await supabase.auth.getSession();
+      const token = session?.session?.access_token;
 
       if (parsedQuestions.length === 0) {
         toast({ title: "Questions JSON file is required", variant: "destructive" });
@@ -268,7 +278,7 @@ export function GenerateMock() {
         incorrectMarks: parseInt(form.incorrectMarks, 10) || -1,
         unattemptedMarks: parseInt(form.unattemptedMarks, 10) || 0,
         questions,
-      });
+      }, token!);
 
       if (!res.ok) {
         let detail = `Request failed with status ${res.status}`;
