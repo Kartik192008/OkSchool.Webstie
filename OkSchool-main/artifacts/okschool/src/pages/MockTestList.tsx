@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import { useListMockTests } from "@workspace/api-client-react";
-import "@/styles/okschool-bg.css";
 
 export function MockTestList() {
   const { data: tests, isLoading } = useListMockTests({
@@ -14,15 +13,13 @@ export function MockTestList() {
 
   if (isLoading) {
     return (
-      <div className="okschool-bg">
-        <div className="container mx-auto px-4 py-10">
-          <div className="animate-pulse space-y-4 max-w-4xl mx-auto">
-            <div className="h-8 bg-muted rounded w-1/3" />
-            <div className="space-y-4">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="h-32 bg-muted rounded-lg" />
-              ))}
-            </div>
+      <div className="container mx-auto px-4 py-10">
+        <div className="animate-pulse space-y-4 max-w-4xl mx-auto">
+          <div className="h-8 bg-muted rounded w-1/3" />
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-32 bg-muted rounded-lg" />
+            ))}
           </div>
         </div>
       </div>
@@ -31,16 +28,14 @@ export function MockTestList() {
 
   if (!tests || tests.length === 0) {
     return (
-      <div className="okschool-bg">
-        <div className="container mx-auto px-4 py-10">
-          <div className="max-w-4xl mx-auto">
-            <h1 className="font-serif text-3xl font-bold mb-2">Mock Tests</h1>
-            <p className="text-muted-foreground mb-8">Practice with our comprehensive mock tests designed to simulate real exam conditions.</p>
-            <div className="bg-card border border-card-border rounded-xl p-12 text-center">
-              <FileText className="h-16 w-16 text-muted-foreground/40 mx-auto mb-4" />
-              <h2 className="font-serif text-xl font-semibold mb-2">No Mock Tests Available</h2>
-              <p className="text-muted-foreground">Check back later for new practice tests.</p>
-            </div>
+      <div className="container mx-auto px-4 py-10">
+        <div className="max-w-4xl mx-auto">
+          <h1 className="font-serif text-3xl font-bold mb-2">Mock Tests</h1>
+          <p className="text-muted-foreground mb-8">Practice with our comprehensive mock tests designed to simulate real exam conditions.</p>
+          <div className="bg-card border border-card-border rounded-xl p-12 text-center">
+            <FileText className="h-16 w-16 text-muted-foreground/40 mx-auto mb-4" />
+            <h2 className="font-serif text-xl font-semibold mb-2">No Mock Tests Available</h2>
+            <p className="text-muted-foreground">Check back later for new practice tests.</p>
           </div>
         </div>
       </div>
@@ -59,9 +54,8 @@ export function MockTestList() {
   if (selectedSection) {
     const sectionTests = grouped[selectedSection] || [];
     return (
-      <div className="okschool-bg">
-        <div className="container mx-auto px-4 py-10 max-h-[calc(100dvh-160px)] overflow-y-auto">
-          <div className="max-w-4xl mx-auto">
+      <div className="container mx-auto px-4 py-10 max-h-[calc(100dvh-160px)] overflow-y-auto">
+        <div className="max-w-4xl mx-auto">
             <button onClick={() => setSelectedSection(null)} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4 transition-colors">
               <ChevronLeft className="h-4 w-4" /> All Sections
             </button>
@@ -98,13 +92,11 @@ export function MockTestList() {
             </div>
           </div>
         </div>
-      </div>
     );
   }
 
   return (
-    <div className="okschool-bg">
-      <div className="container mx-auto px-4 py-10 max-h-[calc(100dvh-160px)] overflow-y-auto">
+    <div className="container mx-auto px-4 py-10 max-h-[calc(100dvh-160px)] overflow-y-auto">
         <div className="max-w-4xl mx-auto">
           <h1 className="font-serif text-3xl font-bold mb-2">Mock Tests</h1>
           <p className="text-muted-foreground mb-8">Choose your exam section to see available mock tests.</p>
@@ -127,6 +119,5 @@ export function MockTestList() {
           </div>
         </div>
       </div>
-    </div>
   );
 }
