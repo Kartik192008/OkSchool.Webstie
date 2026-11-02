@@ -49,7 +49,7 @@ export function MockTestResults({ test, questionStates, timeTaken }: MockTestRes
       {/* Score Summary */}
       <div className="bg-card border border-card-border rounded-xl p-8 mb-6">
         <h1 className="font-serif text-3xl font-bold mb-6">Test Results</h1>
-        
+
         <div className="grid md:grid-cols-4 gap-4 mb-6">
           <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
             <div className="text-3xl font-bold text-green-700">{totalScore}</div>
@@ -63,7 +63,7 @@ export function MockTestResults({ test, questionStates, timeTaken }: MockTestRes
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
             <div className="text-3xl font-bold text-red-700">{incorrect}</div>
             <div className="text-sm text-red-600">Incorrect</div>
-                  <div className="text-xs text-red-500 mt-1">({incorrectMarks >= 0 ? '+' : ''}{incorrectMarks} each)</div>
+            <div className="text-xs text-red-500 mt-1">({incorrectMarks >= 0 ? "+" : ""}{incorrectMarks} each)</div>
           </div>
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-center">
             <div className="text-3xl font-bold text-gray-700">{unattempted}</div>
@@ -85,7 +85,7 @@ export function MockTestResults({ test, questionStates, timeTaken }: MockTestRes
       {/* Question Breakdown */}
       <div className="bg-card border border-card-border rounded-xl p-6">
         <h2 className="font-semibold text-lg mb-4">Question Breakdown</h2>
-        
+
         <div className="space-y-4">
           {test.questions.map((question: any, index: number) => {
             const state = questionStates[index];
@@ -127,7 +127,7 @@ export function MockTestResults({ test, questionStates, timeTaken }: MockTestRes
                   {["A", "B", "C", "D"].map((option) => {
                     const isSelected = state.selectedOption === option;
                     const isCorrectOption = question.correctAnswer === option;
-                    
+
                     return (
                       <div
                         key={option}
@@ -158,6 +158,12 @@ export function MockTestResults({ test, questionStates, timeTaken }: MockTestRes
             );
           })}
         </div>
+      </div>
+
+      <div className="mt-8 flex gap-3 justify-center">
+        <Link href="/generate-mock">
+          <Button>Back to Library</Button>
+        </Link>
       </div>
     </div>
   );

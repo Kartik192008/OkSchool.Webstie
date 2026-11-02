@@ -231,9 +231,14 @@ export function MockTestExam() {
             answers[index] = state.selectedOption;
           });
           const timeTaken = (test.duration ?? 30) * 60 - timeLeft;
+          const { data: session } = await supabase.auth.getSession();
+          const token = session?.session?.access_token;
           await fetch(`${API_BASE}/api/mock-test/results`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+              "Content-Type": "application/json",
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
             body: JSON.stringify({ userId, mockTestId: test.id, score, maxScore, correct, incorrect, unattempted, timeTaken, answers }),
           });
         }
