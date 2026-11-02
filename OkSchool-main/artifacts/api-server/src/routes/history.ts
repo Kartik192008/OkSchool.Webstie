@@ -1,7 +1,7 @@
 import { Router, type IRouter } from "express";
 import { requireAuth } from "../lib/auth";
 import { eq, desc } from "drizzle-orm";
-import { db, mockTestResultsTable, mockTestsTable, paymentsTable, documentsTable } from "@workspace/db";
+import { db, mockTestResultsTable, mockTestsTable, paymentsTable, documentsTable, questionsTable } from "@workspace/db";
 
 const router: IRouter = Router();
 
@@ -99,6 +99,52 @@ router.post("/mock-test/results", requireAuth, async (req, res): Promise<void> =
   } catch (err) {
     console.error("Failed to save mock test result:", err);
     res.status(500).json({ error: "Failed to save result" });
+  }
+});
+
+router.get("/mock-test/results/:resultId", requireAuth, async (req, res): Promise<void> => {
+  try {
+    const resultId = Number(req.params.resultId);
+    if (!resultId) {
+      res.status(400).json({ error: "resultId is required" });
+      return;
+    }
+
+    const [result] = await db
+      .select()
+      .from(mockTestResultsTable)
+      .where(eq(mockTestResultsTable.id, resultId));
+
+    if (!result) {
+      res.status(404).json({ error: "Result not found" });
+      return;
+    }
+
+    if (String(result.userId) !== req.user?.id) {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
+
+    const [test] = await db
+      .select()
+      .from(mockTestsTable)
+      .where(eq(mockTestsTable.id, result.mockTestId));
+
+    if (!test) {
+      res.status(404).json({ error: "Mock test not found" });
+      return;
+    }
+
+    const questions = await db
+      .select()
+      .from(questionsTable)
+      .where(eq(questionsTable.mockTestId, test.id))
+      .orderBy(questionsTable.id);
+
+    res.json({ result, test: { ...test, questions } });
+  } catch (err) {
+    console.error("Failed to fetch mock test result:", err);
+    res.status(500).json({ error: "Failed to fetch result" });
   }
 });
 

@@ -20,6 +20,7 @@ import { StudyMaterialDetail } from "./pages/StudyMaterialDetail";
 import { MockTestList } from "./pages/MockTestList";
 import { MockTestExam } from "./pages/MockTestExam";
 import { MockTestHistory } from "./pages/MockTestHistory";
+import { MockTestResultView } from "./pages/MockTestResultView";
 import { PurchaseHistory } from "./pages/PurchaseHistory";
 import { AmazonStore } from "./pages/AmazonStore";
 import { SearchResults } from "./pages/SearchResults";
@@ -74,6 +75,9 @@ function Router() {
       </Route>
       <Route path="/mock-test/:id">
         <PublicLayout><MockTestExam /></PublicLayout>
+      </Route>
+      <Route path="/mock-test/results/:id">
+        <ProtectedRoute><PublicLayout><MockTestResultView /></PublicLayout></ProtectedRoute>
       </Route>
       <Route path="/mock-tests">
         <ProtectedRoute><PublicLayout><MockTestList /></PublicLayout></ProtectedRoute>

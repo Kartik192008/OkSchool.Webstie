@@ -311,7 +311,12 @@ export function GenerateMock() {
   const handleDelete = async (id: number) => {
     if (!confirm("Delete this mock test? This cannot be undone.")) return;
     try {
-      const res = await fetch(`${API_BASE}/api/mock-tests/user/${id}`, { method: "DELETE" });
+      const { data: session } = await supabase.auth.getSession();
+      const token = session?.session?.access_token;
+      const res = await fetch(`${API_BASE}/api/mock-tests/user/${id}`, {
+        method: "DELETE",
+        ...(token ? { headers: { Authorization: `Bearer ${token}` } } : {}),
+      });
       if (!res.ok) throw new Error("Failed to delete");
       setMocks((prev) => prev.filter((m) => m.id !== id));
       toast({ title: "Mock test deleted" });
@@ -542,7 +547,7 @@ export function GenerateMock() {
                   myAttempts.map((a) => (
                     <tr key={a.id} className="hover:bg-muted/30">
                       <td className="px-4 py-3">
-                        <Link href={`/mock-test/${a.mockTestId}`} className="font-medium text-foreground hover:text-primary">{a.title || `Mock #${a.mockTestId}`}</Link>
+                        <Link href={`/mock-test/results/${a.id}`} className="font-medium text-foreground hover:text-primary">{a.title || `Mock #${a.mockTestId}`}</Link>
                       </td>
                       <td className="px-4 py-3">
                         <span className="font-medium">{a.score}</span>
