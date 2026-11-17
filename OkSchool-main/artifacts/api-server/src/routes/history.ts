@@ -130,18 +130,15 @@ router.get("/mock-test/results/:resultId", requireAuth, async (req, res): Promis
       .from(mockTestsTable)
       .where(eq(mockTestsTable.id, result.mockTestId));
 
-    if (!test) {
-      res.status(404).json({ error: "Mock test not found" });
-      return;
-    }
+    const questions = test
+      ? await db
+          .select()
+          .from(questionsTable)
+          .where(eq(questionsTable.mockTestId, test.id))
+          .orderBy(questionsTable.id)
+      : [];
 
-    const questions = await db
-      .select()
-      .from(questionsTable)
-      .where(eq(questionsTable.mockTestId, test.id))
-      .orderBy(questionsTable.id);
-
-    res.json({ result, test: { ...test, questions } });
+    res.json({ result, test: test ? { ...test, questions } : null });
   } catch (err) {
     console.error("Failed to fetch mock test result:", err);
     res.status(500).json({ error: "Failed to fetch result" });

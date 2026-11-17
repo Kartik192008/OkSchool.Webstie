@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { Clock, Trophy, FileText, Calendar } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/lib/supabase";
 import { API_BASE } from "@/lib/api";
@@ -84,7 +83,8 @@ export function MockTestHistory() {
       ) : (
         <div className="space-y-4">
           {history.map((item) => (
-            <div key={item.id} className="bg-card border border-card-border rounded-xl p-5 hover:shadow-md transition-shadow">
+            <Link key={item.id} href={`/mock-test/results/${item.id}`} className="block">
+              <div className="bg-card border border-card-border rounded-xl p-5 hover:shadow-md transition-shadow cursor-pointer">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex-1">
                   <h3 className="font-semibold text-lg">{item.title}</h3>
@@ -103,7 +103,7 @@ export function MockTestHistory() {
                   <Trophy className={`h-8 w-8 ${item.score >= item.maxScore * 0.7 ? "text-yellow-500" : item.score >= item.maxScore * 0.4 ? "text-gray-400" : "text-red-400"}`} />
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}

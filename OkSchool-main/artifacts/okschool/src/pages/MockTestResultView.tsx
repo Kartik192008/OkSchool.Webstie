@@ -69,17 +69,18 @@ export function MockTestResultView() {
   const { result, test } = data!;
   const { correct, incorrect, unattempted, totalScore, maxScore, correctMarks, incorrectMarks, unattemptedMarks } = (() => {
     let c = 0, i = 0, u = 0;
-    test.questions.forEach((question: any, index: number) => {
+    const questions = test?.questions ?? [];
+    questions.forEach((question: any, index: number) => {
       const state = (result.answers || {})[index];
       if (!state) { u++; }
       else if (state === question.correctAnswer) { c++; }
       else { i++; }
     });
-    const cm = test.correctMarks ?? 4;
-    const im = test.incorrectMarks ?? -1;
-    const um = test.unattemptedMarks ?? 0;
+    const cm = test?.correctMarks ?? 4;
+    const im = test?.incorrectMarks ?? -1;
+    const um = test?.unattemptedMarks ?? 0;
     const total = (c * cm) + (i * im) + (u * um);
-    return { correct: c, incorrect: i, unattempted: u, totalScore: total, maxScore: test.questions.length * cm, correctMarks: cm, incorrectMarks: im, unattemptedMarks: um };
+    return { correct: c, incorrect: i, unattempted: u, totalScore: total, maxScore: questions.length * cm, correctMarks: cm, incorrectMarks: im, unattemptedMarks: um };
   })();
 
   const formatTime = (seconds: number) => {
@@ -129,7 +130,7 @@ export function MockTestResultView() {
             <span>Time Taken: {formatTime(result.timeTaken)}</span>
           </div>
           <div className="flex items-center gap-2">
-            <span>Duration: {test.duration} minutes</span>
+            <span>Duration: {test?.duration ?? "—"} minutes</span>
           </div>
           <div className="flex items-center gap-2">
             <span>Date: {new Date(result.createdAt).toLocaleDateString()}</span>
@@ -142,7 +143,7 @@ export function MockTestResultView() {
         <h2 className="font-semibold text-lg mb-4">Question Breakdown</h2>
 
         <div className="space-y-4">
-          {test.questions.map((question: any, index: number) => {
+          {(test?.questions ?? []).map((question: any, index: number) => {
             const selectedOption = (result.answers || {})[index] || null;
             const isCorrect = selectedOption === question.correctAnswer;
             const isAttempted = selectedOption !== null;
