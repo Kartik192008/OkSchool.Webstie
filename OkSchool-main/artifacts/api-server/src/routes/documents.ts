@@ -184,10 +184,11 @@ router.get("/documents/:id/download", async (req, res): Promise<void> => {
       return;
     }
 
-    // Paid material: require a verified, paying user.
+    // Paid material: require a verified, paying user for PDF downloads.
+    // Word files are publicly downloadable once uploaded via admin.
     // Token may come from the Authorization header or a ?token= query param
     // (needed for iframe/new-tab previews which cannot send custom headers).
-    if (!doc.isFree && fileType !== "thumbnail") {
+    if (!doc.isFree && fileType === "pdf") {
       const header = String(req.headers?.authorization || "");
       let token = header.startsWith("Bearer ") ? header.slice(7).trim() : null;
       if (!token) {
