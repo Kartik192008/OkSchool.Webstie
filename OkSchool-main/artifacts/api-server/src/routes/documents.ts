@@ -44,7 +44,7 @@ router.get("/documents", async (req, res): Promise<void> => {
 
   const docs = await query.orderBy(documentsTable.createdAt);
   const safe = docs.map((d: any) => {
-    const { fileUrl, wordFileUrl, ...rest } = d;
+    const { fileUrl, ...rest } = d;
     return rest;
   });
   res.json(safe);
@@ -184,11 +184,11 @@ router.get("/documents/:id/download", async (req, res): Promise<void> => {
       return;
     }
 
-    // Paid material: require a verified, paying user for PDF downloads.
-    // Word files are publicly downloadable once uploaded via admin.
+    // Paid material: require a verified, paying user for Word downloads.
+    // PDF downloads are free for everyone.
     // Token may come from the Authorization header or a ?token= query param
     // (needed for iframe/new-tab previews which cannot send custom headers).
-    if (!doc.isFree && fileType === "pdf") {
+    if (!doc.isFree && fileType === "word") {
       const header = String(req.headers?.authorization || "");
       let token = header.startsWith("Bearer ") ? header.slice(7).trim() : null;
       if (!token) {
