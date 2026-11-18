@@ -7,6 +7,20 @@ import { db } from "@workspace/db";
  * executed by the server), so this runs idempotent DDL on boot.
  */
 const ensureStatements = [
+  `CREATE TABLE IF NOT EXISTS "mock_test_results" (
+    "id" serial PRIMARY KEY,
+    "user_id" text NOT NULL,
+    "mock_test_id" integer NOT NULL,
+    "score" integer NOT NULL,
+    "max_score" integer NOT NULL,
+    "correct" integer NOT NULL,
+    "incorrect" integer NOT NULL,
+    "unattempted" integer NOT NULL,
+    "time_taken" integer NOT NULL,
+    "answers" jsonb NOT NULL DEFAULT '{}',
+    "created_at" timestamp NOT NULL DEFAULT NOW()
+  )`,
+
   `ALTER TABLE "mock_tests" ADD COLUMN IF NOT EXISTS "user_id" text`,
   `ALTER TABLE "mock_tests" ADD COLUMN IF NOT EXISTS "section" text`,
   `ALTER TABLE "mock_tests" ADD COLUMN IF NOT EXISTS "subsection" text`,
