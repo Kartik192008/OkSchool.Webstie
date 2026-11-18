@@ -103,6 +103,7 @@ export function MockTestHistory() {
                   <Trophy className={`h-8 w-8 ${item.score >= item.maxScore * 0.7 ? "text-yellow-500" : item.score >= item.maxScore * 0.4 ? "text-gray-400" : "text-red-400"}`} />
                 </div>
               </div>
+            </div>
             </Link>
           ))}
         </div>
