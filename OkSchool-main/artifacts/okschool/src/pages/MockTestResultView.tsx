@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "wouter";
-import { CheckCircle, XCircle, Clock, ArrowLeft } from "lucide-react";
+import { CheckCircle, XCircle, Clock, ArrowLeft, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
@@ -99,6 +99,14 @@ export function MockTestResultView() {
           </Button>
         </Link>
         <h1 className="font-serif text-3xl font-bold">Test Results</h1>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => window.print()}
+          className="print:hidden"
+        >
+          <Printer className="h-4 w-4 mr-1" /> Print / Save as PDF
+        </Button>
       </div>
 
       {/* Score Summary */}
@@ -216,5 +224,97 @@ export function MockTestResultView() {
         </div>
       </div>
     </div>
+
+    {/* Answer Key — print only */}
+    <div className="print-only mt-8 page-break-before">
+      <h2 className="font-serif text-2xl font-bold text-center mb-6 border-t pt-6">Answer Key</h2>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 text-sm">
+        {(test?.questions ?? []).map((question: any, index: number) => (
+          <div key={index} className="p-3 border rounded-lg bg-white">
+            <div className="font-semibold text-gray-800 mb-1">Q{index + 1}</div>
+            <div className="text-green-700 font-medium">
+              Answer: {question.correctAnswer}
+            </div>
+            {question.solution && (
+              <div className="mt-2 text-xs text-gray-600">
+                {question.solution}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {/* Print styles */}
+    <style jsx>{`
+      @media print {
+        .print\\:hidden { display: none !important; }
+        .print-only { display: block !important; }
+        .page-break-before { page-break-before: always; }
+        
+        @page {
+          size: A4;
+          margin: 1.5cm;
+        }
+        
+        body {
+          font-size: 11pt;
+          line-height: 1.4;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+        
+        .container {
+          max-width: none !important;
+          padding: 0 !important;
+          margin: 0 !important;
+        }
+        
+        .bg-card, .bg-green-50, .bg-blue-50, .bg-red-50, .bg-gray-50, .bg-muted {
+          background: white !important;
+          border-color: #e5e7eb !important;
+          box-shadow: none !important;
+        }
+        
+        .border-green-200 { border-color: #86efac !important; }
+        .border-red-200 { border-color: #fca5a5 !important; }
+        .border-blue-200 { border-color: #93c5fd !important; }
+        .border-gray-200 { border-color: #d1d5db !important; }
+        
+        .text-green-700 { color: #15803d !important; }
+        .text-red-700 { color: #b91c1c !important; }
+        .text-blue-700 { color: #1d4ed8 !important; }
+        .text-gray-700 { color: #374151 !important; }
+        .text-green-600 { color: #16a34a !important; }
+        .text-red-600 { color: #dc2626 !important; }
+        .text-blue-600 { color: #2563eb !important; }
+        .text-gray-600 { color: #4b5563 !important; }
+        
+        .bg-green-100 { background-color: #dcfce7 !important; }
+        .bg-red-100 { background-color: #fee2e2 !important; }
+        .bg-blue-100 { background-color: #dbeafe !important; }
+        
+        .border-green-300 { border-color: #86efac !important; }
+        .border-red-300 { border-color: #fca5a5 !important; }
+        
+        .grid { display: grid !important; }
+        .md\\:grid-cols-4 { grid-template-columns: repeat(4, 1fr) !important; }
+        .sm\\:grid-cols-2 { grid-template-columns: repeat(2, 1fr) !important; }
+        .lg\\:grid-cols-4 { grid-template-columns: repeat(4, 1fr) !important; }
+        
+        img { max-width: 100% !important; page-break-inside: avoid; }
+        
+        .space-y-4 > * + * { margin-top: 0.5rem !important; }
+        
+        h1, h2 { page-break-after: avoid; }
+        
+        .print-only { display: block !important; }
+      }
+      
+      @media screen {
+        .print-only { display: none !important; }
+      }
+    `}</style>
+  </div>
   );
 }
