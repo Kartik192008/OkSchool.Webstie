@@ -221,8 +221,7 @@ export function MockTestResultView() {
               </div>
             );
           })}
-        </div>
-      </div>
+</div>
     </div>
 
     <div className="print-only mt-8 page-break-before">
