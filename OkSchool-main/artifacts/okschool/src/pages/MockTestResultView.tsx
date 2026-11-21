@@ -244,5 +244,6 @@ export function MockTestResultView() {
         ))}
       </div>
     </div>
+  </div>
   );
 }
