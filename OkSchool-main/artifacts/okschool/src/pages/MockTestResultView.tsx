@@ -225,7 +225,6 @@ export function MockTestResultView() {
       </div>
     </div>
 
-    {/* Answer Key — print only */}
     <div className="print-only mt-8 page-break-before">
       <h2 className="font-serif text-2xl font-bold text-center mb-6 border-t pt-6">Answer Key</h2>
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 text-sm">
