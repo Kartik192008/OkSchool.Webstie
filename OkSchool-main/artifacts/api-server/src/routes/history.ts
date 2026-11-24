@@ -24,6 +24,7 @@ router.get("/mock-test/history/:userId", requireAuth, async (req, res): Promise<
         unattempted: mockTestResultsTable.unattempted,
         timeTaken: mockTestResultsTable.timeTaken,
         createdAt: mockTestResultsTable.createdAt,
+        isUserGenerated: mockTestsTable.isUserGenerated,
       })
       .from(mockTestResultsTable)
       .leftJoin(mockTestsTable, eq(mockTestResultsTable.mockTestId, mockTestsTable.id))
